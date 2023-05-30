@@ -1,5 +1,6 @@
 package net.microfalx.lang;
 
+import java.util.Objects;
 import java.util.StringTokenizer;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
@@ -53,6 +54,117 @@ public class StringUtils {
     public static String defaultIfNull(String value, String defaultValue) {
         return value == null ? defaultValue : value;
     }
+
+    /**
+     * Converts a String to an identifier.
+     * <p>
+     * The identifier contains only chars, digits and "_".
+     *
+     * @param value the String value
+     * @return the id
+     */
+    @SuppressWarnings("Duplicates")
+    public static String toIdentifier(String value) {
+        return toIdentifier(value, false);
+    }
+
+    /**
+     * Converts a string to lower case.
+     *
+     * @param value the value, can be null
+     * @return the string lower case
+     */
+    public static String toLowerCase(String value) {
+        return value != null ? value.toLowerCase() : null;
+    }
+
+    /**
+     * Converts a string to upper case.
+     *
+     * @param value the value, can be null
+     * @return the string upper case
+     */
+    public static String toUpperCase(String value) {
+        return value != null ? value.toUpperCase() : null;
+    }
+
+    /**
+     * Returns a string containing the same character Nth times.
+     *
+     * @param c      the character
+     * @param length the number of characters
+     * @return a non-null instance
+     */
+    public static String getStringOfChar(char c, int length) {
+        StringBuilder buffer = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            buffer.append(c);
+        }
+        return buffer.toString();
+    }
+
+    /**
+     * Returns whether these two strings are equal (case sensitive).
+     *
+     * @param a the first string
+     * @param b the seconds string
+     * @return <code>true</code> if equal, <code>false</code> otherwise
+     */
+    public static boolean equals(String a, String b) {
+        return Objects.equals(a, b);
+    }
+
+    /**
+     * Returns whether these two strings are equal (case insensitive).
+     *
+     * @param a the first string
+     * @param b the seconds string
+     * @return <code>true</code> if equal, <code>false</code> otherwise
+     */
+    public static boolean equalsIgnoreCase(String a, String b) {
+        return a == b || (a != null && a.equalsIgnoreCase(b));
+    }
+
+    /**
+     * Converts a value to a boolean.
+     * <p>
+     * A null value or a rule mismatch will result in using the default value
+     * <p>
+     * The following values are considered <code>true</code>
+     * - any number <> 0
+     * - a boolean object with value TRUE
+     * - a string = "true","yes","y", "t","on","1"
+     * The following values are considered <code>false</code>
+     * - any number = 0
+     * - a boolean object with value FALSE
+     * - a string = "false","no","n","f","off","0"
+     *
+     * @param value        the value
+     * @param defaultValue the default value when null or no rule is matched
+     * @return the boolean value
+     */
+    public static boolean asBoolean(Object value, boolean defaultValue) {
+        if (value == null) {
+            return defaultValue;
+        }
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        } else if (value instanceof Number) {
+            return ((Number) value).intValue() != 0;
+        } else {
+            String valueAsString = value.toString();
+            if ("y".equalsIgnoreCase(valueAsString) || "yes".equalsIgnoreCase(valueAsString) || "on".equalsIgnoreCase(valueAsString)
+                    || "true".equalsIgnoreCase(valueAsString) || "t".equalsIgnoreCase(valueAsString) || "1".equalsIgnoreCase(valueAsString)) {
+                return true;
+            } else if ("n".equalsIgnoreCase(valueAsString) || "no".equalsIgnoreCase(valueAsString) || "off".equalsIgnoreCase(valueAsString)
+                    || "false".equalsIgnoreCase(valueAsString) || "f".equalsIgnoreCase(valueAsString) || "0".equalsIgnoreCase(valueAsString)) {
+                return false;
+            } else {
+                return defaultValue;
+            }
+        }
+    }
+
 
     /**
      * Converts a String to an identifier.
@@ -122,7 +234,6 @@ public class StringUtils {
         if (c == '/' || c == '\\') return value.substring(1);
         return value;
     }
-
 
 
     /**

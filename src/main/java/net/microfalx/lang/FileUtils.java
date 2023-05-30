@@ -1,5 +1,9 @@
 package net.microfalx.lang;
 
+import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
+
 import static net.microfalx.lang.StringUtils.isEmpty;
 
 /**
@@ -48,5 +52,36 @@ public class FileUtils {
         if (index == -1) index = path.lastIndexOf('\\');
         if (index == -1) return null;
         return path.substring(0, index);
+    }
+
+    /**
+     * Returns the content type for a given file name.
+     *
+     * @param fileName the file name
+     * @return the content type
+     */
+    public static String getContentType(String fileName) {
+        fileName = FileUtils.getFileName(fileName).toLowerCase();
+
+        for (Map.Entry<String, String> entry : mimeTypes.entrySet()) {
+            if (fileName.endsWith(entry.getKey())) {
+                return entry.getValue();
+            }
+        }
+        return URLConnection.guessContentTypeFromName(fileName);
+    }
+
+
+    private static final Map<String, String> mimeTypes = new HashMap<>();
+
+    static {
+        mimeTypes.put(".json", "application/json");
+        mimeTypes.put(".css", "text/css");
+        mimeTypes.put(".js", "text/javascript");
+        mimeTypes.put(".eot", "application/vnd.ms-fontobject");
+        mimeTypes.put(".ttf", "application/x-font-ttf");
+        mimeTypes.put(".otf", "application/x-font-opentype");
+        mimeTypes.put(".woff", "application/x-font-woff");
+        mimeTypes.put(".woff2", "application/x-font-woff2");
     }
 }

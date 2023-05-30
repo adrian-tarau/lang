@@ -53,4 +53,14 @@ public class ObjectUtils {
     public static <T> T defaultIfNull(T value, T defaultValue) {
         return value == null ? defaultValue : value;
     }
+
+    /**
+     * Converts an object to its string representation.
+     *
+     * @param value the value
+     * @return the string representation, null if the object is null
+     */
+    public static String toString(Object value) {
+        return value != null ? value.toString() : null;
+    }
 }
