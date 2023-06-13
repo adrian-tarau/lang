@@ -203,20 +203,52 @@ public class StringUtils {
     }
 
     /**
+     * Joins an array of strings.
+     *
+     * @param glue  the string
+     * @param parts the delimiters
+     * @return a non-null instance
+     * @see #split(String, String, boolean)
+     */
+    public static String join(String glue, String... parts) {
+        StringBuilder builder = new StringBuilder(100);
+        for (String part : parts) {
+            if (builder.length() > 0) builder.append(glue);
+            builder.append(part);
+        }
+        return builder.toString();
+    }
+
+    /**
      * Splits a string using a list of delimiters.
+     * <p>
+     * The method automatically trims the tokens.
      *
      * @param string the string
      * @param delims the delimiters
      * @return a non-null instance
+     * @see #split(String, String, boolean)
      */
     public static String[] split(String string, String delims) {
+        return split(string, delims, true);
+    }
+
+    /**
+     * Splits a string using a list of delimiters.
+     *
+     * @param string the string
+     * @param delims the delimiters
+     * @param trim   {@code true} to trim the tokens, {@code false} otherwise
+     * @return a non-null instance
+     */
+    public static String[] split(String string, String delims, boolean trim) {
         if (string == null) return EMPTY_STRING_ARRAY;
         StringTokenizer st = new StringTokenizer(string, delims, false);
         String[] values = new String[st.countTokens()];
         int index = 0;
         while (st.hasMoreElements()) {
             String value = (String) st.nextElement();
-            values[index++] = value;
+            values[index++] = trim ? value.trim() : value;
         }
 
         return values;

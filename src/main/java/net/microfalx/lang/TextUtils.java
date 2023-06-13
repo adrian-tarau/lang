@@ -9,6 +9,10 @@ import java.io.StringReader;
  */
 public class TextUtils {
 
+    public static final int SMALL_INDENT = 2;
+    public static final int MEDIUM_INDENT = 4;
+    public static final int LARGE_INDENT = 8;
+
     /**
      * Inserts a given number of spaces in front of each line
      *
