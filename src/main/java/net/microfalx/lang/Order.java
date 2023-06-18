@@ -22,7 +22,7 @@ public @interface Order {
      *
      * @return a positive integer
      */
-    int value();
+    int value() default NORMAL;
 
     /**
      * A predefined order (large negative value) which puts the element before all elements. Should be used as a "process" and ideally only one such item

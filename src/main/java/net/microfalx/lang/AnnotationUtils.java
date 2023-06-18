@@ -5,6 +5,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.List;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 
@@ -174,6 +175,22 @@ public class AnnotationUtils {
             clazz = clazz.getSuperclass();
         }
         return null;
+    }
+
+    /**
+     * Sorts the items by their order.
+     *
+     * @param items the items to sort
+     * @param <T>   the item type
+     * @see Order
+     */
+    public static <T> void sort(List<T> items) {
+        ArgumentUtils.requireNonNull(items);
+        items.sort((o1, o2) -> {
+            Order order1 = getAnnotation(o1, Order.class);
+            Order order2 = getAnnotation(o2, Order.class);
+            return Integer.compare(order1.value(), order2.value());
+        });
     }
 
 
