@@ -1,4 +1,4 @@
-package net.microfalx.lang;
+package net.microfalx.lang.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;

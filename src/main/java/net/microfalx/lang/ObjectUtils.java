@@ -9,6 +9,8 @@ import java.util.Map;
  */
 public class ObjectUtils {
 
+    public static final Object[] EMPTY_ARRAY = new Object[0];
+
     /**
      * Returns if the object is "empty": a null object, an empty string({@link CharSequence}) or an empty collection.
      * Any other object type returns false(object not "empty")

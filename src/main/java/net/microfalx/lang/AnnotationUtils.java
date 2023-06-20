@@ -1,5 +1,10 @@
 package net.microfalx.lang;
 
+import net.microfalx.lang.annotation.Glue;
+import net.microfalx.lang.annotation.Id;
+import net.microfalx.lang.annotation.Name;
+import net.microfalx.lang.annotation.Order;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
