@@ -1,6 +1,7 @@
 package net.microfalx.lang;
 
 import java.util.Objects;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
@@ -253,6 +254,25 @@ public class StringUtils {
         }
 
         return values;
+    }
+
+    /**
+     * Returns a maximum number of lines out of a text.
+     *
+     * @param text         the text
+     * @param maximumLines the maximum number of lines, -1 for automatic
+     * @return the lines
+     */
+    public static String getMaximumLines(String text, int maximumLines) {
+        if (maximumLines <= 0) return text;
+        StringBuilder builder = new StringBuilder();
+        try (Scanner sc = new Scanner(text)) {
+            while (sc.hasNextLine() && maximumLines-- > 0) {
+                if (builder.length() > 0) builder.append("\n");
+                builder.append(sc.nextLine());
+            }
+        }
+        return builder.toString();
     }
 
     /**

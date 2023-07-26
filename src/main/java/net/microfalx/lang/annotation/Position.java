@@ -4,12 +4,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Specify the position (within a parent/visual element/etc) for the annotated element.
  */
-@Target({FIELD})
+@Target({FIELD, METHOD})
 @Retention(RUNTIME)
 public @interface Position {
 
