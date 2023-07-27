@@ -17,6 +17,7 @@ import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 /**
  * Utilities around annotations.
  */
+@Order
 public class AnnotationUtils {
 
     /**
@@ -193,7 +194,9 @@ public class AnnotationUtils {
         ArgumentUtils.requireNonNull(items);
         items.sort((o1, o2) -> {
             Order order1 = getAnnotation(o1, Order.class);
+            if (order1 == null) order1 = getAnnotation(AnnotationUtils.class, Order.class);
             Order order2 = getAnnotation(o2, Order.class);
+            if (order2 == null) order2 = getAnnotation(AnnotationUtils.class, Order.class);
             return Integer.compare(order1.value(), order2.value());
         });
     }

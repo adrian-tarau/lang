@@ -167,7 +167,6 @@ public class StringUtils {
         }
     }
 
-
     /**
      * Converts a String to an identifier.
      * <p>
@@ -202,6 +201,60 @@ public class StringUtils {
             identifier = identifier.substring(0, identifier.length() - 1);
         }
         return identifier.toLowerCase();
+    }
+
+    /**
+     * Capitalizes the given string
+     *
+     * @param value the string value
+     * @return capitalized string
+     */
+    public static String capitalize(String value) {
+        if (isEmpty(value)) return value;
+        value = value.toLowerCase().trim();
+        return Character.toUpperCase(value.charAt(0)) + value.substring(1);
+    }
+
+    /**
+     * Capitalizes each word in the given string.
+     * <p>
+     * The method also replaces delimiter characters with space to create multiple works out of delimiters.
+     *
+     * @param value the string value
+     * @return capitalized string
+     */
+    public static String capitalizeWords(String value) {
+        if (isEmpty(value)) return value;
+        value = value.replace('.', ' ');
+        value = value.replace('_', ' ');
+        value = value.replace('$', ' ');
+        value = value.replace('&', ' ');
+        StringBuilder rc = new StringBuilder();
+        for (String word : split(value, " ")) {
+            rc.append(capitalize(word)).append(" ");
+        }
+        return rc.toString().trim();
+    }
+
+    /**
+     * Translates camel case into words separated by spaces.
+     *
+     * @param value the value to normalize
+     * @return the beautified value
+     */
+    public static String beautifyCamelCase(String value) {
+        if (isEmpty(value)) return value;
+        StringBuilder builder = new StringBuilder(value.length() * 2);
+        value = Character.toUpperCase(value.charAt(0)) + value.substring(1);
+        Case prevCase = Case.NONE;
+        for (int index = 0; index < value.length(); index++) {
+            char c = value.charAt(index);
+            Case currentCase = Character.isLowerCase(c) ? Case.LOWER_CASE : Case.UPPER_CASE;
+            if (prevCase == Case.LOWER_CASE && currentCase == Case.UPPER_CASE) builder.append(" ");
+            builder.append(c);
+            prevCase = currentCase;
+        }
+        return builder.toString().trim();
     }
 
     /**
@@ -326,5 +379,11 @@ public class StringUtils {
         char c = value.charAt(0);
         if (c != '/') value = "/" + value;
         return value;
+    }
+
+    public enum Case {
+        NONE,
+        LOWER_CASE,
+        UPPER_CASE
     }
 }
