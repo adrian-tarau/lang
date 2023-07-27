@@ -1,6 +1,7 @@
 package net.microfalx.lang;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
@@ -54,6 +55,36 @@ public class ObjectUtils {
      */
     public static <T> T defaultIfNull(T value, T defaultValue) {
         return value == null ? defaultValue : value;
+    }
+
+    /**
+     * Returns the array length.
+     * <p/>
+     * It uses {@link #toArray(Object)} to get an array in case of null or not an array (converts to an array with one element).
+     *
+     * @param object the array reference
+     * @return the array length
+     * @see Array#getLength(Object)
+     */
+    public static int getArrayLength(Object object) {
+        Object[] objects = toArray(object);
+        return Array.getLength(objects);
+    }
+
+    /**
+     * Converts the object to an array. If the object is already an array, it creates a copy of the array.
+     *
+     * @param object the object to convert
+     * @return the object as an array or an empty array if the object is null
+     */
+    public static Object[] toArray(Object object) {
+        if (object == null) return EMPTY_ARRAY;
+        if (object.getClass().isArray()) {
+            Object[] array = (Object[]) object;
+            return Arrays.copyOf(array, array.length);
+        } else {
+            return new Object[]{object};
+        }
     }
 
     /**
