@@ -72,6 +72,17 @@ public class ObjectUtils {
     }
 
     /**
+     * Returns whether the object is an array.
+     *
+     * @param object the object to test
+     * @return {@code true} if an array, {@code false} otherwise
+     */
+    public static boolean isArray(Object object) {
+        if (object == null) return false;
+        return object.getClass().isArray();
+    }
+
+    /**
      * Converts the object to an array. If the object is already an array, it creates a copy of the array.
      *
      * @param object the object to convert
