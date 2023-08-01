@@ -31,17 +31,22 @@ public @interface Visible {
     enum Mode {
 
         /**
-         * The annotated element is read-only only when it is displayed.
+         * The annotated element is visible only when it is displayed in the grid.
          */
         BROWSE,
 
         /**
-         * The annotated element is read-only only when an "add" operation is performed.
+         * The annotated element is visible only when an "view" operation is performed.
+         */
+        VIEW,
+
+        /**
+         * The annotated element is visible only when an "add" operation is performed.
          */
         ADD,
 
         /**
-         * The annotated element is read-only only when the "edit" operation is performed.
+         * The annotated element is visible only when the "edit" operation is performed.
          */
         EDIT
     }

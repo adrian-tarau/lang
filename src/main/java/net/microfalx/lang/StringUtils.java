@@ -310,6 +310,37 @@ public class StringUtils {
     }
 
     /**
+     * Appends a value to a builder, inserting a {@code ,} if the builder always contains content.
+     * <p>
+     * A null value is ignored by the method.
+     *
+     * @param builder the builder
+     * @param value   the value, null is ignored
+     * @return the builder
+     */
+    public static StringBuilder append(StringBuilder builder, Object value) {
+        return append(builder, value, ',');
+    }
+
+    /**
+     * Appends a value to a builder, inserting a separator character if the builder always contains content.
+     * <p>
+     * A null value is ignored by the method.
+     *
+     * @param builder   the builder
+     * @param value     the value, null is ignored
+     * @param separator the separator, ignored if not printable
+     * @return the builder
+     */
+    public static StringBuilder append(StringBuilder builder, Object value, char separator) {
+        ArgumentUtils.requireNonNull(builder);
+        if (value == null) return builder;
+        if (builder.length() > 0 && separator >= 0x20) builder.append(separator);
+        builder.append(ObjectUtils.toString(value));
+        return builder;
+    }
+
+    /**
      * Returns a maximum number of lines out of a text.
      *
      * @param text         the text
