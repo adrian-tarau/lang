@@ -162,4 +162,18 @@ public class ClassUtils {
         }
         return null;
     }
+
+    /**
+     * Returns an instance of an object with a given class.
+     * @param clazz the class
+     * @return a non-null instance
+     * @param <T> the object type
+     */
+    public static <T> T create(Class<T> clazz) {
+        try {
+            return clazz.newInstance();
+        } catch (Exception e) {
+            return ExceptionUtils.throwException(e);
+        }
+    }
 }
