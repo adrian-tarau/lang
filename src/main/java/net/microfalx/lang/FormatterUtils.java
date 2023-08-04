@@ -10,6 +10,10 @@ public class FormatterUtils {
 
     private static final String DEFAULT_NULL_TEMPORAL = NA_STRING;
 
+    public static final long K = 1000;
+    public static final long M = 1000 * K;
+    public static final long G = 1000 * M;
+
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
@@ -83,7 +87,46 @@ public class FormatterUtils {
         } else {
             throw new IllegalArgumentException("Unknown temporary: " + temporal.getClass());
         }
+    }
 
+    /**
+     * Formats a number.
+     *
+     * @param value the number
+     * @return the formatted number
+     */
+    public static String formatNumber(Object value) {
+        return formatNumber(value, 1);
+    }
+
+    /**
+     * Formats a number.
+     *
+     * @param value the number
+     * @return the formatted number
+     */
+    public static String formatNumber(Object value, int decimals) {
+        if (!(value instanceof Number)) return NA_STRING;
+        Number number = (Number) value;
+        String suffix = "";
+        if (number.longValue() > 10 * G) {
+            number = number.doubleValue() / (double) G;
+            suffix = "b";
+        } else if (number.longValue() > 10 * M) {
+            number = number.doubleValue() / (double) M;
+            suffix = "m";
+        } else if (number.longValue() > 10 * K) {
+            number = number.doubleValue() / (double) K;
+            suffix = "k";
+        }
+        boolean isFloating = number instanceof Float || number instanceof Double;
+        if (isFloating) {
+            double valueAsDouble = number.doubleValue();
+            return String.format("%,." + decimals + "f", valueAsDouble) + suffix;
+        } else {
+            long valueAsLong = number.longValue();
+            return String.format("%,d", valueAsLong) + suffix;
+        }
     }
 
     private static String formatDateTime(DateTimeFormatter formatter, Object value) {
