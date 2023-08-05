@@ -47,6 +47,19 @@ public class ObjectUtils {
     }
 
     /**
+     * Returns if the object is not empty.
+     *
+     * @param object1 an first object instance
+     * @param object2 an seconds object instance
+     * @return true if objects are equal
+     */
+    public static boolean equals(Object object1, Object object2) {
+        if (object1 == object2) return true;
+        if (object1 == null || object2 == null) return false;
+        return object1.equals(object2);
+    }
+
+    /**
      * Returns a default value if the input is null.
      *
      * @param value        the value
