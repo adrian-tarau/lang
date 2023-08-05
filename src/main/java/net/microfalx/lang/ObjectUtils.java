@@ -117,6 +117,16 @@ public class ObjectUtils {
      * @param value the value
      * @return the string representation, null if the object is null
      */
+    public static String asString(Object value) {
+        return value != null ? value.toString() : null;
+    }
+
+    /**
+     * Converts an object to its string representation.
+     *
+     * @param value the value
+     * @return the string representation, null if the object is null
+     */
     public static String toString(Object value) {
         return value != null ? value.toString() : null;
     }
