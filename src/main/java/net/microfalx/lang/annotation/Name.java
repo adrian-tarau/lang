@@ -12,7 +12,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * Provides a name for the annotated element.
  * <p>
  * If multiple elements are annotated, the name is created by joining all the names with {@link Glue#value()}
- * (if present) or {@link #separator()}.
+ * (if present). If no glue information is provided, a space character will be used.
  */
 @Documented
 @Retention(RUNTIME)
@@ -26,13 +26,6 @@ public @interface Name {
      * @return a non-null string with the name, empty if the value should be extracted from the annotated element (field value, i18n lookup, etc).
      */
     String value() default "";
-
-    /**
-     * Returns the separator appended between this name value and the previous name value.
-     *
-     * @return the display value separator
-     */
-    String separator() default ",";
 
     /**
      * Returns the position of the field in the object name.
