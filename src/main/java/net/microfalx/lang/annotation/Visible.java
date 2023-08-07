@@ -25,7 +25,7 @@ public @interface Visible {
      *
      * @return the constraints
      */
-    Mode[] modes() default {Mode.BROWSE, Mode.ADD, Mode.EDIT};
+    Mode[] modes() default {Mode.BROWSE, Mode.ADD, Mode.EDIT, Mode.VIEW};
 
     /**
      * An enum to provide the details on the constraint
