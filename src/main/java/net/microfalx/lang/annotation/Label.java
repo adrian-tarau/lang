@@ -23,7 +23,14 @@ public @interface Label {
     /**
      * The label to be used instead of the default one.
      *
-     * @return a non-null instance
+     * @return the label, empty to have no label
      */
     String value();
+
+    /**
+     * The icon (CSS selectors) to be used with the label.
+     *
+     * @return a non-empty string if an icon is provided, empty otherwise
+     */
+    String icon() default "";
 }
