@@ -348,6 +348,7 @@ public class StringUtils {
      * @return the lines
      */
     public static String getMaximumLines(String text, int maximumLines) {
+        if (isEmpty(text)) return text;
         if (maximumLines <= 0) return text;
         StringBuilder builder = new StringBuilder();
         try (Scanner sc = new Scanner(text)) {
