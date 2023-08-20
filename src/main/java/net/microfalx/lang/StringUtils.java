@@ -258,6 +258,22 @@ public class StringUtils {
     }
 
     /**
+     * Removes new lines from a string.
+     *
+     * @param value the value
+     * @return the value without new lines
+     */
+    public static String removeLineBreaks(String value) {
+        if (isEmpty(value)) return value;
+        StringBuilder builder = new StringBuilder();
+        value.lines().forEach(s -> {
+            if (builder.length() > 0) builder.append(' ');
+            builder.append(s);
+        });
+        return builder.toString();
+    }
+
+    /**
      * Joins an array of strings.
      *
      * @param glue  the string
