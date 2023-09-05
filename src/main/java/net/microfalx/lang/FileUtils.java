@@ -1,9 +1,11 @@
 package net.microfalx.lang;
 
+import java.io.File;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
+import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 import static net.microfalx.lang.StringUtils.isEmpty;
 
 /**
@@ -32,7 +34,6 @@ public class FileUtils {
      */
     public static String getFileName(String path) {
         if (isEmpty(path)) return path;
-
         int index = path.lastIndexOf('/');
         if (index == -1) index = path.lastIndexOf('\\');
         if (index == -1) return path;
@@ -47,7 +48,6 @@ public class FileUtils {
      */
     public static String getParentPath(String path) {
         if (isEmpty(path)) return path;
-
         int index = path.lastIndexOf('/');
         if (index == -1) index = path.lastIndexOf('\\');
         if (index == -1) return null;
@@ -62,7 +62,6 @@ public class FileUtils {
      */
     public static String getContentType(String fileName) {
         fileName = FileUtils.getFileName(fileName).toLowerCase();
-
         for (Map.Entry<String, String> entry : mimeTypes.entrySet()) {
             if (fileName.endsWith(entry.getKey())) {
                 return entry.getValue();
@@ -71,6 +70,32 @@ public class FileUtils {
         return URLConnection.guessContentTypeFromName(fileName);
     }
 
+    /**
+     * Validated the directory, creates the directory if it does not exist and fails if the directory cannot be created.
+     *
+     * @param directory the directory
+     * @return the directory, after validation
+     */
+    public static File validateDirectoryExists(File directory) {
+        requireNonNull(directory);
+        if (!directory.exists()) directory.mkdirs();
+        if (!directory.exists()) {
+            ThreadUtils.throwException(new IllegalStateException("Directory '" + directory.getAbsolutePath() + "' could not be created"));
+        }
+        return directory;
+    }
+
+    /**
+     * Validated the parent directory, creates the directory if it does not exist and fails if the directory cannot be created.
+     *
+     * @param file the file
+     * @return the file, after validation
+     */
+    public static File validateFileExists(File file) {
+        requireNonNull(file);
+        validateDirectoryExists(file.getParentFile());
+        return file;
+    }
 
     private static final Map<String, String> mimeTypes = new HashMap<>();
 

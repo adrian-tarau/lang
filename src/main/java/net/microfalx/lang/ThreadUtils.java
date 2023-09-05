@@ -2,6 +2,8 @@ package net.microfalx.lang;
 
 import java.time.Duration;
 
+import static net.microfalx.lang.ArgumentUtils.requireNonNull;
+
 /**
  * Utilities around threads.
  */
@@ -53,5 +55,41 @@ public class ThreadUtils {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void sleepSeconds(int seconds) {
         sleepMillis(seconds * 1000L);
+    }
+
+    /**
+     * Interrupts current thread.
+     */
+    public static void interrupt() {
+        Thread.currentThread().interrupt();
+    }
+
+    /**
+     * Marks the thread as interrupted and rethrows the exception
+     *
+     * @param exception an interrupted exception
+     */
+    @SuppressWarnings({"SameReturnValue", "ResultOfMethodCallIgnored"})
+    public static <T> T rethrowInterruptedException(InterruptedException exception) {
+        Thread.currentThread().interrupt();
+        throwException(exception);
+        return null;
+    }
+
+    /**
+     * Rethrow a checked exception
+     *
+     * @param exception an exception
+     */
+    @SuppressWarnings("SameReturnValue")
+    public static <T> T throwException(Throwable exception) {
+        ThreadUtils.doThrowException(exception);
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <E extends Throwable> void doThrowException(Throwable exception) throws E {
+        requireNonNull(exception);
+        throw (E) exception;
     }
 }

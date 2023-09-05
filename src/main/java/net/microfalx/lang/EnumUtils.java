@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
+import static net.microfalx.lang.StringUtils.isNotEmpty;
 
 /**
  * A collection of utilities around enums.
@@ -107,6 +108,20 @@ public class EnumUtils {
     }
 
     /**
+     * Returns the enum label.
+     * <p>
+     * If an alias ({@link Name} is used, the alias is returned.
+     *
+     * @param enumInstance the enum
+     * @param <E>          the enum type
+     * @return the enum name, NULL if the enum is null
+     */
+    public static <E extends Enum<E>> String toLabel(E enumInstance) {
+        String name = toName(enumInstance);
+        return StringUtils.capitalizeWords(name);
+    }
+
+    /**
      * Returns the names for all enums for a given type.
      * <p>
      * If an alias ({@link Name} is used, the alias is returned.
@@ -145,7 +160,7 @@ public class EnumUtils {
         Set<String> aliases = new CopyOnWriteArraySet<>();
         try {
             Name named = enumInstance.getClass().getField(enumInstance.name()).getAnnotation(Name.class);
-            if (named != null && StringUtils.isNotEmpty(named.value())) {
+            if (named != null && isNotEmpty(named.value())) {
                 aliases.add(named.value());
             }
         } catch (NoSuchFieldException e) {

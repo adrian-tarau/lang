@@ -63,6 +63,7 @@
         <dom4j.version>2.1.4</dom4j.version>
         <guava.version>32.0.0-jre</guava.version>
         <classindex.version>3.13</classindex.version>
+        <apache.commons.lang>3.12.0</apache.commons.lang>
         <!-- Tests -->
         <junit.version>5.9.1</junit.version>
         <assertj.version>3.24.2</assertj.version>
@@ -111,6 +112,12 @@
                 <groupId>org.atteo.classindex</groupId>
                 <artifactId>classindex</artifactId>
                 <version>${classindex.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${apache.commons.lang}</version>
             </dependency>
 
             <!-- Tests -->
@@ -166,6 +173,11 @@
         <dependency>
             <groupId>org.atteo.classindex</groupId>
             <artifactId>classindex</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <!-- Tests -->

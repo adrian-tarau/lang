@@ -58,6 +58,31 @@ public class StringUtils {
     }
 
     /**
+     * Returns an empty string if the input is null.
+     *
+     * @param value the value
+     * @return the original value or a default
+     */
+    public static String emptyIfNull(String value) {
+        return value == null ? EMPTY_STRING : value;
+    }
+
+    /**
+     * Returns whether the text is contained in the value, case insensitive
+     *
+     * @param value    the String value
+     * @param fragment the fragment to be searched
+     * @return {@code true} if contained, {@code false} otherwise
+     */
+    @SuppressWarnings("Duplicates")
+    public static boolean contains(String value, String fragment) {
+        if (value == null && fragment == null) return true;
+        if (value == null) return false;
+        return value.toLowerCase().contains(fragment.toLowerCase());
+    }
+
+
+    /**
      * Converts a String to an identifier.
      * <p>
      * The identifier contains only chars, digits and "_".
@@ -125,6 +150,36 @@ public class StringUtils {
      */
     public static boolean equalsIgnoreCase(String a, String b) {
         return a == b || (a != null && a.equalsIgnoreCase(b));
+    }
+
+    /**
+     * Returns if the value exists in the array of values, case-insensitive.
+     *
+     * @param value  the value to check
+     * @param values the values
+     * @return <code>true</code> if the value exists in array, <code>false</code> otherwise
+     */
+    public static boolean containsInArray(char value, char[] values) {
+        if (values == null || value == 0x00) return false;
+        for (char _value : values) {
+            if (Character.toLowerCase(value) == Character.toLowerCase(_value)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns if the value exists in the array of values, case-insensitive.
+     *
+     * @param value  the value to check
+     * @param values the values
+     * @return <code>true</code> if the value exists in array, <code>false</code> otherwise
+     */
+    public static boolean containsInArray(String value, String[] values) {
+        if (value == null || values == null) return false;
+        for (String _value : values) {
+            if (value.equalsIgnoreCase(_value)) return true;
+        }
+        return false;
     }
 
     /**
