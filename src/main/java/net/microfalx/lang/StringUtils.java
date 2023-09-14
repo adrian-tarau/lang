@@ -68,6 +68,16 @@ public class StringUtils {
     }
 
     /**
+     * Returns a null string if the input is empty.
+     *
+     * @param value the value
+     * @return the original value or null
+     */
+    public static String nullIfEmpty(String value) {
+        return isEmpty(value) ? null : value;
+    }
+
+    /**
      * Returns whether the text is contained in the value, case insensitive
      *
      * @param value    the String value

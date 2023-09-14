@@ -27,4 +27,16 @@ public @interface Width {
      * @return the width, empty if not set
      */
     String value() default "";
+
+    /**
+     * Returns the minimum width in screen units.
+     * @return the minimum width, empty if not set
+     */
+    String min() default "";
+
+    /**
+     * Returns the maximum width in screen units.
+     * @return the maximum width, empty if not set
+     */
+    String max() default "";
 }

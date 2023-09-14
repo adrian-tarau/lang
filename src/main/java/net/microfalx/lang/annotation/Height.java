@@ -15,16 +15,28 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface Height {
 
     /**
-     * Returns the height in rows
+     * Returns the height in rows.
      *
      * @return the height in rows, -1 for not defined
      */
     int rows() default -1;
 
     /**
-     * Returns the height in screen units
+     * Returns the height in screen units.
      *
      * @return the height, empty if not set
      */
     String value() default "";
+
+    /**
+     * Returns the minimum width in screen units.
+     * @return the minimum width, empty if not set
+     */
+    String min() default "";
+
+    /**
+     * Returns the maximum width in screen units.
+     * @return the maximum width, empty if not set
+     */
+    String max() default "";
 }

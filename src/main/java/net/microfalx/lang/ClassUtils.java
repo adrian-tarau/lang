@@ -83,6 +83,27 @@ public class ClassUtils {
     }
 
     /**
+     * Returns whether the object represents a class is part of the JDK.
+     *
+     * @param value the object
+     * @return {@code true} if a JDK class, {@code false} otherwise
+     */
+    public static boolean isJdkClass(Object value) {
+        return value != null && isJdkClass(value.getClass());
+    }
+
+    /**
+     * Returns whether the class is part of the JDK.
+     *
+     * @param clazz the class to validate
+     * @return {@code true} if a JDK class, {@code false} otherwise
+     */
+    public static boolean isJdkClass(Class<?> clazz) {
+        requireNonNull(clazz);
+        return StringUtils.EMPTY_STRING.getClass().getClassLoader() == clazz.getClassLoader();
+    }
+
+    /**
      * Returns a collection of provider classes for a given type.
      *
      * @param providerClass the provider class
@@ -165,9 +186,10 @@ public class ClassUtils {
 
     /**
      * Returns an instance of an object with a given class.
+     *
      * @param clazz the class
+     * @param <T>   the object type
      * @return a non-null instance
-     * @param <T> the object type
      */
     public static <T> T create(Class<T> clazz) {
         try {
