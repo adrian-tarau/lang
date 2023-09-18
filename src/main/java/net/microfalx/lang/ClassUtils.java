@@ -3,6 +3,7 @@ package net.microfalx.lang;
 import net.microfalx.lang.annotation.Provider;
 import org.atteo.classindex.ClassIndex;
 
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -104,6 +105,17 @@ public class ClassUtils {
     }
 
     /**
+     * Returns whether the class can be instantiated.
+     *
+     * @param clazz the class to validate
+     * @return {@code true} if an object can be created,  {@code false} otherwise
+     */
+    public static boolean canInstantiate(Class<?> clazz) {
+        if (clazz == null) return false;
+        return !(clazz.isInterface() || ((clazz.getModifiers() & Modifier.ABSTRACT) != 0));
+    }
+
+    /**
      * Returns a collection of provider classes for a given type.
      *
      * @param providerClass the provider class
@@ -125,6 +137,31 @@ public class ClassUtils {
         List<Class<T>> orderedProviders = new ArrayList<>(providerClasses);
         AnnotationUtils.sort(orderedProviders);
         return orderedProviders;
+    }
+
+    /**
+     * Returns a collection of providers for a given type.
+     *
+     * @param providerClass the provider class
+     * @param <T>           the provider type
+     * @return a collection of provider classes
+     * @see Provider
+     */
+    @SuppressWarnings({"unchecked", "CastCanBeRemovedNarrowingVariableType"})
+    public static <T> Collection<T> resolveProviderInstances(Class<T> providerClass) {
+        ArgumentUtils.requireNotEmpty(providerClass);
+
+        Collection<T> providerInstances = new ArrayList<>();
+        Collection<Class<T>> providerClasses = resolveProviders(providerClass);
+        for (Class<?> providerClassLocated : providerClasses) {
+            if (!canInstantiate(providerClassLocated)) continue;
+            try {
+                providerInstances.add(create((Class<T>) providerClassLocated));
+            } catch (Exception e) {
+                // ignore this for now, maybe report somewhere
+            }
+        }
+        return providerInstances;
     }
 
     /**
