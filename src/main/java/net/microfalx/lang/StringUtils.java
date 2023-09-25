@@ -14,6 +14,8 @@ public class StringUtils {
     public static final String EMPTY_STRING = "";
     public static final String NA_STRING = "N/A";
     public static final String[] EMPTY_STRING_ARRAY = new String[0];
+    public static final String ELLIPSES = "...";
+    public static final String ELLIPSES_WITH_SPACES = " " + ELLIPSES + " ";
 
     /**
      * Returns whether the string is empty.
@@ -233,6 +235,20 @@ public class StringUtils {
     }
 
     /**
+     * Converts a String to an identifier and replaces "_" with "-".
+     * <p>
+     * The identifier contains only chars, digits and "-".
+     *
+     * @param value the path
+     * @return the id
+     * @see #toIdentifier(String)
+     */
+    public static String toDashIdentifier(String value) {
+        value = toIdentifier(value);
+        return value.replace('_', '-');
+    }
+
+    /**
      * Converts a String to an identifier.
      * <p>
      * The identifier contains only chars, digits and "_" (or "-" if allowed).
@@ -329,10 +345,21 @@ public class StringUtils {
      * @return the value without new lines
      */
     public static String removeLineBreaks(String value) {
+        return removeLineBreaks(value, ELLIPSES_WITH_SPACES);
+    }
+
+    /**
+     * Removes new lines from a string.
+     *
+     * @param value     the value
+     * @param separator the new separator to be used instead of new lines
+     * @return the value without new lines
+     */
+    public static String removeLineBreaks(String value, String separator) {
         if (isEmpty(value)) return value;
         StringBuilder builder = new StringBuilder();
         value.lines().forEach(s -> {
-            if (builder.length() > 0) builder.append(' ');
+            if (builder.length() > 0) builder.append(separator);
             builder.append(s);
         });
         return builder.toString();
@@ -417,6 +444,24 @@ public class StringUtils {
         ArgumentUtils.requireNonNull(builder);
         if (value == null) return builder;
         if (builder.length() > 0 && separator >= 0x20) builder.append(separator);
+        builder.append(ObjectUtils.toString(value));
+        return builder;
+    }
+
+    /**
+     * Appends a value to a builder, inserting a separator character if the builder always contains content.
+     * <p>
+     * A null value is ignored by the method.
+     *
+     * @param builder   the builder
+     * @param value     the value, null is ignored
+     * @param separator the separator, ignored if not printable
+     * @return the builder
+     */
+    public static StringBuilder append(StringBuilder builder, Object value, String separator) {
+        ArgumentUtils.requireNonNull(builder);
+        if (value == null) return builder;
+        if (builder.length() > 0) builder.append(separator);
         builder.append(ObjectUtils.toString(value));
         return builder;
     }
