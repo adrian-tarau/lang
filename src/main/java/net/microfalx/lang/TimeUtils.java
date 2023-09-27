@@ -16,7 +16,7 @@ public class TimeUtils {
      */
     public static ZonedDateTime fromMillis(long value) {
         if (value <= 0) return null;
-        return Instant.ofEpochMilli(value).atZone(UTC_ZONE);
+        return Instant.ofEpochMilli(value).atZone(ZoneId.systemDefault());
     }
 
     /**
