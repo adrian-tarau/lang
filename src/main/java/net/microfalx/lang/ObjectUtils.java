@@ -13,6 +13,8 @@ public class ObjectUtils {
 
     public static final Object[] EMPTY_ARRAY = new Object[0];
 
+    private final static int MAXIMUM_IDENTIFIER_LENGTH = 100;
+
     /**
      * Returns if the object is "empty": a null object, an empty string({@link CharSequence}) or an empty collection.
      * Any other object type returns false(object not "empty")
@@ -141,6 +143,28 @@ public class ObjectUtils {
             return Arrays.copyOf(array, array.length);
         } else {
             return new Object[]{object};
+        }
+    }
+
+    /**
+     * Returns a unique string identifier from an object.
+     * <p>
+     * The method tries to use {@link Identifiable}, otherwise it resorts to a fast checksum on all members of the instances.
+     * <p>
+     * A short string is also considered an identifier.
+     *
+     * @param value the value
+     * @return the identifier
+     * @see StringUtils#toIdentifier(String)
+     * @see Identifiable
+     */
+    public static String toIdentifier(Object value) {
+        if (value instanceof Identifiable) {
+            return StringUtils.toIdentifier(toString(((Identifiable<?>) value).getId()));
+        } else if (value instanceof String && ((String) value).length() <= MAXIMUM_IDENTIFIER_LENGTH) {
+            return StringUtils.toIdentifier((String) value);
+        } else {
+            return StringUtils.toIdentifier(ClassUtils.getName(value)) + "_" + value.hashCode();
         }
     }
 

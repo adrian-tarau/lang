@@ -22,6 +22,18 @@ public class ExceptionUtils {
     }
 
     /**
+     * Marks the thread as interrupted and rethrows the exception.
+     *
+     * @param exception an interrupted exception
+     * @return a fake return to avoid an unnecessary "return null" in functions when we know an exception will be raised
+     */
+    public static <T> T rethrowInterruptedException(InterruptedException exception) {
+        Thread.currentThread().interrupt();
+        throwException(exception);
+        return null;
+    }
+
+    /**
      * Dumps an exception stacktrace as a string.
      *
      * @param throwable an exception

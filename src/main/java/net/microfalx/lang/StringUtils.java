@@ -1,5 +1,7 @@
 package net.microfalx.lang;
 
+import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.StringTokenizer;
@@ -537,6 +539,27 @@ public class StringUtils {
         char c = value.charAt(0);
         if (c != '/') value = "/" + value;
         return value;
+    }
+
+    /**
+     * Formats a message.
+     *
+     * The function
+     *
+     * @param pattern   the pattern message
+     * @param arguments the arguments passed for format the message
+     * @return the formatted message
+     * @see java.text.MessageFormat#format(String, Object...)
+     */
+    public static String formatMessage(String pattern, Object... arguments) {
+        if (StringUtils.isEmpty(pattern)) {
+            return "Unmapped message, null/empty pattern, arguments: " + Arrays.asList(arguments);
+        }
+        try {
+            return MessageFormat.format(pattern, arguments);
+        } catch (Exception e) {
+            return pattern + "[" + Arrays.toString(arguments) + "]";
+        }
     }
 
     public enum Case {
