@@ -59,16 +59,16 @@
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Runtime -->
-        <logback.version>2.0.7</logback.version>
+        <logback.version>2.0.11</logback.version>
         <dom4j.version>2.1.4</dom4j.version>
-        <guava.version>32.0.0-jre</guava.version>
+        <guava.version>33.0.0-jre</guava.version>
         <classindex.version>3.13</classindex.version>
-        <apache.commons.lang>3.12.0</apache.commons.lang>
+        <apache.commons.lang.version>3.14.0</apache.commons.lang.version>
         <!-- Tests -->
-        <junit.version>5.9.1</junit.version>
-        <assertj.version>3.24.2</assertj.version>
-        <mockito.version>5.3.1</mockito.version>
-        <jmh.version>1.36</jmh.version>
+        <junit.version>5.10.1</junit.version>
+        <assertj.version>3.25.1</assertj.version>
+        <mockito.version>5.9.0</mockito.version>
+        <jmh.version>1.37</jmh.version>
         <awaitility.version>4.2.0</awaitility.version>
     </properties>
 
@@ -117,7 +117,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>${apache.commons.lang}</version>
+                <version>${apache.commons.lang.version}</version>
             </dependency>
 
             <!-- Tests -->
