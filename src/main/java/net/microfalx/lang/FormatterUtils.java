@@ -90,6 +90,37 @@ public class FormatterUtils {
     }
 
     /**
+     * Formats a number of bytes.
+     *
+     * @param value the number
+     * @return the formatted number
+     */
+    public static String formatBytes(Object value) {
+        if (!(value instanceof Number)) return NA_STRING;
+        Number number = (Number) value;
+        int decimals = 0;
+        String suffix = "";
+        if (number.longValue() > 10 * G) {
+            number = number.doubleValue() / (double) G;
+            suffix = "GB";
+        } else if (number.longValue() > 10 * M) {
+            number = number.doubleValue() / (double) M;
+            suffix = "MB";
+        } else if (number.longValue() > 10 * K) {
+            number = number.doubleValue() / (double) K;
+            suffix = "KB";
+        }
+        boolean isFloating = number instanceof Float || number instanceof Double;
+        if (isFloating) {
+            double valueAsDouble = number.doubleValue();
+            return String.format("%,." + decimals + "f", valueAsDouble) + suffix;
+        } else {
+            long valueAsLong = number.longValue();
+            return String.format("%,d", valueAsLong) + suffix;
+        }
+    }
+
+    /**
      * Formats a number.
      *
      * @param value the number

@@ -21,4 +21,19 @@ class FormatterUtilsTest {
         assertEquals("123.5b",FormatterUtils.formatNumber(123456789000L));
     }
 
+    @Test
+    void formatBytes() {
+        assertEquals("0",FormatterUtils.formatBytes(0));
+        assertEquals("10",FormatterUtils.formatBytes(10));
+        assertEquals("1,234",FormatterUtils.formatBytes(1234));
+        assertEquals("12KB",FormatterUtils.formatBytes(12345));
+        assertEquals("123KB",FormatterUtils.formatBytes(123456));
+        assertEquals("1,235KB",FormatterUtils.formatBytes(1234567));
+        assertEquals("12MB",FormatterUtils.formatBytes(12345678));
+        assertEquals("123MB",FormatterUtils.formatBytes(123456789));
+        assertEquals("1,235MB",FormatterUtils.formatBytes(1234567890));
+        assertEquals("12GB",FormatterUtils.formatBytes(12345678900L));
+        assertEquals("123GB",FormatterUtils.formatBytes(123456789000L));
+    }
+
 }
