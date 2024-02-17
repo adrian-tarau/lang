@@ -7,15 +7,19 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Collections.unmodifiableList;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
+import static net.microfalx.lang.ArgumentUtils.requireNotEmpty;
 import static net.microfalx.lang.StringUtils.EMPTY_STRING;
 
 /**
  * Various utilities around classes and class loaders.
  */
 public class ClassUtils {
+
+    private static final Map<Class<?>, Collection<?>> providers = new ConcurrentHashMap<>();
 
     /**
      * Returns the class name.
@@ -123,10 +127,11 @@ public class ClassUtils {
      * @return a collection of provider classes
      * @see Provider
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static <T> Collection<Class<T>> resolveProviders(Class<T> providerClass) {
-        ArgumentUtils.requireNotEmpty(providerClass);
-
+        requireNotEmpty(providerClass);
+        Collection cachedProviders = ClassUtils.providers.get(providerClass);
+        if (cachedProviders != null) return cachedProviders;
         Collection<Class<T>> providerClasses = new HashSet<>();
         Iterable<Class<?>> scannedProviderClasses = ClassIndex.getAnnotated(Provider.class);
         for (Class<?> scannedProviderClass : scannedProviderClasses) {
@@ -136,6 +141,7 @@ public class ClassUtils {
         }
         List<Class<T>> orderedProviders = new ArrayList<>(providerClasses);
         AnnotationUtils.sort(orderedProviders);
+        ClassUtils.providers.put(providerClass, orderedProviders);
         return orderedProviders;
     }
 
@@ -149,8 +155,7 @@ public class ClassUtils {
      */
     @SuppressWarnings({"unchecked", "CastCanBeRemovedNarrowingVariableType"})
     public static <T> Collection<T> resolveProviderInstances(Class<T> providerClass) {
-        ArgumentUtils.requireNotEmpty(providerClass);
-
+        requireNotEmpty(providerClass);
         Collection<T> providerInstances = new ArrayList<>();
         Collection<Class<T>> providerClasses = resolveProviders(providerClass);
         for (Class<?> providerClassLocated : providerClasses) {
@@ -162,6 +167,13 @@ public class ClassUtils {
             }
         }
         return providerInstances;
+    }
+
+    /**
+     * Clears all caches.
+     */
+    public void clearCaches() {
+        providers.clear();
     }
 
     /**
