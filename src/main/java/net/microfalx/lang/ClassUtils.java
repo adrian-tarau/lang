@@ -105,7 +105,7 @@ public class ClassUtils {
      */
     public static boolean isJdkClass(Class<?> clazz) {
         requireNonNull(clazz);
-        return StringUtils.EMPTY_STRING.getClass().getClassLoader() == clazz.getClassLoader();
+        return clazz.isPrimitive() || StringUtils.EMPTY_STRING.getClass().getClassLoader() == clazz.getClassLoader();
     }
 
     /**
