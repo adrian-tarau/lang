@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 
 import static net.microfalx.lang.StringUtils.NA_STRING;
+import static net.microfalx.lang.TimeUtils.toZonedDateTime;
 
 public class FormatterUtils {
 
@@ -14,10 +15,12 @@ public class FormatterUtils {
     public static final long M = 1000 * K;
     public static final long G = 1000 * M;
 
+    public static final ZoneId UTC_ZONE = ZoneId.of("UTC");
+
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
-    private static final DateTimeFormatter dateTimeFormatterUTC = dateTimeFormatter.withZone(ZoneId.of("UTC"));
+    private static final DateTimeFormatter dateTimeFormatterUTC = dateTimeFormatter.withZone(UTC_ZONE);
     private static final DateTimeFormatter dateTimeWithMilliFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss SSS");
 
     /**
@@ -27,7 +30,18 @@ public class FormatterUtils {
      * @return the string representation
      */
     public static String formatDate(Object value) {
-        return formatDateTime(dateFormatter, value);
+        return formatDateTime(dateFormatter, value, null);
+    }
+
+    /**
+     * Formats an object which can be converted to a date object.
+     *
+     * @param value    the value to format
+     * @param timeZone the time zone
+     * @return the string representation
+     */
+    public static String formatDate(Object value, ZoneId timeZone) {
+        return formatDateTime(dateFormatter, value, timeZone);
     }
 
     /**
@@ -37,7 +51,18 @@ public class FormatterUtils {
      * @return the string representation
      */
     public static String formatTime(Object value) {
-        return formatDateTime(timeFormatter, value);
+        return formatDateTime(timeFormatter, value, null);
+    }
+
+    /**
+     * Formats an object which can be converted to a time object.
+     *
+     * @param value    the value to format
+     * @param timeZone the time zone
+     * @return the string representation
+     */
+    public static String formatTime(Object value, ZoneId timeZone) {
+        return formatDateTime(timeFormatter, value, timeZone);
     }
 
     /**
@@ -47,7 +72,18 @@ public class FormatterUtils {
      * @return the string representation
      */
     public static String formatDateTime(Object value) {
-        return formatDateTime(dateTimeFormatter, value);
+        return formatDateTime(dateTimeFormatter, value, null);
+    }
+
+    /**
+     * Formats an object which can be converted to a date/time object.
+     *
+     * @param value    the value to format
+     * @param timeZone the time zone
+     * @return the string representation
+     */
+    public static String formatDateTime(Object value, ZoneId timeZone) {
+        return formatDateTime(dateTimeFormatter, value, timeZone);
     }
 
     /**
@@ -57,7 +93,7 @@ public class FormatterUtils {
      * @return the string representation
      */
     public static String formatDateTimeUTC(Object value) {
-        return formatDateTime(dateTimeFormatterUTC, value);
+        return formatDateTime(dateTimeFormatterUTC, value, UTC_ZONE);
     }
 
     /**
@@ -67,7 +103,7 @@ public class FormatterUtils {
      * @return the string representation
      */
     public static String formatDateTimeWithMillis(Object value) {
-        return formatDateTime(dateTimeWithMilliFormatter, value);
+        return formatDateTime(dateTimeWithMilliFormatter, value, null);
     }
 
     /**
@@ -77,16 +113,43 @@ public class FormatterUtils {
      * @return the string representation
      */
     public static String formatTemporal(Temporal temporal) {
+        return formatTemporal(temporal, ZoneId.systemDefault());
+    }
+
+    /**
+     * Formats a temporal.
+     *
+     * @param temporal the value to format.
+     * @param timeZone the time zone
+     * @return the string representation
+     */
+    public static String formatTemporal(Temporal temporal, ZoneId timeZone) {
         if (temporal == null) return DEFAULT_NULL_TEMPORAL;
         if (temporal instanceof LocalDate) {
-            return formatDate(temporal);
+            return formatDate(temporal, timeZone);
         } else if (temporal instanceof LocalDateTime || temporal instanceof ZonedDateTime || temporal instanceof OffsetDateTime) {
-            return formatDateTime(temporal);
+            return formatDateTime(temporal, timeZone);
         } else if (temporal instanceof LocalTime || temporal instanceof OffsetTime) {
-            return formatTime(temporal);
+            return formatTime(temporal, timeZone);
         } else {
             throw new IllegalArgumentException("Unknown temporary: " + temporal.getClass());
         }
+    }
+
+    /**
+     * Formats a temporal (old and new API) with in a given time zone.
+     *
+     * @param formatter the formatter
+     * @param temporal  the temporal
+     * @param timeZone  the zone, can be null for system zone
+     * @return the formatted temporal
+     */
+    public static String formatDateTime(DateTimeFormatter formatter, Object temporal, ZoneId timeZone) {
+        if (temporal == null) return DEFAULT_NULL_TEMPORAL;
+        if (timeZone == null) timeZone = ZoneId.systemDefault();
+        ZonedDateTime zonedDateTime = toZonedDateTime(temporal);
+        zonedDateTime = zonedDateTime.withZoneSameInstant(timeZone);
+        return formatter.format(zonedDateTime);
     }
 
     /**
@@ -160,14 +223,5 @@ public class FormatterUtils {
         }
     }
 
-    private static String formatDateTime(DateTimeFormatter formatter, Object value) {
-        if (value == null) return DEFAULT_NULL_TEMPORAL;
-        if (value instanceof Number) {
-            return formatter.format(Instant.ofEpochMilli(((Number) value).longValue()));
-        } else if (value instanceof Temporal) {
-            return formatter.format((Temporal) value);
-        } else {
-            return DEFAULT_NULL_TEMPORAL;
-        }
-    }
+
 }

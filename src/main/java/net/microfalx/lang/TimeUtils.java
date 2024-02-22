@@ -93,6 +93,31 @@ public class TimeUtils {
     }
 
     /**
+     * Converts a temporal (old and new API) to a {@link ZonedDateTime}.
+     *
+     * @param temporal any of the Java Time API temporal objects
+     * @return a zoned date time
+     */
+    public static ZonedDateTime toZonedDateTime(Object temporal) {
+        if (temporal == null) return null;
+        if (temporal instanceof LocalDate) {
+            return ((LocalDate) temporal).atStartOfDay(ZoneId.systemDefault());
+        } else if (temporal instanceof LocalDateTime) {
+            return ((LocalDateTime) temporal).atZone(ZoneId.systemDefault());
+        } else if (temporal instanceof ZonedDateTime) {
+            return (ZonedDateTime) temporal;
+        } else if (temporal instanceof OffsetDateTime) {
+            return ((OffsetDateTime) temporal).toZonedDateTime();
+        } else if (temporal instanceof Date) {
+            return ((Date) temporal).toInstant().atZone(ZoneId.systemDefault());
+        } else if (temporal instanceof Number) {
+            return Instant.ofEpochMilli(((Number) temporal).longValue()).atZone(ZoneId.systemDefault());
+        } else {
+            throw new IllegalArgumentException("Cannot convert temporal '" + temporal + " to a zoned date/time");
+        }
+    }
+
+    /**
      * Converts a {@link java.time.temporal.Temporal} to millis.
      *
      * @param temporal any of the Java Time API temporal objects
