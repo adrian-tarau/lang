@@ -15,12 +15,10 @@ public class FormatterUtils {
     public static final long M = 1000 * K;
     public static final long G = 1000 * M;
 
-    public static final ZoneId UTC_ZONE = ZoneId.of("UTC");
-
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
-    private static final DateTimeFormatter dateTimeFormatterUTC = dateTimeFormatter.withZone(UTC_ZONE);
+    private static final DateTimeFormatter dateTimeFormatterUTC = dateTimeFormatter.withZone(TimeUtils.UTC_ZONE);
     private static final DateTimeFormatter dateTimeWithMilliFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss SSS");
 
     /**
@@ -93,7 +91,7 @@ public class FormatterUtils {
      * @return the string representation
      */
     public static String formatDateTimeUTC(Object value) {
-        return formatDateTime(dateTimeFormatterUTC, value, UTC_ZONE);
+        return formatDateTime(dateTimeFormatterUTC, value, TimeUtils.UTC_ZONE);
     }
 
     /**

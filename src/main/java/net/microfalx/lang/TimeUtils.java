@@ -1,6 +1,8 @@
 package net.microfalx.lang;
 
 import java.time.*;
+import java.time.chrono.ChronoLocalDate;
+import java.time.chrono.ChronoLocalDateTime;
 import java.time.temporal.Temporal;
 import java.util.Date;
 
@@ -135,6 +137,38 @@ public class TimeUtils {
         } else {
             throw new IllegalArgumentException("Value not a temporal: " + temporal);
         }
+    }
+
+    /**
+     * Returns a temporal which contains JVM zone (or offset) if the type is a local one (so no zone, which means JVM zone).
+     * <p>
+     * Some types (like date) will have the midnight attached in order to be able to get a zone
+     *
+     * @param value the temporal to convert
+     * @return a new temporal with zone
+     */
+    public static Temporal withSystemZone(Temporal value) {
+        if (value == null) return null;
+        if (value instanceof ChronoLocalDateTime) {
+            return ((ChronoLocalDateTime<?>) value).atZone(ZoneId.systemDefault());
+        } else if (value instanceof ChronoLocalDate) {
+            return ((ChronoLocalDate) value).atTime(java.time.LocalTime.MIDNIGHT).atZone(ZoneId.systemDefault());
+        } else if (value instanceof java.time.LocalTime) {
+            return ((java.time.LocalTime) value).atOffset(toOffset(ZoneId.systemDefault()));
+        } else {
+            return value;
+        }
+    }
+
+    /**
+     * Converts a zone to a zone offset.
+     *
+     * @param zoneId the zone
+     * @return a non-null instance
+     */
+    public static ZoneOffset toOffset(ZoneId zoneId) {
+        java.time.Instant instant = java.time.Instant.now();
+        return zoneId.getRules().getOffset(instant);
     }
 
     /**
