@@ -15,6 +15,11 @@ public class FormatterUtils {
     public static final long M = 1000 * K;
     public static final long G = 1000 * M;
 
+    public static final long MILLIS_IN_SECOND = 1000;
+    public static final long MILLIS_IN_MINUTE = 60 * MILLIS_IN_SECOND;
+    public static final long MILLIS_IN_HOUR = 60 * MILLIS_IN_MINUTE;
+    public static final long MILLIS_IN_DAY = 24 * MILLIS_IN_HOUR;
+
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
@@ -148,6 +153,58 @@ public class FormatterUtils {
         ZonedDateTime zonedDateTime = toZonedDateTime(temporal);
         zonedDateTime = zonedDateTime.withZoneSameInstant(timeZone);
         return formatter.format(zonedDateTime);
+    }
+
+    /**
+     * Formats a duration.
+     * <p>
+     * A duration can be a number (millis) or a {@link Duration}.
+     *
+     * @param value the value to format
+     * @return the formated value
+     */
+    public static String formatDuration(Object value) {
+        return formatDuration(value, NA_STRING);
+    }
+
+    /**
+     * Formats a duration.
+     * <p>
+     * A duration can be a number (millis) or a {@link Duration}.
+     *
+     * @param value        the value to format
+     * @param defaultValue the default value
+     * @return the formated value
+     */
+    public static String formatDuration(Object value, String defaultValue) {
+        if (value == null || value instanceof String) return defaultValue;
+        long millis = -1;
+        if (value instanceof Number) {
+            millis = ((Number) value).longValue();
+        } else if (value instanceof Duration) {
+            millis = ((Duration) value).toMillis();
+        }
+        if (millis < 0) {
+            return defaultValue;
+        } else {
+            if (millis < K) {
+                return millis + "ms";
+            } else if (millis < MILLIS_IN_MINUTE) {
+                int seconds = (int) (millis / MILLIS_IN_SECOND);
+                return seconds + "s " + (millis - seconds * MILLIS_IN_SECOND) + "ms";
+            } else if (millis < MILLIS_IN_HOUR) {
+                int minutes = (int) (millis / MILLIS_IN_MINUTE);
+                int seconds = (int) ((millis - minutes * MILLIS_IN_MINUTE) / MILLIS_IN_SECOND);
+                return minutes + "m " + seconds + "s";
+            } else if (millis < MILLIS_IN_DAY) {
+                int hours = (int) (millis / MILLIS_IN_HOUR);
+                int minutes = (int) ((millis - hours * MILLIS_IN_HOUR) / MILLIS_IN_MINUTE);
+                return hours + "h " + minutes + "m";
+            } else {
+                int hours = (int) (millis / MILLIS_IN_HOUR);
+                return hours + "h";
+            }
+        }
     }
 
     /**

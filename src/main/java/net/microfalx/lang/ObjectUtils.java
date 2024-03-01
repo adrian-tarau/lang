@@ -5,6 +5,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Utilities around objects.
@@ -33,6 +34,8 @@ public class ObjectUtils {
             return ((Map<?, ?>) object).isEmpty();
         } else if (object.getClass().isArray()) {
             return Array.getLength(object) == 0;
+        } else if (object instanceof Optional) {
+            return ((Optional) object).isEmpty();
         } else {
             return false;
         }

@@ -95,6 +95,17 @@ public class TimeUtils {
     }
 
     /**
+     * Returns a local date/time from a temporal
+     *
+     * @param temporal the temporal
+     * @return the local date/time, null if was null
+     */
+    public static LocalDateTime toLocalDateTime(Object temporal) {
+        ZonedDateTime zonedDateTime = toZonedDateTime(temporal);
+        return zonedDateTime != null ? zonedDateTime.toLocalDateTime() : null;
+    }
+
+    /**
      * Converts a temporal (old and new API) to a {@link ZonedDateTime}.
      *
      * @param temporal any of the Java Time API temporal objects

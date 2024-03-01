@@ -25,7 +25,7 @@ public class ThreadUtils {
      * @param micros the number of microseconds
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void sleepMicros(long micros) {
+    public static void sleepMicros(float micros) {
         try {
             Thread.sleep(0L, (int) (micros * 1000));
         } catch (InterruptedException e) {
@@ -39,9 +39,9 @@ public class ThreadUtils {
      * @param millis the number of milliseconds
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void sleepMillis(long millis) {
+    public static void sleepMillis(float millis) {
         try {
-            Thread.sleep(millis);
+            Thread.sleep((long) millis);
         } catch (InterruptedException e) {
             ExceptionUtils.throwException(e);
         }
