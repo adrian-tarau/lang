@@ -4,13 +4,20 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
+import static java.lang.System.currentTimeMillis;
 import static java.time.Duration.ofSeconds;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
+import static net.microfalx.lang.FormatterUtils.formatDuration;
 
 /**
  * Utilities around concurrency.
@@ -20,12 +27,12 @@ public class ConcurrencyUtils {
     /**
      * The default wait across all wait utilities.
      */
-    public static final Duration DEFAULT_WAIT = ofSeconds(60);
+    public static final Duration DEFAULT_WAIT = ofSeconds(30);
 
     /**
      * A maximum sleep time for exponential growth
      */
-    private static final int MAX_SLEEP_TIME = 10;
+    private static final int MAX_SLEEP_TIME = 50;
 
     /**
      * Retruns whether the latch has reached the countdown to zero.
@@ -66,6 +73,62 @@ public class ConcurrencyUtils {
         }
     }
 
+    public static boolean tryLock(Lock lock) throws InterruptedException {
+        return tryLock(lock, DEFAULT_WAIT);
+    }
+
+    /**
+     * Try to lock up to a given timeout
+     *
+     * @param lock    the lock
+     * @param timeout the maximum wait time
+     * @return {@code true} if the lock was acquired, {@code false} otherwise
+     * @throws InterruptedException if the thread was interrupted
+     * @see Lock#tryLock(long, TimeUnit)
+     */
+    public static boolean tryLock(Lock lock, Duration timeout) throws InterruptedException {
+        requireNonNull(lock);
+        requireNonNull(timeout);
+        return lock.tryLock(timeout.toMillis(), TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Try to lock up to a given timeout and if successful call the supplier.
+     *
+     * @param lock     the lock
+     * @param supplier the supplier to invoke if the lock is acquired
+     * @return the result, null if the lock could not be acquired
+     * @throws InterruptedException if the thread was interrupted
+     * @see Lock#tryLock(long, TimeUnit)
+     */
+    public static <T> Optional<T> withTryLock(Lock lock, Supplier<T> supplier) throws InterruptedException, TimeoutException {
+        return withTryLock(lock, supplier, DEFAULT_WAIT);
+    }
+
+    /**
+     * Try to lock up to a given timeout and if successful call the supplier.
+     *
+     * @param lock     the lock
+     * @param supplier the supplier to invoke if the lock is acquired
+     * @param timeout  the maximum wait time
+     * @return the result, null if the lock could not be acquired
+     * @throws InterruptedException if the thread was interrupted
+     * @see Lock#tryLock(long, TimeUnit)
+     */
+    public static <T> Optional<T> withTryLock(Lock lock, Supplier<T> supplier, Duration timeout) throws InterruptedException, TimeoutException {
+        requireNonNull(lock);
+        requireNonNull(timeout);
+        if (lock.tryLock(timeout.toMillis(), TimeUnit.MILLISECONDS)) {
+            try {
+                return Optional.ofNullable(supplier.get());
+            } finally {
+                lock.unlock();
+            }
+        } else {
+            throw new TimeoutException("Timeout waiting for lock '" + lock + "' to be acquired, timeout '" + formatDuration(timeout) + "'");
+        }
+    }
+
     /**
      * Waits for a latch to reach the end of the count-down.
      * <p>
@@ -75,6 +138,69 @@ public class ConcurrencyUtils {
      */
     public static void await(CountDownLatch latch, Duration duration, Consumer<CountDownLatch> consumer) {
         if (!await(latch, duration)) consumer.accept(latch);
+    }
+
+    /**
+     * Waits for the condition to become true.
+     *
+     * @param condition the condition
+     * @param timeout   the timeout to wait for all futures to be completed
+     * @return {@code true} if the condition was met, {@code false} otherwise
+     */
+    public static boolean waitForCondition(AtomicBoolean condition, boolean reverse, Duration timeout) {
+        return waitForCondition(condition::get, reverse, timeout);
+    }
+
+    /**
+     * Waits for the condition to become true.
+     *
+     * @param condition the condition
+     * @param timeout   the timeout to wait for all futures to be completed
+     * @param reverse   {@code true} to revert the condition before evaluation, {@code false} otherwise
+     * @return {@code true} if the condition was met, {@code false} otherwise
+     */
+    public static boolean waitForCondition(Supplier<Boolean> condition, boolean reverse, Duration timeout) {
+        requireNonNull(condition);
+        requireNonNull(timeout);
+        float waitTime = 0.5f;
+        long endTime = currentTimeMillis() + timeout.toMillis();
+        while (currentTimeMillis() < endTime) {
+            boolean satisfied = (!condition.get() && !reverse) || (condition.get() && reverse);
+            if (satisfied) break;
+            ThreadUtils.sleepMillis(waitTime);
+            waitTime = Math.max(1.2f * waitTime, MAX_SLEEP_TIME);
+        }
+        return reverse != condition.get();
+    }
+
+    /**
+     * Waits for the future to be competed (successful or not) up to a maximum time and returns the result.
+     *
+     * @param future the future
+     * @param <T>    the future data type
+     * @return the future
+     * @see #DEFAULT_WAIT
+     */
+    public static <T> T getResult(Future<T> future) {
+        return getResult(future, DEFAULT_WAIT);
+    }
+
+    /**
+     * Waits for the future to be competed (successful or not) up to a maximum time and returns the result.
+     *
+     * @param future  the future
+     * @param timeout the timeout to wait for all futures to be completed
+     * @param <T>     the future data type
+     * @return the future
+     */
+    public static <T> T getResult(Future<T> future, Duration timeout) {
+        requireNonNull(future);
+        waitForFutures(Collections.singleton(future), timeout);
+        try {
+            return future.get();
+        } catch (Exception e) {
+            return ExceptionUtils.throwException(e);
+        }
     }
 
     /**
@@ -94,11 +220,10 @@ public class ConcurrencyUtils {
      * Waits for all futures to be competed (successful or not) for up to 30 seconds.
      *
      * @param futures the futures
-     * @param <T>     the future data type
      * @return the number of futures which are still pending
      */
-    public static <T> int waitForFutures(Collection<? extends Future<T>> futures) {
-        return waitForFutures(futures, Duration.ofSeconds(TimeUtils.THIRTY_SECONDS));
+    public static int waitForFutures(Collection<? extends Future<?>> futures) {
+        return waitForFutures(futures, DEFAULT_WAIT);
     }
 
     /**
@@ -106,23 +231,22 @@ public class ConcurrencyUtils {
      *
      * @param futures the futures
      * @param timeout the timeout to wait for all futures to be completed
-     * @param <T>     the future data type
      * @return the number of futures which are still pending
      */
-    public static <T> int waitForFutures(Collection<? extends Future<T>> futures, Duration timeout) {
+    public static int waitForFutures(Collection<? extends Future<?>> futures, Duration timeout) {
         requireNonNull(futures);
         requireNonNull(timeout);
         float waitTime = 0.5f;
         int pending = 0;
-        long endTime = System.currentTimeMillis() + timeout.toMillis();
-        while (System.currentTimeMillis() < endTime) {
+        long endTime = currentTimeMillis() + timeout.toMillis();
+        while (currentTimeMillis() < endTime) {
             pending = 0;
-            for (Future<T> future : futures) {
+            for (Future<?> future : futures) {
                 if (!future.isDone()) pending++;
             }
             if (pending == 0) break;
             ThreadUtils.sleepMillis(waitTime);
-            waitTime = Math.max(1.2f * waitTime, MAX_SLEEP_TIME);
+            waitTime = Math.min(1.2f * waitTime, MAX_SLEEP_TIME);
         }
         return pending;
     }
@@ -135,7 +259,7 @@ public class ConcurrencyUtils {
      * @return a non-null instance
      */
     public static <T> Collection<T> collectFutures(Collection<? extends Future<T>> futures) {
-        ArgumentUtils.requireNonNull(futures);
+        requireNonNull(futures);
         Collection<T> values = new ArrayList<>();
         for (Future<T> future : futures) {
             if (future.isDone()) {
@@ -157,22 +281,21 @@ public class ConcurrencyUtils {
      * @param futures     the futures
      * @param timeOut     the timeout to wait for some of the futures to finish
      * @param minComplete the minimum number of futures to be completed before returns (or timeout)
-     * @param <T>         the future data type
      * @return the number of futures which are still pending
      */
-    public static <T> int drainFutures(Collection<? extends Future<T>> futures, long timeOut, int minComplete) {
-        ArgumentUtils.requireNonNull(futures);
+    public static int drainFutures(Collection<? extends Future<?>> futures, long timeOut, int minComplete) {
+        requireNonNull(futures);
         minComplete = Math.max(1, Math.min(minComplete, futures.size()));
         float waitTime = 0.5f;
-        long endTime = System.currentTimeMillis() + timeOut;
+        long endTime = currentTimeMillis() + timeOut;
         Collection<Future<?>> doneFutures = new ArrayList<>();
-        while (System.currentTimeMillis() < endTime) {
-            for (Future<T> future : futures) {
+        while (currentTimeMillis() < endTime) {
+            for (Future<?> future : futures) {
                 if (future.isDone()) doneFutures.add(future);
             }
             if (doneFutures.size() >= minComplete) break;
             ThreadUtils.sleepMillis(waitTime);
-            waitTime = Math.max(1.2f * waitTime, MAX_SLEEP_TIME);
+            waitTime = Math.min(1.2f * waitTime, MAX_SLEEP_TIME);
             doneFutures = new ArrayList<>();
         }
         for (Future<?> future : doneFutures) {

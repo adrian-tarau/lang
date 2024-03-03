@@ -10,7 +10,7 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Provides a label (display name) for the annotated element.
+ * Provides a label (display name, field name, title, etc) for the annotated element.
  * <p>
  * This is an alternative to {@link Name} when using cannot be used due to naming conflicts.
  */
@@ -21,16 +21,30 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface Label {
 
     /**
-     * The label to be used instead of the default one.
+     * Return the label (name/title) to be used instead of the default one.
      *
      * @return the label, empty to have no label
      */
     String value();
 
     /**
-     * The icon (CSS selectors) to be used with the label.
+     * Return the icon (CSS selectors) to be used with the label.
      *
      * @return a non-empty string if an icon is provided, empty otherwise
      */
     String icon() default "";
+
+    /**
+     * Returns the label (name/title) for the grouping element.
+     *
+     * @return a non-empty string if there is a group, empty otherwise
+     */
+    String group() default "";
+
+    /**
+     * Returns whether the label has a separator between this label and next label.
+     *
+     * @return {@code true} if there is a separator, {@code false} otherwise
+     */
+    boolean separator() default false;
 }

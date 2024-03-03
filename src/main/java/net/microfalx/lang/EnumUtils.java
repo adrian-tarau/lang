@@ -117,8 +117,7 @@ public class EnumUtils {
      * @return the enum name, NULL if the enum is null
      */
     public static <E extends Enum<E>> String toLabel(E enumInstance) {
-        String name = toName(enumInstance);
-        return StringUtils.capitalizeWords(name);
+        return toName(enumInstance);
     }
 
     /**
