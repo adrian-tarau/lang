@@ -161,6 +161,8 @@ public class EnumUtils {
             Name named = enumInstance.getClass().getField(enumInstance.name()).getAnnotation(Name.class);
             if (named != null && isNotEmpty(named.value())) {
                 aliases.add(named.value());
+            } else {
+                aliases.add(StringUtils.capitalizeWords(enumInstance.name()));
             }
         } catch (NoSuchFieldException e) {
             LOGGER.error("Enum " + enumInstance + " cannot be accessed with reflection, root cause: " + e.getMessage());
