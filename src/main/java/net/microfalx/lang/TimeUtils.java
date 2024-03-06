@@ -1,5 +1,6 @@
 package net.microfalx.lang;
 
+import java.sql.Timestamp;
 import java.time.*;
 import java.time.chrono.ChronoLocalDate;
 import java.time.chrono.ChronoLocalDateTime;
@@ -106,6 +107,18 @@ public class TimeUtils {
     }
 
     /**
+     * Converts a temporal (old and new API) to a {@link ZonedDateTime} and changes the zone.
+     *
+     * @param temporal any of the Java Time API temporal objects
+     * @return a zoned date time
+     * @see ZonedDateTime#withZoneSameInstant(ZoneId)
+     */
+    public static ZonedDateTime toZonedDateTimeSameInstant(Object temporal, ZoneId zoneId) {
+        ZonedDateTime zonedDateTime = toZonedDateTime(temporal);
+        return zonedDateTime != null ? zonedDateTime.withZoneSameInstant(zoneId) : null;
+    }
+
+    /**
      * Converts a temporal (old and new API) to a {@link ZonedDateTime}.
      *
      * @param temporal any of the Java Time API temporal objects
@@ -148,6 +161,29 @@ public class TimeUtils {
         } else {
             throw new IllegalArgumentException("Value not a temporal: " + temporal);
         }
+    }
+
+    /**
+     * Converts a temporal to a SQL timestamp.
+     *
+     * @param temporal the temporal
+     * @return the timestamp, null if temporal was null
+     */
+    public static Timestamp toTimestamp(Temporal temporal) {
+        if (temporal == null) return null;
+        Instant instant;
+        if (temporal instanceof LocalDateTime) {
+            instant = ((LocalDateTime) temporal).toInstant(UTC_OFFSET);
+        } else if (temporal instanceof LocalDate) {
+            instant = ((LocalDate) temporal).atStartOfDay().toInstant(UTC_OFFSET);
+        } else if (temporal instanceof ZonedDateTime) {
+            instant = ((ZonedDateTime) temporal).toInstant();
+        } else if (temporal instanceof OffsetDateTime) {
+            instant = ((OffsetDateTime) temporal).toInstant();
+        } else {
+            throw new IllegalArgumentException("Value not a temporal: " + temporal);
+        }
+        return new Timestamp(instant.toEpochMilli());
     }
 
     /**

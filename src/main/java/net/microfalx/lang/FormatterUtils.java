@@ -158,7 +158,8 @@ public class FormatterUtils {
     /**
      * Formats a duration.
      * <p>
-     * A duration can be a number (millis) or a {@link Duration}.
+     * A duration can be a number (millis) or a {@link Duration}. If the value is a floating point or duration
+     * has nanoseconds only, the value will be formated in micro-seconds
      *
      * @param value the value to format
      * @return the formated value
