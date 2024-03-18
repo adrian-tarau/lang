@@ -142,6 +142,17 @@ public class IOUtils {
     }
 
     /**
+     * Creates an output stream wrapper that prevents the underlying output stream from being closed.
+     *
+     * @param outputStream the original output stream
+     * @return a non-null instance
+     */
+    public static OutputStream getUnclosableOutputStream(OutputStream outputStream) {
+        if (outputStream == null) outputStream = new ByteArrayOutputStream();
+        return new UnclosableOuputStream(outputStream);
+    }
+
+    /**
      * Copies the input stream content into the output stream. Streams
      * are automatically buffered if they do not implement BufferedInputStream/BufferedOutputStream.
      * <p>
@@ -295,6 +306,18 @@ public class IOUtils {
 
         public UnclosableInputStream(InputStream in) {
             super(in);
+        }
+
+        @Override
+        public void close() throws IOException {
+            // do not close
+        }
+    }
+
+    static class UnclosableOuputStream extends FilterOutputStream {
+
+        public UnclosableOuputStream(OutputStream out) {
+            super(out);
         }
 
         @Override

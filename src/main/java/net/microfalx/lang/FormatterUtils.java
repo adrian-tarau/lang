@@ -4,6 +4,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 
+import static net.microfalx.lang.StringUtils.EMPTY_STRING;
 import static net.microfalx.lang.StringUtils.NA_STRING;
 import static net.microfalx.lang.TimeUtils.toZonedDateTime;
 
@@ -15,6 +16,9 @@ public class FormatterUtils {
     public static final long M = 1000 * K;
     public static final long G = 1000 * M;
 
+    public static final long MICROS_IN_MILLI = 1000;
+    public static final long NANOS_IN_MILLI = 1000 * MICROS_IN_MILLI;
+    public static final long NANOS_IN_MICRO = 1000;
     public static final long MILLIS_IN_SECOND = 1000;
     public static final long MILLIS_IN_MINUTE = 60 * MILLIS_IN_SECOND;
     public static final long MILLIS_IN_HOUR = 60 * MILLIS_IN_MINUTE;
@@ -180,27 +184,48 @@ public class FormatterUtils {
     public static String formatDuration(Object value, String defaultValue) {
         if (value == null || value instanceof String) return defaultValue;
         long millis = -1;
+        long nano = -1;
         if (value instanceof Number) {
-            millis = ((Number) value).longValue();
+            float floatValue = ((Number) value).floatValue();
+            if (floatValue > 0 && floatValue < 1) {
+                nano = (long) (floatValue * NANOS_IN_MILLI);
+            } else {
+                millis = ((Number) value).longValue();
+            }
         } else if (value instanceof Duration) {
-            millis = ((Duration) value).toMillis();
+            Duration duration = (Duration) value;
+            if (duration.toMillis() == 0) {
+                nano = duration.getNano();
+                if (nano == 0) millis = 0;
+            } else {
+                millis = duration.toMillis();
+            }
         }
         if (millis < 0) {
-            return defaultValue;
+            if (nano < 0) {
+                return defaultValue;
+            } else {
+                if (nano < NANOS_IN_MICRO) {
+                    return nano + "ns";
+                } else {
+                    return (nano / NANOS_IN_MICRO) + "μs";
+                }
+            }
         } else {
             if (millis < K) {
                 return millis + "ms";
             } else if (millis < MILLIS_IN_MINUTE) {
                 int seconds = (int) (millis / MILLIS_IN_SECOND);
-                return seconds + "s " + (millis - seconds * MILLIS_IN_SECOND) + "ms";
+                millis = millis - seconds * MILLIS_IN_SECOND;
+                return seconds + "s" + (millis > 0 ? " " + millis + "ms" : EMPTY_STRING);
             } else if (millis < MILLIS_IN_HOUR) {
                 int minutes = (int) (millis / MILLIS_IN_MINUTE);
                 int seconds = (int) ((millis - minutes * MILLIS_IN_MINUTE) / MILLIS_IN_SECOND);
-                return minutes + "m " + seconds + "s";
+                return minutes + "m" + (seconds > 0 ? " " + seconds + "s" : EMPTY_STRING);
             } else if (millis < MILLIS_IN_DAY) {
                 int hours = (int) (millis / MILLIS_IN_HOUR);
                 int minutes = (int) ((millis - hours * MILLIS_IN_HOUR) / MILLIS_IN_MINUTE);
-                return hours + "h " + minutes + "m";
+                return hours + "h" + (minutes > 0 ? " " + minutes + "m" : EMPTY_STRING);
             } else {
                 int hours = (int) (millis / MILLIS_IN_HOUR);
                 return hours + "h";
