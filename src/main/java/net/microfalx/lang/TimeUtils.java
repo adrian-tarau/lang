@@ -12,6 +12,16 @@ import static java.lang.System.currentTimeMillis;
 public class TimeUtils {
 
     /**
+     * How many microseconds are in a millisecond.
+     */
+    public static final long MICROSECONDS_IN_MILLISECONDS = 1000;
+
+    /**
+     * How many microseconds are in a millisecond.
+     */
+    public static final long NANOSECONDS_IN_MILLISECONDS = 1000 * MICROSECONDS_IN_MILLISECONDS;
+
+    /**
      * How many milliseconds are in a second.
      */
     public static final long MILLISECONDS_IN_SECOND = 1000;
