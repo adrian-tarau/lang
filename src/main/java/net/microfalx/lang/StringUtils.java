@@ -95,6 +95,21 @@ public class StringUtils {
         return value.toLowerCase().contains(fragment.toLowerCase());
     }
 
+    /**
+     * Returns whether the string contains multiple lines of text.
+     *
+     * @param value the value to test
+     * @return {@code true} if it contains more than one line, {@code false} otherwise
+     */
+    public static boolean containsNewLines(String value) {
+        if (value == null) return false;
+        char[] chars = value.toCharArray();
+        for (char c : chars) {
+            if (c == '\n' || c == '\r') return true;
+        }
+        return false;
+    }
+
 
     /**
      * Converts a String to an identifier.
@@ -543,7 +558,7 @@ public class StringUtils {
 
     /**
      * Formats a message.
-     *
+     * <p>
      * The function
      *
      * @param pattern   the pattern message
