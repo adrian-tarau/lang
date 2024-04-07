@@ -376,6 +376,7 @@ public class StringUtils {
         if (isEmpty(value)) return value;
         value = value.replace('.', ' ');
         value = value.replace('_', ' ');
+        value = value.replace('-', ' ');
         value = value.replace('$', ' ');
         value = value.replace('&', ' ');
         StringBuilder rc = new StringBuilder();
