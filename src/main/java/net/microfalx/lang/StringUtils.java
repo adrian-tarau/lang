@@ -110,6 +110,35 @@ public class StringUtils {
         return false;
     }
 
+    /**
+     * Returns whether the string contains at least one white spaces: spaces, tabs, new lines, etc.
+     *
+     * @param value the value to test
+     * @return {@code true} if it contains only white spaces, {@code false} otherwise
+     */
+    public static boolean containsWhiteSpaces(String value) {
+        if (value == null) return false;
+        char[] chars = value.toCharArray();
+        for (char c : chars) {
+            if (Character.isWhitespace(c)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns whether the string contains only white spaces: spaces, tabs, new lines, etc.
+     *
+     * @param value the value to test
+     * @return {@code true} if it contains only white spaces, {@code false} otherwise
+     */
+    public static boolean containsWhiteSpacesOnly(String value) {
+        if (value == null) return false;
+        char[] chars = value.toCharArray();
+        for (char c : chars) {
+            if (!Character.isWhitespace(c)) return false;
+        }
+        return true;
+    }
 
     /**
      * Converts a String to an identifier.
@@ -311,6 +340,28 @@ public class StringUtils {
         if (isEmpty(value)) return value;
         value = value.toLowerCase().trim();
         return Character.toUpperCase(value.charAt(0)) + value.substring(1);
+    }
+
+    /**
+     * Capitalizes the given string by capitalize first letter.
+     *
+     * @param value the string value
+     * @return capitalized string
+     */
+    public static String capitalizeFirst(String value) {
+        if (isEmpty(value)) return value;
+        return Character.toUpperCase(value.charAt(0)) + value.substring(1);
+    }
+
+    /**
+     * Capitalizes the given string by uncapitalize first letter.
+     *
+     * @param value the string value
+     * @return capitalized string
+     */
+    public static String uncapitalizeFirst(String value) {
+        if (isEmpty(value)) return value;
+        return Character.toLowerCase(value.charAt(0)) + value.substring(1);
     }
 
     /**

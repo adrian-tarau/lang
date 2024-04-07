@@ -53,6 +53,8 @@ public final class Hashing {
             } else {
                 hasher.putInt(((Number) value).intValue());
             }
+        } else if (value instanceof byte[]) {
+            hasher.putBytes((byte[]) value);
         } else {
             throw new IllegalArgumentException("Unsupported type: " + ClassUtils.getName(value));
         }
