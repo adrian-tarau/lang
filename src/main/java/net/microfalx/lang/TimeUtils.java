@@ -229,6 +229,24 @@ public class TimeUtils {
     }
 
     /**
+     * Returns the duration passed between a time reference in the past and now.
+     *
+     * @param value the time reference
+     * @return duration
+     */
+    public static Duration durationSince(Object value) {
+        Duration duration = Duration.ZERO;
+        if (value instanceof LocalDateTime) {
+            duration = Duration.between((LocalDateTime) value, LocalDateTime.now());
+        } else if (value instanceof ZonedDateTime) {
+            duration = Duration.between((ZonedDateTime) value, ZonedDateTime.now());
+        } else if (value instanceof OffsetDateTime) {
+            duration = Duration.between((OffsetDateTime) value, OffsetDateTime.now());
+        }
+        return duration;
+    }
+
+    /**
      * Returns how must time passed compared with <code>now</code>, basically System.currentTimeMillis() - time.
      *
      * @param time an arbitrary time; accepted types: Date, DateTime, Number/String (instant)

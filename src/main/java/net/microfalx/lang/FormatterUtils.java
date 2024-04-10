@@ -4,6 +4,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 
+import static net.microfalx.lang.NumberUtils.*;
 import static net.microfalx.lang.StringUtils.EMPTY_STRING;
 import static net.microfalx.lang.StringUtils.NA_STRING;
 import static net.microfalx.lang.TimeUtils.toZonedDateTime;
@@ -23,6 +24,10 @@ public class FormatterUtils {
     public static final long MILLIS_IN_MINUTE = 60 * MILLIS_IN_SECOND;
     public static final long MILLIS_IN_HOUR = 60 * MILLIS_IN_MINUTE;
     public static final long MILLIS_IN_DAY = 24 * MILLIS_IN_HOUR;
+
+    public static final double MIN_FORMATABLE_DOUBLE = 0.000001;
+
+    public static final String NA_VALUE = "-";
 
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -160,10 +165,70 @@ public class FormatterUtils {
     }
 
     /**
+     * Formats a numeric value as throughput.
+     * <p>
+     * If the value cannot be formatted, it returns {@link #NA_VALUE}
+     *
+     * @param value the value to format
+     * @param unit  the unit
+     * @return the formatted value
+     */
+    public static String formatThroughput(Object value, String unit) {
+        return formatThroughput(value, null, unit, NA_VALUE);
+    }
+
+
+    /**
+     * Formats a numeric value as throughput.
+     * <p>
+     * If the value cannot be formatted, it returns {@link #NA_VALUE}
+     *
+     * @param value    the value to format
+     * @param duration the amount of time passed
+     * @param unit     the unit
+     * @return the formatted value
+     */
+    public static String formatThroughput(Object value, Duration duration, String unit) {
+        return formatThroughput(value, duration, unit, NA_VALUE);
+    }
+
+    /**
+     * Formats a numeric value as throughput.
+     * <p>
+     * The units are usually "t" (transactions), "r" (requests), "b" (bytes). When bytes is used, numbers are formatted
+     * using KB, MB, GB.
+     *
+     * @param value        the value to format
+     * @param duration     the amount of time passed since the value was tracked; NULL if the value is already a throughput
+     * @param unit         the unit , if null or empty "r" (requests)
+     * @param defaultValue the default value
+     * @return the formatted value
+     */
+    public static String formatThroughput(Object value, Duration duration, String unit, String defaultValue) {
+        if (value == null) return defaultValue;
+        if (StringUtils.isEmpty(unit)) unit = "r";
+        double valueAsDouble = NumberUtils.toNumber(value, ZERO_DOUBLE).doubleValue();
+        double throughput;
+        if (duration != null) {
+            throughput = throughput(value, duration, ZERO_DOUBLE);
+        } else {
+            throughput = valueAsDouble;
+        }
+        if (throughput < MIN_FORMATABLE_DOUBLE) return defaultValue;
+        String text;
+        if ("b".equalsIgnoreCase(unit)) {
+            text = formatBytes(isInteger(throughput) ? (long) throughput : throughput);
+        } else {
+            text = formatNumber(isInteger(throughput) ? (long) throughput : throughput, 1, null) + unit;
+        }
+        return text + "/s";
+    }
+
+    /**
      * Formats a duration.
      * <p>
      * A duration can be a number (millis) or a {@link Duration}. If the value is a floating point or duration
-     * has nanoseconds only, the value will be formated in micro-seconds
+     * has nanoseconds only, the value will be formatted in micro-seconds
      *
      * @param value the value to format
      * @return the formated value
@@ -253,15 +318,10 @@ public class FormatterUtils {
         } else if (number.longValue() > 10 * K) {
             number = number.doubleValue() / (double) K;
             suffix = "KB";
-        }
-        boolean isFloating = number instanceof Float || number instanceof Double;
-        if (isFloating) {
-            double valueAsDouble = number.doubleValue();
-            return String.format("%,." + decimals + "f", valueAsDouble) + suffix;
         } else {
-            long valueAsLong = number.longValue();
-            return String.format("%,d", valueAsLong) + suffix;
+            suffix = "B";
         }
+        return formatNumber(number, decimals, suffix);
     }
 
     /**
@@ -294,14 +354,29 @@ public class FormatterUtils {
             number = number.doubleValue() / (double) K;
             suffix = "k";
         }
+        return formatNumber(number, decimals, suffix);
+    }
+
+    /**
+     * Formats a number.
+     *
+     * @param number   the number
+     * @param decimals the number of decimals if floating point
+     * @param suffix   a suffix to be added at the end, if given
+     * @return the formatted number
+     */
+    public static String formatNumber(Number number, int decimals, String suffix) {
         boolean isFloating = number instanceof Float || number instanceof Double;
+        String text;
         if (isFloating) {
             double valueAsDouble = number.doubleValue();
-            return String.format("%,." + decimals + "f", valueAsDouble) + suffix;
+            text = String.format("%,." + decimals + "f", valueAsDouble);
         } else {
             long valueAsLong = number.longValue();
-            return String.format("%,d", valueAsLong) + suffix;
+            text = String.format("%,d", valueAsLong);
         }
+        if (StringUtils.isNotEmpty(suffix)) text += suffix;
+        return text;
     }
 
 
