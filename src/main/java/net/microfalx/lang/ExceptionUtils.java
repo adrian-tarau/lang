@@ -3,10 +3,11 @@ package net.microfalx.lang;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
-import static net.microfalx.lang.StringUtils.NA_STRING;
-import static net.microfalx.lang.StringUtils.defaultIfEmpty;
+import static net.microfalx.lang.StringUtils.*;
 
 /**
  * Utilities around exceptions.
@@ -73,6 +74,50 @@ public class ExceptionUtils {
     }
 
     /**
+     * Returns the class name of the root cause exception.
+     *
+     * @param throwable the throwable
+     * @return the root cause throwable class name
+     */
+    public static Class<? extends Throwable> getRootCauseClass(Throwable throwable) {
+        Throwable rootCause = getRootCause(throwable);
+        return rootCause != null ? rootCause.getClass() : throwable.getClass();
+    }
+
+    /**
+     * Returns a label our of the root cause exception, mainly used to track the exception as a counter.
+     *
+     * @param throwable the throwable
+     * @return the root cause label
+     */
+    public static String getRootCauseName(Throwable throwable) {
+        if (throwable == null) return NA_STRING;
+        Class<? extends Throwable> rootCauseClass = getRootCauseClass(throwable);
+        String exceptionClassName = rootCauseClass.getSimpleName();
+        if (exceptionClassName.endsWith("Exception")) {
+            exceptionClassName = exceptionClassName.substring(0, exceptionClassName.length() - 9);
+        }
+        String alias = EXCEPTION_NAME_ALIAS.get(exceptionClassName);
+        return alias != null ? alias : beautifyCamelCase(exceptionClassName);
+    }
+
+    /**
+     * Returns a label our of the root cause exception, mainly used to track the exception as a counter.
+     *
+     * @param exceptionClassName the throwable
+     * @return the root cause label
+     */
+    public static String getRootCauseName(String exceptionClassName) {
+        if (exceptionClassName == null) return NA_STRING;
+        exceptionClassName = ClassUtils.getSimpleName(exceptionClassName);
+        if (exceptionClassName.endsWith("Exception")) {
+            exceptionClassName = exceptionClassName.substring(0, exceptionClassName.length() - 9);
+        }
+        String alias = EXCEPTION_NAME_ALIAS.get(exceptionClassName);
+        return alias != null ? alias : beautifyCamelCase(exceptionClassName);
+    }
+
+    /**
      * Returns the SQL exception if the root cause exception is a database exception
      *
      * @param throwable the exception
@@ -87,6 +132,12 @@ public class ExceptionUtils {
     private static <E extends Throwable> void doThrowException(Throwable exception) throws E {
         requireNonNull(exception);
         throw (E) exception;
+    }
+
+    private static Map<String, String> EXCEPTION_NAME_ALIAS = new HashMap<>();
+
+    static {
+        EXCEPTION_NAME_ALIAS.put("IO", "I/O");
     }
 
 

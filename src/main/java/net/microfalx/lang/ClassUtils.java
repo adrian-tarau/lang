@@ -64,6 +64,39 @@ public class ClassUtils {
     }
 
     /**
+     * Returns the class name of an object.
+     *
+     * @param object the object for which to get the class name; may be null
+     * @return the class name or the empty String
+     */
+    public static String getSimpleName(Object object) {
+        return getSimpleName(object, EMPTY_STRING);
+    }
+
+    /**
+     * Returns the class name of an object.
+     *
+     * @param object       the object for which to get the class name; may be null
+     * @param defaultValue the value to return if {@code object} is {@code null}
+     * @return the class name or {@code valueIfNull}
+     */
+    public static String getSimpleName(Object object, final String defaultValue) {
+        return object == null ? defaultValue : object.getClass().getName();
+    }
+
+    /**
+     * Returns the class name of an object.
+     *
+     * @param className the class name as a string; may be null
+     * @return the class name or the empty String
+     */
+    public static String getSimpleName(String className) {
+        if (className == null) return null;
+        int lastIndex = className.lastIndexOf('.');
+        return lastIndex >= 0 ? className.substring(lastIndex + 1) : className;
+    }
+
+    /**
      * Returns whether the object is a subclass of a given superclass.
      *
      * @param object     an object

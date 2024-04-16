@@ -8,6 +8,7 @@ import java.time.temporal.Temporal;
 import java.util.Date;
 
 import static java.lang.System.currentTimeMillis;
+import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 
 public class TimeUtils {
 
@@ -244,6 +245,22 @@ public class TimeUtils {
             duration = Duration.between((OffsetDateTime) value, OffsetDateTime.now());
         }
         return duration;
+    }
+
+    /**
+     * Returns whether the temporal is between two temporals.
+     *
+     * @param temporal the temporal to check
+     * @param start    the start of the interval, can be NULL
+     * @param end      the end of the interval, can be NULL
+     * @return {@code true} if inside the interval, {@code false} otherwise
+     */
+    public static boolean isBetween(Temporal temporal, Temporal start, Temporal end) {
+        requireNonNull(temporal);
+        LocalDateTime localDateTime = toLocalDateTime(temporal);
+        if (start != null && toLocalDateTime(start).isAfter(localDateTime)) return false;
+        if (end != null && toLocalDateTime(end).isBefore(localDateTime)) return false;
+        return true;
     }
 
     /**

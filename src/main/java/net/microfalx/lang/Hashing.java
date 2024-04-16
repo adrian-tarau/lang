@@ -3,6 +3,8 @@ package net.microfalx.lang;
 import com.google.common.hash.Hasher;
 
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
+import java.time.temporal.Temporal;
 
 /**
  * A class which helps to calculate a hash from objects.
@@ -46,17 +48,15 @@ public final class Hashing {
         } else if (value instanceof String) {
             hasher.putString((String) value, StandardCharsets.UTF_8);
         } else if (value instanceof Number) {
-            if (value instanceof Long) {
-                hasher.putLong((Long) value);
-            } else if (value instanceof Integer) {
-                hasher.putLong((Integer) value);
-            } else {
-                hasher.putInt(((Number) value).intValue());
-            }
+            updateNumber((Number) value);
         } else if (value instanceof byte[]) {
             hasher.putBytes((byte[]) value);
+        } else if (value instanceof Enum) {
+            hasher.putString(((Enum<?>) value).name(), StandardCharsets.UTF_8);
+        } else if (value instanceof Temporal) {
+            updateTemporal((Temporal) value);
         } else {
-            throw new IllegalArgumentException("Unsupported type: " + ClassUtils.getName(value));
+            updateOther(value);
         }
         return this;
     }
@@ -104,6 +104,29 @@ public final class Hashing {
      */
     public byte[] asBytes() {
         return hasher.hash().asBytes();
+    }
+
+    private void updateNumber(Number number) {
+        if (number instanceof Long) {
+            hasher.putLong((Long) number);
+        } else if (number instanceof Integer) {
+            hasher.putLong((Integer) number);
+        } else {
+            hasher.putInt(((Number) number).intValue());
+        }
+    }
+
+    private void updateTemporal(Temporal temporal) {
+        ZonedDateTime zonedDateTime = TimeUtils.toZonedDateTime(temporal);
+        hasher.putLong(zonedDateTime.toInstant().toEpochMilli());
+    }
+
+    private void updateOther(Object value) {
+        throwUnsupportedType(value);
+    }
+
+    private void throwUnsupportedType(Object value) {
+        throw new IllegalArgumentException("Unsupported type: " + ClassUtils.getName(value));
     }
 
     /**

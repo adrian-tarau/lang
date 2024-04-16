@@ -103,4 +103,28 @@ public class NumberUtils {
         if (throughput < 0.00001) return defaultValue;
         return throughput;
     }
+
+    /**
+     * Returns whether the value is between bounds.
+     *
+     * @param value the value
+     * @param min   the minimum value
+     * @param max   the maximum value (inclusive)
+     * @return {@code true} if within bounds, {@code false} otherwise
+     */
+    public static boolean isBetweenInclusive(long value, long min, long max) {
+        return value >= min && value <= max;
+    }
+
+    /**
+     * Returns whether the value is between bounds.
+     *
+     * @param value the value
+     * @param min   the minimum value
+     * @param max   the maximum value (exclusive)
+     * @return {@code true} if within bounds, {@code false} otherwise
+     */
+    public static boolean isBetweenExclusive(long value, long min, long max) {
+        return value >= min && value < max;
+    }
 }
