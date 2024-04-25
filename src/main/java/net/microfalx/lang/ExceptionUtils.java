@@ -63,6 +63,18 @@ public class ExceptionUtils {
     }
 
     /**
+     * Returns the root cause description.
+     * <p>
+     * The root cause description has the root cause message and the type of failure in parentheses.
+     *
+     * @param throwable the exception
+     * @return the description
+     */
+    public static String getRootCauseDescription(Throwable throwable) {
+        return getRootCauseMessage(throwable) + " (" + getRootCauseName(throwable) + ")";
+    }
+
+    /**
      * Returns the root cause exception.
      *
      * @param throwable the throwable

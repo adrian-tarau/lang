@@ -1,9 +1,6 @@
 package net.microfalx.lang;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Collections.*;
 
@@ -90,5 +87,33 @@ public class CollectionUtils {
      */
     public static <K, V> Map<K, V> immutableMap(Map<K, V> items) {
         return items != null ? unmodifiableMap(items) : emptyMap();
+    }
+
+    /**
+     * Returns an iterable which wraps an iterator and can be consumed once.
+     *
+     * @param iterator the iterator
+     * @param <T>      the data type
+     * @return a non-null instance
+     */
+    public static <T> Iterable<T> toIterable(Iterator<T> iterator) {
+        return iterator == null ? Collections.emptyList() : new OnceIterable<>(iterator);
+    }
+
+    static class OnceIterable<T> implements Iterable<T> {
+
+        private final Iterator<T> iterator;
+        private boolean consumed;
+
+        OnceIterable(Iterator<T> iterator) {
+            this.iterator = iterator;
+        }
+
+        @Override
+        public Iterator<T> iterator() {
+            if (consumed) throw new IllegalStateException("The iterator was already consumed");
+            consumed = true;
+            return iterator;
+        }
     }
 }

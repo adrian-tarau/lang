@@ -6,6 +6,9 @@ import org.atteo.classindex.ClassIndex;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URL;
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,7 +22,31 @@ import static net.microfalx.lang.StringUtils.EMPTY_STRING;
  */
 public class ClassUtils {
 
-    private static final Map<Class<?>, Collection<?>> providers = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, Collection<?>> PROVIDERS = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, Class<?>> PRIMITIVE_TO_OBJECT_CLASSES = new HashMap<>();
+    private static final Map<Class<?>, Class<?>> OBJECT_TO_PRIMITIVE_CLASSES = new HashMap<>();
+    private static final Set<Class<?>> BASE_CLASSES = new HashSet<>();
+
+    /**
+     * Returns whether the object represents a basic Java object (numbers, string, boolean, dates, etc).
+     *
+     * @param value the object to test
+     * @return {@code true} if a base class, {@code false} otherwise
+     */
+    public static boolean isBaseClass(Object value) {
+        return value != null && isJdkClass(value.getClass());
+    }
+
+    /**
+     * Returns whether the class represents a basic Java class (numbers, string, boolean, dates, etc).
+     *
+     * @param clazz the class to test
+     * @return {@code true} if a base class, {@code false} otherwise
+     */
+    public static boolean isBaseClass(Class<?> clazz) {
+        requireNotEmpty(clazz);
+        return BASE_CLASSES.contains(clazz);
+    }
 
     /**
      * Returns the class name.
@@ -163,7 +190,7 @@ public class ClassUtils {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static <T> Collection<Class<T>> resolveProviders(Class<T> providerClass) {
         requireNotEmpty(providerClass);
-        Collection cachedProviders = ClassUtils.providers.get(providerClass);
+        Collection cachedProviders = ClassUtils.PROVIDERS.get(providerClass);
         if (cachedProviders != null) return cachedProviders;
         Collection<Class<T>> providerClasses = new HashSet<>();
         Iterable<Class<?>> scannedProviderClasses = ClassIndex.getAnnotated(Provider.class);
@@ -174,7 +201,7 @@ public class ClassUtils {
         }
         List<Class<T>> orderedProviders = new ArrayList<>(providerClasses);
         AnnotationUtils.sort(orderedProviders);
-        ClassUtils.providers.put(providerClass, orderedProviders);
+        ClassUtils.PROVIDERS.put(providerClass, orderedProviders);
         return orderedProviders;
     }
 
@@ -206,7 +233,7 @@ public class ClassUtils {
      * Clears all caches.
      */
     public void clearCaches() {
-        providers.clear();
+        PROVIDERS.clear();
     }
 
     /**
@@ -279,5 +306,44 @@ public class ClassUtils {
         } catch (Exception e) {
             return ExceptionUtils.throwException(e);
         }
+    }
+
+    static {
+        PRIMITIVE_TO_OBJECT_CLASSES.put(byte.class, Byte.class);
+        PRIMITIVE_TO_OBJECT_CLASSES.put(char.class, Character.class);
+        PRIMITIVE_TO_OBJECT_CLASSES.put(short.class, Short.class);
+        PRIMITIVE_TO_OBJECT_CLASSES.put(int.class, Integer.class);
+        PRIMITIVE_TO_OBJECT_CLASSES.put(long.class, Long.class);
+        PRIMITIVE_TO_OBJECT_CLASSES.put(float.class, Float.class);
+        PRIMITIVE_TO_OBJECT_CLASSES.put(double.class, Double.class);
+        PRIMITIVE_TO_OBJECT_CLASSES.put(boolean.class, Boolean.class);
+
+        OBJECT_TO_PRIMITIVE_CLASSES.put(Byte.class, byte.class);
+        OBJECT_TO_PRIMITIVE_CLASSES.put(Character.class, char.class);
+        OBJECT_TO_PRIMITIVE_CLASSES.put(Short.class, short.class);
+        OBJECT_TO_PRIMITIVE_CLASSES.put(Integer.class, int.class);
+        OBJECT_TO_PRIMITIVE_CLASSES.put(Long.class, long.class);
+        OBJECT_TO_PRIMITIVE_CLASSES.put(Float.class, float.class);
+        OBJECT_TO_PRIMITIVE_CLASSES.put(Double.class, double.class);
+        OBJECT_TO_PRIMITIVE_CLASSES.put(Boolean.class, boolean.class);
+
+        BASE_CLASSES.addAll(PRIMITIVE_TO_OBJECT_CLASSES.keySet());
+        BASE_CLASSES.addAll(OBJECT_TO_PRIMITIVE_CLASSES.keySet());
+        BASE_CLASSES.add(String.class);
+        BASE_CLASSES.add(Date.class);
+        BASE_CLASSES.add(java.sql.Date.class);
+        BASE_CLASSES.add(java.sql.Time.class);
+        BASE_CLASSES.add(java.sql.Timestamp.class);
+        BASE_CLASSES.add(Instant.class);
+        BASE_CLASSES.add(LocalDate.class);
+        BASE_CLASSES.add(LocalTime.class);
+        BASE_CLASSES.add(LocalDateTime.class);
+        BASE_CLASSES.add(ZonedDateTime.class);
+        BASE_CLASSES.add(OffsetDateTime.class);
+        BASE_CLASSES.add(Duration.class);
+        BASE_CLASSES.add(ZoneId.class);
+        BASE_CLASSES.add(ZoneOffset.class);
+        BASE_CLASSES.add(URL.class);
+        BASE_CLASSES.add(URI.class);
     }
 }
