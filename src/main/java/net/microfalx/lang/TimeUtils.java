@@ -4,11 +4,16 @@ import java.sql.Timestamp;
 import java.time.*;
 import java.time.chrono.ChronoLocalDate;
 import java.time.chrono.ChronoLocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
 import java.util.Date;
 
 import static java.lang.System.currentTimeMillis;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
+import static net.microfalx.lang.StringUtils.isEmpty;
 
 public class TimeUtils {
 
@@ -94,6 +99,10 @@ public class TimeUtils {
 
     public static final ZoneId UTC_ZONE = ZoneId.of("UTC");
     public static final ZoneOffset UTC_OFFSET = ZoneOffset.UTC;
+
+    private static final DateTimeFormatter DATE_TINE_FORMATTER = createDateTimeFormatter();
+    private static final DateTimeFormatter DATE_FORMATTER = createDateFormatter();
+    private static final DateTimeFormatter TIME_FORMATTER = createTimeFormatter();
 
     /**
      * Converts millis since epoch to a {@link ZonedDateTime}.
@@ -304,5 +313,367 @@ public class TimeUtils {
      */
     public static long oneDayAgo() {
         return currentTimeMillis() - MILLISECONDS_IN_DAY;
+    }
+
+    /**
+     * Formats a temporal using ISO format.
+     *
+     * @param temporal the temporal
+     * @return the temporal as String
+     */
+    public static String format(Temporal temporal) {
+        if (temporal == null) return null;
+        if (temporal instanceof LocalDateTime || temporal instanceof ZonedDateTime
+                || temporal instanceof OffsetDateTime) {
+            return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(temporal);
+        } else if (temporal instanceof LocalDate) {
+            return DateTimeFormatter.ISO_DATE.format(temporal);
+        } else if (temporal instanceof LocalTime) {
+            return DateTimeFormatter.ISO_OFFSET_TIME.format(((LocalTime) temporal).atOffset(ZoneOffset.UTC));
+        } else if (temporal instanceof OffsetTime) {
+            return DateTimeFormatter.ISO_OFFSET_TIME.format(temporal);
+        } else if (temporal instanceof Instant) {
+            return DateTimeFormatter.ISO_INSTANT.format(temporal);
+        } else {
+            throw new IllegalArgumentException("Unsupported temporal type '" + ClassUtils.getName(temporal) + "', value " + temporal);
+        }
+    }
+
+    /**
+     * Parses a temporal.
+     * <p>
+     * The method accepts a range of date/time, date and time formats (including ISO).
+     *
+     * @param temporal the temporal as String
+     * @return the temporal, null if input is null or empty
+     */
+    public static Temporal parseTemporal(String temporal) {
+        if (isEmpty(temporal)) return null;
+        DateTimeMetadata dateTimeMetadata = extractTemporalMetadataAndFail(temporal);
+        if (dateTimeMetadata.isDateTime()) {
+            return ZonedDateTime.parse(temporal, DATE_TINE_FORMATTER);
+        } else if (dateTimeMetadata.isDate()) {
+            return LocalDate.parse(temporal, DATE_FORMATTER);
+        } else {
+            return OffsetTime.parse(temporal, TIME_FORMATTER);
+        }
+    }
+
+    /**
+     * Parses a date/time.
+     * <p>
+     * The method accepts a range of date/time & date formats (including ISO).
+     *
+     * @param temporal the date/time as String
+     * @return the date/time, null if input is null or empty
+     */
+    public static ZonedDateTime parseDateTime(String temporal) {
+        if (isEmpty(temporal)) return null;
+        DateTimeMetadata dateTimeMetadata = extractTemporalMetadataAndFail(temporal);
+        if (dateTimeMetadata.isDateTime()) {
+            if (dateTimeMetadata.hasZone) {
+                return ZonedDateTime.parse(temporal, DATE_TINE_FORMATTER);
+            } else {
+                return LocalDateTime.parse(temporal, DATE_TINE_FORMATTER).atZone(ZoneId.systemDefault());
+            }
+        } else if (dateTimeMetadata.isDate()) {
+            return LocalDate.parse(temporal, DATE_FORMATTER).atStartOfDay(ZoneId.systemDefault());
+        } else {
+            return throwInvalidTemporal(temporal);
+        }
+    }
+
+    /**
+     * Parses a date/time.
+     * <p>
+     * The method accepts a range of date/time & date formats (including ISO).
+     *
+     * @param temporal the date/time as String
+     * @return the date/time, null if input is null or empty
+     */
+    public static LocalDate parseDate(String temporal) {
+        if (isEmpty(temporal)) return null;
+        DateTimeMetadata dateTimeMetadata = extractTemporalMetadataAndFail(temporal);
+        if (dateTimeMetadata.isDateTime()) {
+            return ZonedDateTime.parse(temporal, DATE_TINE_FORMATTER).toLocalDate();
+        } else if (dateTimeMetadata.isDate()) {
+            return LocalDate.parse(temporal, DATE_FORMATTER);
+        } else {
+            return throwInvalidTemporal(temporal);
+        }
+    }
+
+    /**
+     * Parses a date/time.
+     * <p>
+     * The method accepts a range of date/time & date formats (including ISO).
+     *
+     * @param temporal the date/time as String
+     * @return the date/time, null if input is null or empty
+     */
+    public static OffsetTime parseTime(String temporal) {
+        if (isEmpty(temporal)) return null;
+        DateTimeMetadata dateTimeMetadata = extractTemporalMetadataAndFail(temporal);
+        if (dateTimeMetadata.isTime()) {
+            return OffsetTime.parse(temporal, TIME_FORMATTER);
+        } else {
+            return throwInvalidTemporal(temporal);
+        }
+    }
+
+    /**
+     * Returns whether the String contains a temporal.
+     *
+     * @param temporal the value to test
+     * @return {@code true} if temporal, {@code false} otherwise
+     */
+    public static boolean isTemporal(String temporal) {
+        try {
+            parseTemporal(temporal);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns whether the String contains a date/time.
+     *
+     * @param dateTime the value to test
+     * @return {@code true} if a date/time, {@code false} otherwise
+     */
+    public static boolean isDateTime(String dateTime) {
+        try {
+            parseDateTime(dateTime);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns whether the String contains a date.
+     *
+     * @param date the value to test
+     * @return {@code true} if a date, {@code false} otherwise
+     */
+    public static boolean isDate(String date) {
+        try {
+            parseDate(date);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns whether the String contains a time.
+     *
+     * @param time the value to test
+     * @return {@code true} if a time, {@code false} otherwise
+     */
+    public static boolean isTime(String time) {
+        try {
+            parseTime(time);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns whether the String looks like it contains a temporal.
+     *
+     * @param temporal the value to test
+     * @return {@code true} if temporal, {@code false} otherwise
+     */
+    public static boolean seemsTemporal(String temporal) {
+        return seemsDateTime(temporal) || seemsDate(temporal) || seemsTime(temporal);
+    }
+
+    /**
+     * Returns whether the String looks like it contains a date/time.
+     * <p>
+     * The method does not parse the value, it looks at the characters and decide if it meets the criteria to be a
+     * date/time.
+     *
+     * @param dateTime the value to test
+     * @return {@code true} if date/time, {@code false} otherwise
+     */
+    public static boolean seemsDateTime(String dateTime) {
+        if (dateTime == null) return false;
+        return extractTemporalMetadata(dateTime).isDateTime();
+    }
+
+    /**
+     * Returns whether the String looks like it contains a date.
+     * <p>
+     * The method does not parse the value, it looks at the characters and decide if it meets the minimum criteria
+     * to be a date.
+     *
+     * @param date the value to test
+     * @return {@code true} if date, {@code false} otherwise
+     */
+    public static boolean seemsDate(String date) {
+        if (date == null) return false;
+        return extractTemporalMetadata(date).isDate();
+    }
+
+    /**
+     * Returns whether the String looks like it contains a time.
+     * <p>
+     * The method does not parse the value, it looks at the characters and decide if it meets the minimum criteria
+     * to be a time.
+     *
+     * @param time the value to test
+     * @return {@code true} if time, {@code false} otherwise
+     */
+    public static boolean seemsTime(String time) {
+        if (time == null) return false;
+        return extractTemporalMetadata(time).isTime();
+    }
+
+    /**
+     * Parses a date/time string and returns metadata (statistics).
+     *
+     * @param temporal the temporal value as a string
+     * @return the metadata
+     */
+    private static DateTimeMetadata extractTemporalMetadataAndFail(String temporal) {
+        DateTimeMetadata dateTimeMetadata = extractTemporalMetadata(temporal);
+        if (!dateTimeMetadata.valid) throwInvalidTemporal(temporal);
+        return dateTimeMetadata;
+    }
+
+    /**
+     * Throws an exception complaining about the String not having a temporal
+     *
+     * @param temporal the temporal value as a string
+     */
+    private static <T> T throwInvalidTemporal(String temporal) {
+        throw new DateTimeParseException("Unable to parse '" + temporal + "' into a temporal", temporal, 0);
+    }
+
+    /**
+     * Parses a temporal string and returns metadata (statistics).
+     *
+     * @param temporal the temporal value as a string
+     * @return the metadata
+     */
+    @SuppressWarnings({"Duplicates", "common-java:DuplicatedBlocks"})
+    private static DateTimeMetadata extractTemporalMetadata(String temporal) {
+        if (temporal == null || temporal.length() < 4 || !Character.isDigit(temporal.charAt(0))) {
+            return new DateTimeMetadata(false);
+        }
+        DateTimeMetadata dateTimeMetadata = new DateTimeMetadata(true);
+        int length = temporal.length();
+        for (int index = 0; index < length; index++) {
+            char c = temporal.charAt(index);
+            if (Character.isDigit(c)) {
+                dateTimeMetadata.digitCount++;
+            } else if (c == '.') {
+                dateTimeMetadata.dotCount++;
+            } else if (c == '-' && dateTimeMetadata.colonCount < 2) {
+                dateTimeMetadata.dashCount++;
+            } else if (c == '/') {
+                dateTimeMetadata.backSlashCount++;
+            } else if (c == ':') {
+                dateTimeMetadata.colonCount++;
+            } else if (c == 'T') {
+                dateTimeMetadata.hasTimeSeparator = true;
+            } else if (c == 'Z') {
+                dateTimeMetadata.hasZone = true;
+            } else if (c == '+' || c == '-') {
+                dateTimeMetadata.hasZone = true;
+            } else if (c == ' ') {
+                dateTimeMetadata.spaceCount++;
+            } else {
+                dateTimeMetadata.otherCount++;
+            }
+        }
+        return dateTimeMetadata;
+    }
+
+    /**
+     * Creates a date/time formatter which recognizes multiple formats, starting with the ISO format.
+     *
+     * @return a non-null instance
+     */
+    private static DateTimeFormatter createDateTimeFormatter() {
+        final DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+        builder.appendOptional(DateTimeFormatter.ISO_DATE_TIME)
+                .appendOptional(DateTimeFormatter.ISO_INSTANT)
+                .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+                .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+                .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0);
+        return builder.toFormatter();
+    }
+
+    /**
+     * Creates a date/time formatter which recognizes multiple formats, starting with the ISO format.
+     *
+     * @return a non-null instance
+     */
+    private static DateTimeFormatter createDateFormatter() {
+        final DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+        builder.appendOptional(DateTimeFormatter.ISO_DATE)
+                .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+                .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+                .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+                .parseDefaulting(ChronoField.MILLI_OF_SECOND, 0);
+        return builder.toFormatter();
+    }
+
+    /**
+     * Creates a date/time formatter which recognizes multiple formats, starting with the ISO format.
+     *
+     * @return a non-null instance
+     */
+    private static DateTimeFormatter createTimeFormatter() {
+        final DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+        builder.appendOptional(DateTimeFormatter.ISO_TIME);
+        return builder.toFormatter();
+    }
+
+    private static final int DATE_DIGIT_COUNT = 8;
+    private static final int TIME_DIGIT_COUNT = 4;
+    private static final int DATE_TIME_DIGIT_COUNT = DATE_DIGIT_COUNT + TIME_DIGIT_COUNT;
+
+    static class DateTimeMetadata {
+
+        boolean valid;
+        int digitCount;
+        int dashCount;
+        int colonCount;
+        int backSlashCount;
+        int spaceCount;
+        int otherCount;
+        int dotCount;
+        boolean hasZone;
+        boolean hasTimeSeparator;
+
+        DateTimeMetadata(boolean valid) {
+            this.valid = valid;
+        }
+
+        boolean isDateTime() {
+            return valid && digitCount >= DATE_TIME_DIGIT_COUNT && hasValidDateSeparator() && hasValidTimeSeparator();
+        }
+
+        boolean isDate() {
+            return valid && digitCount >= DATE_DIGIT_COUNT && otherCount == 0 && hasValidDateSeparator();
+        }
+
+        boolean isTime() {
+            return valid && digitCount >= TIME_DIGIT_COUNT && hasValidTimeSeparator();
+        }
+
+        boolean hasValidDateSeparator() {
+            return backSlashCount == 2 || dashCount == 2 || dotCount == 2;
+        }
+
+        boolean hasValidTimeSeparator() {
+            return colonCount >= 2;
+        }
     }
 }
