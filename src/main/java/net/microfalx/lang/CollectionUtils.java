@@ -96,6 +96,34 @@ public class CollectionUtils {
      * @param <T>      the data type
      * @return a non-null instance
      */
+    public static <T> List<T> toList(Iterator<T> iterator) {
+        if (iterator == null) return Collections.emptyList();
+        List<T> list = new ArrayList<>();
+        while (iterator.hasNext()) {
+            T value = iterator.next();
+            list.add(value);
+        }
+        return list;
+    }
+
+    /**
+     * Returns a list out of an iterable.
+     *
+     * @param iterable the iterator
+     * @param <T>      the data type
+     * @return a non-null instance
+     */
+    public static <T> List<T> toList(Iterable<T> iterable) {
+        return toList(iterable.iterator());
+    }
+
+    /**
+     * Returns an iterable which wraps an iterator and can be consumed once.
+     *
+     * @param iterator the iterator
+     * @param <T>      the data type
+     * @return a non-null instance
+     */
     public static <T> Iterable<T> toIterable(Iterator<T> iterator) {
         return iterator == null ? Collections.emptyList() : new OnceIterable<>(iterator);
     }
