@@ -5,6 +5,8 @@ import com.google.common.hash.Hasher;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.time.temporal.Temporal;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * A class which helps to calculate a hash from objects.
@@ -122,7 +124,18 @@ public final class Hashing {
     }
 
     private void updateOther(Object value) {
-        throwUnsupportedType(value);
+        if (value instanceof Collection<?>) {
+            for (Object cvalue : ((Collection<?>) value)) {
+                update(cvalue);
+            }
+        } else if (value instanceof Map<?, ?>) {
+            for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
+                update(entry.getKey());
+                update(entry.getValue());
+            }
+        } else {
+            throwUnsupportedType(value);
+        }
     }
 
     private void throwUnsupportedType(Object value) {
