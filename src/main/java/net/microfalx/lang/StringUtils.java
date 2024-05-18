@@ -40,7 +40,7 @@ public class StringUtils {
     }
 
     /**
-     * Returns a default value if the input is null or empty.
+     * Returns a default value if the input is empty.
      *
      * @param value        the value
      * @param defaultValue the default value
@@ -82,17 +82,17 @@ public class StringUtils {
     }
 
     /**
-     * Returns whether the text is contained in the value, case insensitive
+     * Returns whether the fragment is contained in the text, case-insensitive
      *
-     * @param value    the String value
-     * @param fragment the fragment to be searched
+     * @param text     the  String to test
+     * @param fragment the fragment to be searched withing the text
      * @return {@code true} if contained, {@code false} otherwise
      */
     @SuppressWarnings("Duplicates")
-    public static boolean contains(String value, String fragment) {
-        if (value == null && fragment == null) return true;
-        if (value == null) return false;
-        return value.toLowerCase().contains(fragment.toLowerCase());
+    public static boolean contains(String text, String fragment) {
+        if (text == null && fragment == null) return true;
+        if (text == null) return false;
+        return text.toLowerCase().contains(fragment.toLowerCase());
     }
 
     /**
@@ -189,7 +189,7 @@ public class StringUtils {
     }
 
     /**
-     * Returns whether these two strings are equal (case sensitive).
+     * Returns whether these two strings are equal (case-sensitive).
      *
      * @param a the first string
      * @param b the seconds string
@@ -200,7 +200,7 @@ public class StringUtils {
     }
 
     /**
-     * Returns whether these two strings are equal (case insensitive).
+     * Returns whether these two strings are equal (case-insensitive).
      *
      * @param a the first string
      * @param b the seconds string
@@ -246,13 +246,13 @@ public class StringUtils {
      * A null value or a rule mismatch will result in using the default value
      * <p>
      * The following values are considered <code>true</code>
-     * - any number <> 0
+     * - any number that is not equal to 0
      * - a boolean object with value TRUE
-     * - a string = "true","yes","y", "t","on","1"
+     * - a string is "true","yes","y", "t","on", and "1"
      * The following values are considered <code>false</code>
-     * - any number = 0
+     * - any number that is equal to 0
      * - a boolean object with value FALSE
-     * - a string = "false","no","n","f","off","0"
+     * - a string is "false","no","n","f","off", and "0"
      *
      * @param value        the value
      * @param defaultValue the default value when null or no rule is matched
@@ -297,7 +297,8 @@ public class StringUtils {
     /**
      * Converts a String to an identifier.
      * <p>
-     * The identifier contains only chars, digits and "_" (or "-" if allowed).
+     * The return identifier contains only characters, digits and "_" (and "-" if allowed). If "-" is not allow and
+     * is in the value, replace it with "_".
      *
      * @param value the path
      * @return the id
@@ -343,7 +344,7 @@ public class StringUtils {
     }
 
     /**
-     * Capitalizes the given string by capitalize first letter.
+     * Capitalizes the given string by capitalizing first letter.
      *
      * @param value the string value
      * @return capitalized string
@@ -354,7 +355,7 @@ public class StringUtils {
     }
 
     /**
-     * Capitalizes the given string by uncapitalize first letter.
+     * Unvapitalizes the given string by not capitalizing first letter.
      *
      * @param value the string value
      * @return capitalized string
@@ -421,7 +422,7 @@ public class StringUtils {
      * Removes new lines from a string.
      *
      * @param value     the value
-     * @param separator the new separator to be used instead of new lines
+     * @param separator the separator to use to separate the lines of the string
      * @return the value without new lines
      */
     public static String removeLineBreaks(String value, String separator) {
@@ -437,8 +438,8 @@ public class StringUtils {
     /**
      * Joins an array of strings.
      *
-     * @param glue  the string
-     * @param parts the delimiters
+     * @param glue  the delimiter to join the strings together
+     * @param parts the strings to concatenate
      * @return a non-null instance
      * @see #split(String, String, boolean)
      */
@@ -610,8 +611,6 @@ public class StringUtils {
 
     /**
      * Formats a message.
-     * <p>
-     * The function
      *
      * @param pattern   the pattern message
      * @param arguments the arguments passed for format the message
