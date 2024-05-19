@@ -2,8 +2,7 @@ package net.microfalx.lang;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ArgumentUtilsTest {
 
@@ -15,14 +14,21 @@ class ArgumentUtilsTest {
 
     @Test
     void requireNotEmpty() {
-
+        assertNotEquals("", ArgumentUtils.requireNotEmpty(" "));
+        assertThrows(IllegalArgumentException.class, () -> ArgumentUtils.requireNotEmpty(""));
     }
 
     @Test
-    void requireBounded() {
+    void requireBoundedWithIntegers() {
+        assertEquals(3, ArgumentUtils.requireBounded(3, 1, 5));
+        assertThrows(IllegalArgumentException.class,() -> ArgumentUtils.requireBounded(0,1,5));
+        assertThrows(IllegalArgumentException.class,() -> ArgumentUtils.requireBounded(6,1,5));
     }
 
     @Test
-    void testRequireBounded() {
+    void requireBoundedWithLongs() {
+        assertEquals(3L, ArgumentUtils.requireBounded(3L, 1L, 5L));
+        assertThrows(IllegalArgumentException.class,() -> ArgumentUtils.requireBounded(0L,1L,5L));
+        assertThrows(IllegalArgumentException.class,() -> ArgumentUtils.requireBounded(6L,1L,5L));
     }
 }
