@@ -177,6 +177,7 @@ public class ObjectUtils {
      * @param value the value
      * @return the string representation, null if the object is null
      */
+    @Deprecated
     public static String asString(Object value) {
         return value != null ? value.toString() : null;
     }
