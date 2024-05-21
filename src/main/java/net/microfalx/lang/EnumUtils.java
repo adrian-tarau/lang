@@ -29,7 +29,7 @@ public class EnumUtils {
      * Returns the enum with a given name.
      *
      * @param enumClass the enum class
-     * @param name      the enum name, case insensitive
+     * @param name      the enum name, case-insensitive
      * @param <E>       the enum type
      * @return the enum
      * @throws java.lang.IllegalArgumentException if an enum with the given name does not exist
