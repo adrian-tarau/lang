@@ -28,28 +28,28 @@ class FileUtilsTest {
     @Test
     void getFileName() throws IOException {
         assertNull(FileUtils.getFileName(null));
-        assertEquals("test.txt",FileUtils.getFileName(file.getPath()));
+        assertEquals("test.txt", FileUtils.getFileName(file.getPath()));
     }
 
     @Test
     void getParentPath() {
-        assertEquals("target\\files",FileUtils.getParentPath(file.getPath()));
+        assertEquals("target" + File.separator + "files", FileUtils.getParentPath(file.getPath()));
 
     }
 
     @Test
     void getContentType() {
-        assertEquals("text/plain",FileUtils.getContentType(file.getName()));
+        assertEquals("text/plain", FileUtils.getContentType(file.getName()));
     }
 
     @Test
     void validateDirectoryExists() {
-        assertEquals(file.getParentFile(),FileUtils.validateDirectoryExists(file.getParentFile()));
+        assertEquals(file.getParentFile(), FileUtils.validateDirectoryExists(file.getParentFile()));
     }
 
     @Test
     void validateFileExists() {
-        assertEquals(new File("target\\files\\test.txt"),FileUtils.validateFileExists(file));
+        assertEquals(new File("target" + File.separator + "files" + File.separator + "test.txt"), FileUtils.validateFileExists(file));
     }
 
     @AfterAll
