@@ -67,6 +67,17 @@ public class CollectionUtils {
     }
 
     /**
+     * Returns an immutable list from a regular collection.
+     *
+     * @param items the original collection, can be NULL
+     * @param <T>   the item type
+     * @return an immutable collection
+     */
+    public static <T> List<T> immutableList(List<T> items) {
+        return items != null ? unmodifiableList(items) : emptyList();
+    }
+
+    /**
      * Returns an immutable set from a regular set.
      *
      * @param items the original set, can be NULL
@@ -97,7 +108,7 @@ public class CollectionUtils {
      * @return a non-null instance
      */
     public static <T> List<T> toList(Iterator<T> iterator) {
-        if (iterator == null) return Collections.emptyList();
+        if (iterator == null) return new ArrayList<>();
         List<T> list = new ArrayList<>();
         while (iterator.hasNext()) {
             T value = iterator.next();
@@ -114,7 +125,7 @@ public class CollectionUtils {
      * @return a non-null instance
      */
     public static <T> List<T> toList(Iterable<T> iterable) {
-        return toList(iterable.iterator());
+        return iterable == null ? new ArrayList<>() : toList(iterable.iterator());
     }
 
     /**
