@@ -24,6 +24,17 @@ public class TextUtils {
     }
 
     /**
+     * Inserts a given number of spaces in front of each line
+     *
+     * @param text           the multi-line text to space
+     * @param spaces         how many space characters to insert at the beginning of each line
+     * @param spaceFirstLine <code>true</code> to insert spaces for first line of text, <code>false</code> to keep the first line as is
+     */
+    public static String insertSpaces(String text, int spaces, boolean spaceFirstLine) {
+        return insertSpaces(text, spaces, false, false, spaceFirstLine);
+    }
+
+    /**
      * Inserts a given number of spaces in front of each line of text.
      *
      * @param text            the multi-line text to space
