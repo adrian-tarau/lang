@@ -77,12 +77,12 @@ public final class Hashing {
      *
      * @return the hash
      */
-    public long asInt() {
+    public int asInt() {
         return hasher.hash().asInt();
     }
 
     /**
-     * Returns the hash as an long.
+     * Returns the hash as a long.
      *
      * @return the hash
      */
@@ -91,7 +91,7 @@ public final class Hashing {
     }
 
     /**
-     * Returns the hash as an string.
+     * Returns the hash as a string.
      *
      * @return the hash
      */
