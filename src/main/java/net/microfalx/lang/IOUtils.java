@@ -50,17 +50,17 @@ public class IOUtils {
      * Creates a buffered output stream out of a given file.
      *
      * @param file the file
-     * @return a buffered stream, the same object if the stream is already buffered or it does not require any buffer
+     * @return a buffered stream, the same object if the stream is already buffered, or it does not require any buffer
      */
     public static OutputStream getBufferedOutputStream(File file) throws IOException {
         return getBufferedOutputStream(new FileOutputStream(file));
     }
 
     /**
-     * Creates a buffered output stream out of a given input stream if required.
+     * Creates a buffered output stream out of a given output stream if required.
      *
      * @param outputStream the output stream
-     * @return a buffered stream, the same object if the stream is already buffered or it does not require any buffer
+     * @return a buffered stream, the same object if the stream is already buffered, or it does not require any buffer
      */
     public static OutputStream getBufferedOutputStream(OutputStream outputStream) {
         requireNonNull(outputStream);
@@ -77,7 +77,7 @@ public class IOUtils {
      * Creates a buffered writer out of a given writer if required.
      *
      * @param writer the writer
-     * @return a buffered writer, the same object if the writer is already buffered or it does not require any buffer
+     * @return a buffered writer, the same object if the writer is already buffered, or it does not require any buffer
      */
     public static Writer getBufferedWriter(Writer writer) {
         requireNonNull(writer);
@@ -92,7 +92,7 @@ public class IOUtils {
      * Creates a buffered input stream out of a given file.
      *
      * @param file the file
-     * @return a buffered stream, the same object if the stream is already buffered or it does not require any buffer
+     * @return a buffered stream, the same object if the stream is already buffered, or it does not require any buffer
      */
     public static InputStream getBufferedInputStream(File file) throws IOException {
         return getBufferedInputStream(new FileInputStream(file));
@@ -102,7 +102,7 @@ public class IOUtils {
      * Creates a buffered input stream out of a given input stream if required.
      *
      * @param inputStream the input stream
-     * @return a buffered stream, the same object if the stream is already buffered or it does not require any buffer
+     * @return a buffered stream, the same object if the stream is already buffered, or it does not require any buffer
      */
     public static InputStream getBufferedInputStream(InputStream inputStream) {
         requireNonNull(inputStream);
