@@ -6,13 +6,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class  TextUtilsTest {
+class TextUtilsTest {
 
     private static String text;
 
     @BeforeAll
-    static void createMultiLineText(){
-        text= """
+    static void createMultiLineText() {
+        text = """
                 I
                 am
                 writing
@@ -29,8 +29,8 @@ class  TextUtilsTest {
                   am
                   writing
                   java
-                  code""",TextUtils.insertSpaces(text,2));
-        assertEquals("",TextUtils.insertSpaces(null,2));
+                  code""", TextUtils.insertSpaces(text, 2));
+        assertEquals("", TextUtils.insertSpaces(null, 2));
     }
 
     @Test
@@ -40,87 +40,87 @@ class  TextUtilsTest {
                   am
                   writing
                   java
-                  code""",TextUtils.insertSpaces(text,2,false));
-        assertEquals("",TextUtils.insertSpaces(null,2,false));
+                  code""", TextUtils.insertSpaces(text, 2, false));
+        assertEquals("", TextUtils.insertSpaces(null, 2, false));
     }
 
     @Test
-    void insertSpacesWithSpaceInFirstLine(){
+    void insertSpacesWithSpaceInFirstLine() {
         assertEquals("""
-                 \s\sI
-                 \s\sam
-                 \s\swriting
-                 \s\sjava
-                 \s\scode""",TextUtils.insertSpaces(text,2,true));
-        assertEquals("",TextUtils.insertSpaces(null,2,true));
+                \s\sI
+                \s\sam
+                \s\swriting
+                \s\sjava
+                \s\scode""", TextUtils.insertSpaces(text, 2, true));
+        assertEquals("", TextUtils.insertSpaces(null, 2, true));
     }
 
     @Test
-    void insertSpacesWithVerticalLinesAndSlashesAndNoSpaceInFirstLine(){
+    void insertSpacesWithVerticalLinesAndSlashesAndNoSpaceInFirstLine() {
         assertEquals("""
-                 |I
-                 |  am
-                 |  writing
-                 |  java
-                 \\  code""",TextUtils.insertSpaces(text,2,true,true,false));
+                |I
+                |  am
+                |  writing
+                |  java
+                \\  code""", TextUtils.insertSpaces(text, 2, true, true, false));
         assertEquals("""
-                 |I
-                 |  am
-                 |  writing
-                 |  java
-                 |  code""",TextUtils.insertSpaces(text,2,true,false,false));
+                |I
+                |  am
+                |  writing
+                |  java
+                |  code""", TextUtils.insertSpaces(text, 2, true, false, false));
         assertEquals("""
-                 I
-                 \s\sam
-                 \s\swriting
-                 \s\sjava
-                 \s\scode""",TextUtils.insertSpaces(text,2,false,true,false));
+                I
+                \s\sam
+                \s\swriting
+                \s\sjava
+                \s\scode""", TextUtils.insertSpaces(text, 2, false, true, false));
         assertEquals("""
-                 I
-                 \s\sam
-                 \s\swriting
-                 \s\sjava
-                 \s\scode""",TextUtils.insertSpaces(text,2,false,false,false));
+                I
+                \s\sam
+                \s\swriting
+                \s\sjava
+                \s\scode""", TextUtils.insertSpaces(text, 2, false, false, false));
 
-        assertEquals("",TextUtils.insertSpaces(null,2,true,true,
+        assertEquals("", TextUtils.insertSpaces(null, 2, true, true,
                 false));
     }
 
 
     @Test
-    void insertSpacesWithVerticalLinesAndSlashesAndSpaceInFirstLine(){
+    void insertSpacesWithVerticalLinesAndSlashesAndSpaceInFirstLine() {
         assertEquals("""
-                 |  I
-                 |  am
-                 |  writing
-                 |  java
-                 \\  code""",TextUtils.insertSpaces(text,2,true,true,true));
+                |  I
+                |  am
+                |  writing
+                |  java
+                \\  code""", TextUtils.insertSpaces(text, 2, true, true, true));
         assertEquals("""
-                 |  I
-                 |  am
-                 |  writing
-                 |  java
-                 |  code""",TextUtils.insertSpaces(text,2,true,false,true));
+                |  I
+                |  am
+                |  writing
+                |  java
+                |  code""", TextUtils.insertSpaces(text, 2, true, false, true));
         assertEquals("""
-                 \s\sI
-                 \s\sam
-                 \s\swriting
-                 \s\sjava
-                 \s\scode""",TextUtils.insertSpaces(text,2,false,true,true));
+                \s\sI
+                \s\sam
+                \s\swriting
+                \s\sjava
+                \s\scode""", TextUtils.insertSpaces(text, 2, false, true, true));
         assertEquals("""
-                 \s\sI
-                 \s\sam
-                 \s\swriting
-                 \s\sjava
-                 \s\scode""",TextUtils.insertSpaces(text,2,false,false,true));
+                \s\sI
+                \s\sam
+                \s\swriting
+                \s\sjava
+                \s\scode""", TextUtils.insertSpaces(text, 2, false, false, true));
 
-        assertEquals("",TextUtils.insertSpaces(null,2,true,true,
+        assertEquals("", TextUtils.insertSpaces(null, 2, true, true,
                 true));
     }
 
     @Test
     void appendTextWithSpaces() {
-        assertNotNull(TextUtils.appendTextWithSpaces(new StringBuilder(),text,2,true,
-                true,true));
+        assertNotNull(TextUtils.appendTextWithSpaces(new StringBuilder(), text, 2, true,
+                true, true));
     }
 }
