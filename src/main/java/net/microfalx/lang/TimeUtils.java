@@ -170,6 +170,7 @@ public class TimeUtils {
      * @return millis since epoch.
      */
     public static long toMillis(Temporal temporal) {
+        if (temporal == null) return 0;
         if (temporal instanceof LocalDateTime) {
             return ((LocalDateTime) temporal).atZone(UTC_ZONE).toInstant().toEpochMilli();
         } else if (temporal instanceof LocalDate) {
