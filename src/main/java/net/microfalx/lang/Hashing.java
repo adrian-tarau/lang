@@ -109,12 +109,16 @@ public final class Hashing {
     }
 
     private void updateNumber(Number number) {
-        if (number instanceof Long) {
+        if (number instanceof Integer) {
+            hasher.putInt((Integer) number);
+        } else if (number instanceof Long) {
             hasher.putLong((Long) number);
-        } else if (number instanceof Integer) {
-            hasher.putLong((Integer) number);
+        } else if (number instanceof Float) {
+            hasher.putFloat((Float) number);
+        } else if (number instanceof Double) {
+            hasher.putDouble((Double) number);
         } else {
-            hasher.putInt(((Number) number).intValue());
+            hasher.putInt(number.intValue());
         }
     }
 
