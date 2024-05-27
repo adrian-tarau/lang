@@ -49,7 +49,7 @@ public class UriUtils {
     }
 
     /**
-     * Parses an URL from a string.
+     * Parses a URL from a string.
      * <p>
      * The method detects invalid characters and replace them.
      *
@@ -80,7 +80,7 @@ public class UriUtils {
     }
 
     /**
-     * Appends an URI fragment to the existing URI.
+     * Appends a URI fragment to the existing URI.
      * <p>
      * If the URI already has a fragment, the fragment is replaced.
      *
@@ -97,7 +97,7 @@ public class UriUtils {
     }
 
     /**
-     * Removes the fragment from an URI.
+     * Removes the fragment from a URI.
      *
      * @param uri the URI
      * @return a new URi without a fragment
@@ -151,7 +151,7 @@ public class UriUtils {
     /**
      * Tries to parse the URI and in case of fixable issues it will correct the URI to be accepted by {@link URI}.
      * <p>
-     * These correction are based on RFC2396 recommendations and it will not fix {@code unfixable} problems.
+     * These correction are based on RFC2396 recommendations, and it will not fix {@code unfixable} problems.
      *
      * @param uri the URI
      * @return a fixed URI, null if the original URI was null
