@@ -2,8 +2,10 @@ package net.microfalx.lang;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
@@ -20,6 +22,8 @@ class ConcurrencyUtilsTest {
 
     private static final Duration SMALL_WAIT = ofSeconds(1);
     private static final Duration VERY_SMALL_WAIT = ofMillis(50);
+
+    private static final String MESSAGE = "I am writing java code";
 
     @Test
     void isComplete() {
@@ -129,9 +133,7 @@ class ConcurrencyUtilsTest {
     void getResult() {
         Future<String> future = CompletableFuture.completedFuture("I am writing java code");
         assertEquals("I am writing java code", ConcurrencyUtils.getResult(future));
-        Future<Void> incompleteFuture = CompletableFuture.runAsync(() -> {
-            sleepMillis(200);
-        });
+        Future<Void> incompleteFuture = executeWithDelay(Duration.ofMillis(200));
         assertFalse(incompleteFuture.isDone());
         sleepMillis(1_000);
         assertTrue(incompleteFuture.isDone());
@@ -139,44 +141,81 @@ class ConcurrencyUtilsTest {
 
     @Test
     void getResultWithTimeOut() {
-        Future<String> future = CompletableFuture.completedFuture("I am writing java code");
-        assertEquals("I am writing java code", ConcurrencyUtils.getResult(future, ofSeconds(2)));
+        Future<String> future = CompletableFuture.completedFuture(MESSAGE);
+        assertEquals(MESSAGE, ConcurrencyUtils.getResult(future, ofSeconds(2)));
     }
 
     @Test
     void waitForFuture() throws ExecutionException, InterruptedException {
-        Future<String> future = CompletableFuture.completedFuture("I am writing java code");
-        assertEquals("I am writing java code", ConcurrencyUtils.waitForFuture(future, ofSeconds(2)).get());
-        assertTrue(ConcurrencyUtils.waitForFuture(future, ofSeconds(2)).isDone());
-        assertFalse(ConcurrencyUtils.waitForFuture(future, ofSeconds(2)).isCancelled());
+        Future<String> future = CompletableFuture.completedFuture(MESSAGE);
+        assertEquals(MESSAGE, ConcurrencyUtils.waitForFuture(future, ofSeconds(2)).get());
+        assertTrue(future.isDone());
+
+        future = executeWithDelay(ofMillis(500), MESSAGE);
+        assertEquals(MESSAGE, ConcurrencyUtils.waitForFuture(future, ofSeconds(2)).get());
+        assertTrue(future.isDone());
+
+        future = executeWithDelay(ofSeconds(5), MESSAGE);
+        ConcurrencyUtils.waitForFuture(future, ofSeconds(2));
+        assertFalse(future.isDone());
     }
 
     @Test
     void waitForFutures() {
-        Future<String> future = CompletableFuture.completedFuture("I am writing java code");
-        assertEquals(0, ConcurrencyUtils.waitForFutures(Collections.singletonList(future)));
+        Future<String> future1 = CompletableFuture.completedFuture(MESSAGE);
+        Future<String> future2 = CompletableFuture.completedFuture(MESSAGE);
+        assertEquals(0, ConcurrencyUtils.waitForFutures(Arrays.asList(future1, future2)));
+
+        future1 = executeWithDelay(ofSeconds(2), MESSAGE);
+        future2 = executeWithDelay(ofSeconds(4), MESSAGE);
+        assertEquals(0, ConcurrencyUtils.waitForFutures(Arrays.asList(future1, future2)));
     }
 
     @Test
     void waitForFuturesWithTimeOut() {
-        Future<String> future = CompletableFuture.completedFuture("I am writing java code");
+        Future<String> future = CompletableFuture.completedFuture(MESSAGE);
         assertEquals(0, ConcurrencyUtils.waitForFutures(Collections.singletonList(future),
                 ofSeconds(6)));
     }
 
     @Test
     void collectFutures() {
-        Future<String> future = CompletableFuture.completedFuture("I am writing java code");
-        assertEquals(Collections.singletonList("I am writing java code"),
-                ConcurrencyUtils.collectFutures(Collections.singletonList(future)));
+        Future<String> future1 = CompletableFuture.completedFuture(MESSAGE);
+        assertEquals(Collections.singletonList(MESSAGE),
+                ConcurrencyUtils.collectFutures(Collections.singletonList(future1)));
+
+        Future<String> future2 = CompletableFuture.failedFuture(new IOException("Something is wrong"));
+        assertEquals(Collections.singletonList(MESSAGE),
+                ConcurrencyUtils.collectFutures(Arrays.asList(future1, future2)));
     }
 
     @Test
-    void drainFutures() {
-        Future<String> future = CompletableFuture.completedFuture("I am writing java code");
-        List<Future<String>> list = new ArrayList<>();
-        list.add(future);
-        assertEquals(1, ConcurrencyUtils.drainFutures(list, 9, 5));
+    void drainFuturesAllDone() {
+        Future<String> future1 = CompletableFuture.completedFuture(MESSAGE);
+        Future<String> future2 = CompletableFuture.completedFuture(MESSAGE);
+        Future<String> future3 = CompletableFuture.completedFuture(MESSAGE);
+        List<Future<String>> list = new ArrayList<>(Arrays.asList(future1,future2, future3));
+        assertEquals(3, ConcurrencyUtils.drainFutures(list, Duration.ofMillis(500), 1));
+    }
+
+    @Test
+    void drainFuturesSomeDone() {
+        Future<String> future1 = CompletableFuture.completedFuture(MESSAGE);
+        Future<String> future2 = CompletableFuture.completedFuture(MESSAGE);
+        Future<String> future3 = executeWithDelay(Duration.ofSeconds(5), MESSAGE);
+        List<Future<String>> list = new ArrayList<>(Arrays.asList(future1,future2, future3));
+        assertEquals(2, ConcurrencyUtils.drainFutures(list, Duration.ofMillis(500), 1));
+    }
+
+    private Future<Void> executeWithDelay(Duration duration) {
+        return executeWithDelay(duration, null);
+    }
+
+    private <T> Future<T> executeWithDelay(Duration duration, T value) {
+        return CompletableFuture.supplyAsync(() -> {
+            sleepMillis(duration.toMillis());
+            return value;
+        });
     }
 
     static class ThreadWithLock extends Thread {

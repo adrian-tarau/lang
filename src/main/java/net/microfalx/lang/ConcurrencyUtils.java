@@ -18,6 +18,7 @@ import static java.lang.System.currentTimeMillis;
 import static java.time.Duration.ofSeconds;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 import static net.microfalx.lang.FormatterUtils.formatDuration;
+import static net.microfalx.lang.ThreadUtils.sleepMillis;
 
 /**
  * Utilities around concurrency.
@@ -73,12 +74,20 @@ public class ConcurrencyUtils {
         }
     }
 
+    /**
+     * Try to acquire the lock, waiting indefinitely.
+     *
+     * @param lock the lock
+     * @return {@code true} if the lock was acquired, {@code false} otherwise
+     * @throws InterruptedException if the thread was interrupted
+     * @see Lock#tryLock(long, TimeUnit)
+     */
     public static boolean tryLock(Lock lock) throws InterruptedException {
         return tryLock(lock, DEFAULT_WAIT);
     }
 
     /**
-     * Try to lock up to a given timeout
+     * Try to acquire the lock-up to a given timeout.
      *
      * @param lock    the lock
      * @param timeout the maximum wait time
@@ -93,7 +102,7 @@ public class ConcurrencyUtils {
     }
 
     /**
-     * Try to lock up to a given timeout and if successful call the supplier.
+     * Try to acquire the lock-up to a given timeout and if successful call the supplier.
      *
      * @param lock     the lock
      * @param supplier the supplier to invoke if the lock is acquired
@@ -106,7 +115,9 @@ public class ConcurrencyUtils {
     }
 
     /**
-     * Try to lock up to a given timeout and if successful call the supplier.
+     * Try to acquire the lock up to a given timeout and if successful call the supplier.
+     * <p>
+     * If the lock cannot be acquired in the allowed time, the method will throw a {@link TimeoutException}.
      *
      * @param lock     the lock
      * @param supplier the supplier to invoke if the lock is acquired
@@ -167,7 +178,7 @@ public class ConcurrencyUtils {
         while (currentTimeMillis() < endTime) {
             boolean satisfied = (!condition.get() && !reverse) || (condition.get() && reverse);
             if (satisfied) break;
-            ThreadUtils.sleepMillis(waitTime);
+            sleepMillis(waitTime);
             waitTime = Math.max(1.2f * waitTime, MAX_SLEEP_TIME);
         }
         return reverse != condition.get();
@@ -245,7 +256,7 @@ public class ConcurrencyUtils {
                 if (!future.isDone()) pending++;
             }
             if (pending == 0) break;
-            ThreadUtils.sleepMillis(waitTime);
+            sleepMillis(waitTime);
             waitTime = Math.min(1.2f * waitTime, MAX_SLEEP_TIME);
         }
         return pending;
@@ -279,22 +290,22 @@ public class ConcurrencyUtils {
      * The method will also remove completed futures from the list of futures.
      *
      * @param futures     the futures
-     * @param timeOut     the timeout to wait for some of the futures to finish
+     * @param timeout     the timeout to wait for some of the futures to finish
      * @param minComplete the minimum number of futures to be completed before returns (or timeout)
      * @return the number of futures which are still pending
      */
-    public static int drainFutures(Collection<? extends Future<?>> futures, long timeOut, int minComplete) {
+    public static int drainFutures(Collection<? extends Future<?>> futures, Duration timeout, int minComplete) {
         requireNonNull(futures);
         minComplete = Math.max(1, Math.min(minComplete, futures.size()));
         float waitTime = 0.5f;
-        long endTime = currentTimeMillis() + timeOut;
+        long endTime = currentTimeMillis() + timeout.toMillis();
         Collection<Future<?>> doneFutures = new ArrayList<>();
         while (currentTimeMillis() < endTime) {
             for (Future<?> future : futures) {
                 if (future.isDone()) doneFutures.add(future);
             }
             if (doneFutures.size() >= minComplete) break;
-            ThreadUtils.sleepMillis(waitTime);
+            sleepMillis(waitTime);
             waitTime = Math.min(1.2f * waitTime, MAX_SLEEP_TIME);
             doneFutures = new ArrayList<>();
         }
