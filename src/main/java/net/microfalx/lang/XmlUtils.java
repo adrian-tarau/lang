@@ -105,7 +105,7 @@ public class XmlUtils {
     }
 
     /**
-     * Returns the text behind an element.
+     * Returns the text behind an child element.
      *
      * @param element the parent element
      * @param name    the name of the child element
@@ -125,7 +125,7 @@ public class XmlUtils {
     }
 
     /**
-     * Returns the text behind an element as a string.
+     * Returns the text behind an element as an integer.
      *
      * @param element      the parent element
      * @param name         the name of the child element
@@ -239,7 +239,7 @@ public class XmlUtils {
     }
 
     /**
-     * Returns the attribute of an element as a integer.
+     * Returns the attribute of an element as an integer.
      *
      * @param element       the element
      * @param attributeName the attribute name

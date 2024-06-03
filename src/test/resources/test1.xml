@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<people>
+    <person gender="male">
+        <name>John Doe</name>
+        <age>30</age>
+        <city>Seattle</city>
+    </person>
+    <person gender="female">
+        <name>Jane Smith</name>
+        <age>25</age>
+        <city>Portland</city>
+    </person>
+</people>
