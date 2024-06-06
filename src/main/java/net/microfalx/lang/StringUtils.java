@@ -488,6 +488,46 @@ public class StringUtils {
     }
 
     /**
+     * Replaces each substring of the text String that matches the given pattern
+     * with the given replacement.
+     *
+     * @param text        text to search and replace in, may be null
+     * @param pattern     the pattern to search for a replacement
+     * @param replacement the string to be substituted for each match
+     * @return the new text.
+     */
+    public static String replaceAll(String text, String pattern, String replacement) {
+        return doReplace(text, pattern, replacement, false);
+    }
+
+    /**
+     * Replaces first substring of the text String that matches the given pattern
+     * with the given replacement.
+     *
+     * @param text        text to search and replace in, may be null
+     * @param pattern     the pattern to search for a replacement
+     * @param replacement the string to be substituted for each match
+     * @return the new text.
+     */
+    public static String replaceFirst(String text, String pattern, String replacement) {
+        return doReplace(text, pattern, replacement, true);
+    }
+
+    private static String doReplace(String text, String pattern, String replacement, boolean onlyFirst) {
+        if (text == null || pattern == null) return null;
+        int startIndex = 0;
+        int patternLength = pattern.length();
+        while ((startIndex = text.indexOf(pattern, startIndex)) != -1) {
+            text = text.substring(0, startIndex) + replacement +
+                    text.substring(startIndex + patternLength);
+            startIndex += replacement.length();
+            if (startIndex >= text.length()) break;
+            if (onlyFirst) break;
+        }
+        return text;
+    }
+
+    /**
      * Appends a value to a builder, inserting a {@code ,} if the builder always contains content.
      * <p>
      * A null value is ignored by the method.

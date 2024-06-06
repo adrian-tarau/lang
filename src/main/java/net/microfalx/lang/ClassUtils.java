@@ -3,6 +3,7 @@ package net.microfalx.lang;
 import net.microfalx.lang.annotation.Provider;
 import org.atteo.classindex.ClassIndex;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -26,6 +27,7 @@ public class ClassUtils {
     private static final Map<Class<?>, Class<?>> PRIMITIVE_TO_OBJECT_CLASSES = new HashMap<>();
     private static final Map<Class<?>, Class<?>> OBJECT_TO_PRIMITIVE_CLASSES = new HashMap<>();
     private static final Set<Class<?>> BASE_CLASSES = new HashSet<>();
+    private static final Type[] EMPTY_TYPE_ARRAY = new Type[0];
 
     /**
      * Returns whether the object represents a basic Java object (numbers, string, boolean, dates, etc).
@@ -244,11 +246,15 @@ public class ClassUtils {
      */
     public static List<Class<?>> getClassParametrizedTypes(Class<?> clazz) {
         requireNonNull(clazz);
-        Type type = clazz.getGenericSuperclass();
+        Type[] genericTypes = getGenericTypes(clazz);
+        Type type = genericTypes.length > 0 ? genericTypes[0] : null;
+        if (!(type instanceof ParameterizedType)) {
+            genericTypes = getGenericTypes(type);
+            type = genericTypes.length > 0 ? genericTypes[0] : null;
+        }
         if (!(type instanceof ParameterizedType)) return Collections.emptyList();
-        ParameterizedType parameterizedType = (ParameterizedType) type;
         List<Class<?>> classes = new ArrayList<>();
-        for (Type typeArgument : parameterizedType.getActualTypeArguments()) {
+        for (Type typeArgument : ((ParameterizedType) type).getActualTypeArguments()) {
             if (typeArgument instanceof Class) {
                 classes.add((Class<?>) typeArgument);
             } else if (typeArgument instanceof ParameterizedType) {
@@ -291,6 +297,56 @@ public class ClassUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns an array of types from the generic interfaces or super class.
+     *
+     * @param type the class
+     * @return the types
+     */
+    public static Type[] getGenericTypes(Type type) {
+        requireNonNull(type);
+        if (type instanceof Class<?> clazz) {
+            type = clazz.getGenericSuperclass();
+            if (type instanceof ParameterizedType) {
+                return new Type[]{type};
+            } else {
+                Type[] types = clazz.getGenericInterfaces();
+                if (types.length > 0) {
+                    return types;
+                } else {
+                    return EMPTY_TYPE_ARRAY;
+                }
+            }
+        } else {
+            return new Type[]{type};
+        }
+    }
+
+    /**
+     * Returns the underlying class for a type.
+     *
+     * @param type the type
+     * @return the underlying class, null if the type is a variable.
+     */
+    @SuppressWarnings("rawtypes")
+    public static Class<?> getClass(Type type) {
+        if (type instanceof Class) {
+            return (Class<?>) type;
+        } else if (type instanceof ParameterizedType) {
+            return getClass(((ParameterizedType) type).getRawType());
+        } else if (type instanceof GenericArrayType) {
+            Type componentType = ((GenericArrayType) type).getGenericComponentType();
+            Class<?> componentClass = getClass(componentType);
+            if (componentClass != null) {
+                return componentClass;
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 
     /**

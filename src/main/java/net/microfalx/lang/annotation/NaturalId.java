@@ -8,12 +8,12 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Provides an identifier for the annotated element.
+ * Provides an natural identifier for the annotated element.
  */
 @Documented
 @Retention(RUNTIME)
 @Target(value = {TYPE, METHOD, FIELD, PARAMETER})
-public @interface Id {
+public @interface NaturalId {
 
     /**
      * Returns the identifier given to the element.

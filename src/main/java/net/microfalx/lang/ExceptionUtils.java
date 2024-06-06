@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 import static net.microfalx.lang.StringUtils.*;
@@ -13,6 +14,21 @@ import static net.microfalx.lang.StringUtils.*;
  * Utilities around exceptions.
  */
 public class ExceptionUtils {
+
+    /**
+     * Executes the {@link Callable} and bubble up any exception.
+     *
+     * @param callable the code to execute
+     * @param <T>      the return type
+     * @return the result of the callable
+     */
+    public static <T> T doAndRethrow(Callable<T> callable) {
+        try {
+            return callable.call();
+        } catch (Exception e) {
+            return throwException(e);
+        }
+    }
 
     /**
      * Rethrow a checked exception
