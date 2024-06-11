@@ -9,7 +9,7 @@ import static net.microfalx.lang.ArgumentUtils.requireNonNull;
  *
  * @param <T> the type of the identity
  */
-public abstract class IdentityAware<T> implements Identifiable<T> {
+public abstract class IdentityAware<T> implements Identifiable<T>, Cloneable {
 
     private T id;
 
@@ -29,6 +29,19 @@ public abstract class IdentityAware<T> implements Identifiable<T> {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    /**
+     * Creates a shallow copy of this {@link Identifiable}.
+     *
+     * @return a non-null instance
+     */
+    protected IdentityAware<T> copy() {
+        try {
+            return (IdentityAware<T>) clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
