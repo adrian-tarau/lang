@@ -99,6 +99,7 @@ public class TimeUtils {
 
     public static final ZoneId UTC_ZONE = ZoneId.of("UTC");
     public static final ZoneOffset UTC_OFFSET = ZoneOffset.UTC;
+    public static final ZoneOffset SYSTEM_OFFSET = ZoneId.systemDefault().getRules().getOffset(Instant.now());
 
     private static final DateTimeFormatter DATE_TINE_FORMATTER = createDateTimeFormatter();
     private static final DateTimeFormatter DATE_FORMATTER = createDateFormatter();
@@ -172,13 +173,15 @@ public class TimeUtils {
     public static long toMillis(Temporal temporal) {
         if (temporal == null) return 0;
         if (temporal instanceof LocalDateTime) {
-            return ((LocalDateTime) temporal).atZone(UTC_ZONE).toInstant().toEpochMilli();
+            return ((LocalDateTime) temporal).atZone(SYSTEM_OFFSET).toInstant().toEpochMilli();
         } else if (temporal instanceof LocalDate) {
-            return ((LocalDate) temporal).atStartOfDay().atZone(UTC_ZONE).toInstant().toEpochMilli();
+            return ((LocalDate) temporal).atStartOfDay().atZone(SYSTEM_OFFSET).toInstant().toEpochMilli();
         } else if (temporal instanceof ZonedDateTime) {
-            return ((ZonedDateTime) temporal).withZoneSameInstant(UTC_ZONE).toInstant().toEpochMilli();
+            return ((ZonedDateTime) temporal).withZoneSameInstant(SYSTEM_OFFSET).toInstant().toEpochMilli();
         } else if (temporal instanceof OffsetDateTime) {
             return ((OffsetDateTime) temporal).toInstant().toEpochMilli();
+        } else if (temporal instanceof Instant) {
+            return ((Instant) temporal).toEpochMilli();
         } else {
             throw new IllegalArgumentException("Value not a temporal: " + temporal);
         }
@@ -286,8 +289,8 @@ public class TimeUtils {
             millis = ((Date) time).getTime();
         } else if (time instanceof Number) {
             millis = ((Number) time).longValue();
-        } else if (time instanceof Instant) {
-            millis = ((Instant) time).toEpochMilli();
+        } else if (time instanceof Temporal) {
+            millis = toMillis((Temporal) time);
         } else if (time instanceof String) {
             millis = Long.parseLong((String) time);
         } else {
