@@ -179,6 +179,40 @@ public class UriUtils {
         return uri;
     }
 
+
+    /**
+     * Appends a URI path to the existing URI.
+     * <p>
+     *
+     * @param uri  the URI
+     * @param path the fragment
+     * @return the URI with the fragment
+     */
+    public static URI appendPath(URI uri, String path) throws URISyntaxException {
+        requireNonNull(uri);
+        requireNonNull(path);
+        String uriPath = addEndSlash(uri.getPath()) + removeStartSlash(path);
+        return parseUri(new URI(uri.getScheme(), uri.getAuthority(), uriPath, uri.getQuery(),
+                uri.getFragment()).toASCIIString());
+    }
+
+
+    /**
+     * Appends a URI path to the existing URI.
+     * <p>
+     * If the URI already has a path, the path is replaced.
+     *
+     * @param uri  the URI
+     * @param path the path
+     * @return the URI with the fragment
+     */
+    public static URI appendPath(String uri, String path) throws URISyntaxException {
+        requireNonNull(uri);
+        requireNonNull(path);
+        return appendPath(URI.create(uri), path);
+    }
+
+
     private static String escapeCharacterAtPosition(String value, int index) {
         String result = value.substring(0, index);
         char c = value.charAt(index);
