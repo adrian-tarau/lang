@@ -3,11 +3,11 @@ package net.microfalx.lang;
 import static net.microfalx.lang.StringUtils.capitalizeWords;
 
 /**
- * Base class for all objects which can be identified, named and described
+ * Base class for all objects which can be identified, named and described.
  *
  * @param <T> the type of the identity
  */
-public abstract class IdentifiableNameAware<T> extends IdentityAware<T> implements Nameable, Descriptable {
+public abstract class NamedIdentityAware<T> extends IdentityAware<T> implements Nameable, Descriptable {
 
     private String name;
     private String description;
@@ -17,7 +17,7 @@ public abstract class IdentifiableNameAware<T> extends IdentityAware<T> implemen
         return name;
     }
 
-    protected final IdentifiableNameAware<T> setName(String name) {
+    protected final NamedIdentityAware<T> setName(String name) {
         this.name = name;
         return this;
     }
@@ -27,7 +27,7 @@ public abstract class IdentifiableNameAware<T> extends IdentityAware<T> implemen
         return description;
     }
 
-    protected IdentifiableNameAware<T> setDescription(String description) {
+    protected NamedIdentityAware<T> setDescription(String description) {
         this.description = description;
         return this;
     }
@@ -61,8 +61,8 @@ public abstract class IdentifiableNameAware<T> extends IdentityAware<T> implemen
         }
 
         @Override
-        public IdentifiableNameAware<T> build() {
-            IdentifiableNameAware<T> instance = (IdentifiableNameAware<T>) super.build();
+        public NamedIdentityAware<T> build() {
+            NamedIdentityAware<T> instance = (NamedIdentityAware<T>) super.build();
             instance.name = name;
             instance.description = description;
             return instance;

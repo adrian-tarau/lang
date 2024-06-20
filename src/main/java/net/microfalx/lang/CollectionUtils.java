@@ -1,5 +1,7 @@
 package net.microfalx.lang;
 
+import java.io.LineNumberReader;
+import java.io.StringReader;
 import java.util.*;
 
 import static java.util.Collections.*;
@@ -137,6 +139,49 @@ public class CollectionUtils {
      */
     public static <T> Iterable<T> toIterable(Iterator<T> iterator) {
         return iterator == null ? Collections.emptyList() : new OnceIterable<>(iterator);
+    }
+
+    /**
+     * Converts a comma separate string to tags.
+     * <p>
+     * New lines are accepted too and the order of the entries is not preserved.
+     *
+     * @param value the value to convert
+     * @return a non-null instance
+     */
+    public static Set<String> setFromString(String value) {
+        return setFromString(value, false);
+    }
+
+    /**
+     * Converts a comma separate string to a set.
+     * <p>
+     * New lines are accepted too.
+     *
+     * @param value         the value to convert
+     * @param preserveOrder <code>true</code> to preserve the order of the tags, <code>false</code> otherwise
+     * @return a non-null instance
+     */
+    public static Set<String> setFromString(String value, boolean preserveOrder) {
+        if (StringUtils.isEmpty(value)) return Collections.emptySet();
+        value = StringUtils.join("\n", StringUtils.split(value, ",", true));
+        Set<String> values = preserveOrder ? new LinkedHashSet<>() : new HashSet<>();
+        new LineNumberReader(new StringReader(value)).lines().forEach(s -> {
+            values.add(StringUtils.trim(s));
+        });
+        return values;
+    }
+
+    /**
+     * Converts a collection of strings to a comma separated list string.
+     *
+     * @param value the set with values
+     * @return the conversion
+     */
+    public static String setToString(Collection<String> value) {
+        if (ObjectUtils.isEmpty(value)) return StringUtils.EMPTY_STRING;
+        if (!(value instanceof Set)) value = new LinkedHashSet<>(value);
+        return String.join(", ", value);
     }
 
     static class OnceIterable<T> implements Iterable<T> {

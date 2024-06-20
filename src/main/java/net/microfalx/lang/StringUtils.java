@@ -332,6 +332,16 @@ public class StringUtils {
     }
 
     /**
+     * Trims a value.
+     *
+     * @param value the value to be trimmed
+     * @return the trimmed value
+     */
+    public static String trim(String value) {
+        return value != null ? value.trim() : null;
+    }
+
+    /**
      * Capitalizes the given string
      *
      * @param value the string value
