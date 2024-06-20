@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,5 +84,14 @@ class UriUtilsTest {
         assertNull(UriUtils.escapeUnsafe(null));
         assertEquals("http://example.com/%20test",UriUtils.escapeUnsafe("http://example.com/ test"));
         assertEquals("http://example.com/%3etest",UriUtils.escapeUnsafe("http://example.com/>test"));
+    }
+
+    @Test
+    void appendPath() throws URISyntaxException {
+        URI uri= URI.create("https://www.example.com/page");
+        assertEquals("https://www.example.com/page/test.txt",
+                UriUtils.appendPath(uri,"/test.txt").toASCIIString());
+        assertEquals("https://www.example.com/page/test.txt",
+                UriUtils.appendPath(uri.toASCIIString(),"/test.txt").toASCIIString());
     }
 }
