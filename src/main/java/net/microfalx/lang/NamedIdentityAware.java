@@ -1,5 +1,6 @@
 package net.microfalx.lang;
 
+import static net.microfalx.lang.ArgumentUtils.requireNotEmpty;
 import static net.microfalx.lang.StringUtils.capitalizeWords;
 
 /**
@@ -33,6 +34,19 @@ public abstract class NamedIdentityAware<T> extends IdentityAware<T> implements 
     }
 
     /**
+     * Returns a new named instance with a different name.
+     *
+     * @param name the new name
+     * @return a new instance
+     */
+    public NamedIdentityAware<T> withName(String name) {
+        requireNotEmpty(name);
+        NamedIdentityAware<T> copy = (NamedIdentityAware<T>) copy();
+        copy.name = name;
+        return copy;
+    }
+
+    /**
      * A builder class.
      *
      * @param <T> the type of the identity
@@ -48,9 +62,11 @@ public abstract class NamedIdentityAware<T> extends IdentityAware<T> implements 
         }
 
         public Builder() {
+            name = "Unknown";
         }
 
         public Builder<T> name(String name) {
+            requireNotEmpty(name);
             this.name = name;
             return this;
         }

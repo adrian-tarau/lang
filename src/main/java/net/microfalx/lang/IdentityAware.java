@@ -3,6 +3,7 @@ package net.microfalx.lang;
 import java.util.Objects;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
+import static net.microfalx.lang.ArgumentUtils.requireNotEmpty;
 
 /**
  * Base class for all objects which can be identified.
@@ -16,6 +17,11 @@ public abstract class IdentityAware<T> implements Identifiable<T>, Cloneable {
     @Override
     public final T getId() {
         return id;
+    }
+
+    protected final void setId(T id) {
+        requireNotEmpty(id);
+        this.id = id;
     }
 
     @Override
