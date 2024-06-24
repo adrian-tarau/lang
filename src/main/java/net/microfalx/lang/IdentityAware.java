@@ -101,7 +101,7 @@ public abstract class IdentityAware<T> implements Identifiable<T>, Cloneable {
          */
         public IdentityAware<T> build() {
             T newId = updateId();
-            if (newId != null) id(newId);
+            if (newId != null && this.id == null) id(newId);
             if (id == null) throw new IllegalArgumentException("Identifier is required");
             IdentityAware<T> identityAware = create();
             identityAware.id = id;
