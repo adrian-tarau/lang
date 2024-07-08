@@ -1,5 +1,7 @@
 package net.microfalx.lang;
 
+import net.microfalx.lang.annotation.Name;
+
 import static net.microfalx.lang.ArgumentUtils.requireNotEmpty;
 import static net.microfalx.lang.StringUtils.capitalizeWords;
 
@@ -10,6 +12,7 @@ import static net.microfalx.lang.StringUtils.capitalizeWords;
  */
 public abstract class NamedIdentityAware<T> extends IdentityAware<T> implements Nameable, Descriptable {
 
+    @Name
     private String name;
     private String description;
 
