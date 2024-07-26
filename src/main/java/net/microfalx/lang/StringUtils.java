@@ -385,11 +385,12 @@ public class StringUtils {
      */
     public static String capitalizeWords(String value) {
         if (isEmpty(value)) return value;
-        value = value.replace('.', ' ');
-        value = value.replace('_', ' ');
-        value = value.replace('-', ' ');
-        value = value.replace('$', ' ');
-        value = value.replace('&', ' ');
+        char[] chars = value.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
+            if (containsInArray(c, CAPITALIZATION_SPECIAL_CHARS)) chars[i] = ' ';
+        }
+        value = String.valueOf(chars);
         StringBuilder rc = new StringBuilder();
         for (String word : split(value, " ")) {
             rc.append(capitalize(word)).append(" ");
@@ -683,4 +684,6 @@ public class StringUtils {
         LOWER_CASE,
         UPPER_CASE
     }
+
+    private static final char[] CAPITALIZATION_SPECIAL_CHARS = new char[]{'.', '_', '-', ',', '$', '&'};
 }
