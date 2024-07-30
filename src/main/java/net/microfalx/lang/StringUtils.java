@@ -18,6 +18,8 @@ public class StringUtils {
     public static final String[] EMPTY_STRING_ARRAY = new String[0];
     public static final String ELLIPSES = "...";
     public static final String ELLIPSES_WITH_SPACES = " " + ELLIPSES + " ";
+    public static final String COMMA = ",";
+    public static final String COMMA_WITH_SPACE = ", ";
 
     /**
      * Returns whether the string is empty.
@@ -548,7 +550,7 @@ public class StringUtils {
      * @return the builder
      */
     public static StringBuilder append(StringBuilder builder, Object value) {
-        return append(builder, value, ',');
+        return append(builder, value, COMMA);
     }
 
     /**
