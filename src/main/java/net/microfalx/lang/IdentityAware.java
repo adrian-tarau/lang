@@ -1,5 +1,7 @@
 package net.microfalx.lang;
 
+import net.microfalx.lang.annotation.Id;
+
 import java.util.Objects;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
@@ -12,6 +14,7 @@ import static net.microfalx.lang.ArgumentUtils.requireNotEmpty;
  */
 public abstract class IdentityAware<T> implements Identifiable<T>, Cloneable {
 
+    @Id
     private T id;
 
     @Override
