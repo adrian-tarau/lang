@@ -18,7 +18,7 @@ public abstract class NamedIdentityAware<T> extends IdentityAware<T> implements 
 
     @Override
     public final String getName() {
-        return name;
+        return StringUtils.defaultIfNull(dynamicName(), name);
     }
 
     protected final NamedIdentityAware<T> setName(String name) {
@@ -50,6 +50,15 @@ public abstract class NamedIdentityAware<T> extends IdentityAware<T> implements 
     }
 
     /**
+     * Subclasses can provide a different name for this object.
+     *
+     * @return a new name.
+     */
+    protected String dynamicName() {
+        return name;
+    }
+
+    /**
      * A builder class.
      *
      * @param <T> the type of the identity
@@ -65,16 +74,15 @@ public abstract class NamedIdentityAware<T> extends IdentityAware<T> implements 
         }
 
         public Builder() {
-            name = "Unknown";
         }
 
-        public Builder<T> name(String name) {
+        public final Builder<T> name(String name) {
             requireNotEmpty(name);
             this.name = name;
             return this;
         }
 
-        public Builder<T> description(String description) {
+        public final Builder<T> description(String description) {
             this.description = description;
             return this;
         }
