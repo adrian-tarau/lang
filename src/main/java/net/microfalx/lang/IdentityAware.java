@@ -28,7 +28,7 @@ public abstract class IdentityAware<T> implements Identifiable<T>, Cloneable {
     }
 
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         IdentityAware<?> that = (IdentityAware<?>) o;
