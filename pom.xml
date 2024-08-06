@@ -30,7 +30,7 @@
     <parent>
         <groupId>net.microfalx</groupId>
         <artifactId>pom</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </parent>
 
     <name>Language Extensions</name>
@@ -57,17 +57,17 @@
 
     <properties>
         <!-- Runtime -->
-        <logback.version>2.0.11</logback.version>
+        <slf4j.version>2.0.13</slf4j.version>
         <dom4j.version>2.1.4</dom4j.version>
-        <guava.version>33.0.0-jre</guava.version>
+        <guava.version>33.2.1-jre</guava.version>
         <classindex.version>3.13</classindex.version>
-        <apache.commons.lang.version>3.14.0</apache.commons.lang.version>
+        <apache.commons.lang.version>3.15.0</apache.commons.lang.version>
         <!-- Tests -->
-        <junit.version>5.10.1</junit.version>
-        <assertj.version>3.25.1</assertj.version>
-        <mockito.version>5.9.0</mockito.version>
+        <junit.version>5.10.3</junit.version>
+        <assertj.version>3.26.3</assertj.version>
+        <mockito.version>5.12.0</mockito.version>
         <jmh.version>1.37</jmh.version>
-        <awaitility.version>4.2.0</awaitility.version>
+        <awaitility.version>4.2.1</awaitility.version>
     </properties>
 
     <developers>
@@ -85,13 +85,13 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>${logback.version}</version>
+                <version>${slf4j.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>${logback.version}</version>
+                <version>${slf4j.version}</version>
             </dependency>
 
             <dependency>
