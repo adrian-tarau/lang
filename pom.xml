@@ -56,18 +56,7 @@
     <inceptionYear>2022</inceptionYear>
 
     <properties>
-        <!-- Runtime -->
-        <slf4j.version>2.0.13</slf4j.version>
-        <dom4j.version>2.1.4</dom4j.version>
-        <guava.version>33.2.1-jre</guava.version>
-        <classindex.version>3.13</classindex.version>
-        <apache.commons.lang.version>3.15.0</apache.commons.lang.version>
-        <!-- Tests -->
-        <junit.version>5.10.3</junit.version>
-        <assertj.version>3.26.3</assertj.version>
-        <mockito.version>5.12.0</mockito.version>
-        <jmh.version>1.37</jmh.version>
-        <awaitility.version>4.2.1</awaitility.version>
+        <bom.version>1.0.0</bom.version>
     </properties>
 
     <developers>
@@ -80,72 +69,14 @@
     <dependencyManagement>
         <dependencies>
 
-            <!-- Runtime -->
-
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-simple</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.dom4j</groupId>
-                <artifactId>dom4j</artifactId>
-                <version>${dom4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.atteo.classindex</groupId>
-                <artifactId>classindex</artifactId>
-                <version>${classindex.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${apache.commons.lang.version}</version>
-            </dependency>
-
-            <!-- Tests -->
-            <dependency>
-                <groupId>org.junit</groupId>
-                <artifactId>junit-bom</artifactId>
-                <version>${junit.version}</version>
+                <groupId>net.microfalx.bom</groupId>
+                <artifactId>bom-base</artifactId>
+                <version>1.0.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>${mockito.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.assertj</groupId>
-                <artifactId>assertj-core</artifactId>
-                <version>${assertj.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openjdk.jmh</groupId>
-                <artifactId>jmh-core</artifactId>
-                <version>${jmh.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openjdk.jmh</groupId>
-                <artifactId>jmh-generator-annprocess</artifactId>
-                <version>${jmh.version}</version>
-            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
