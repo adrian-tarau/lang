@@ -63,6 +63,21 @@ public class TimeUtils {
     public static final long TEN_SECONDS = 10 * MILLISECONDS_IN_SECOND;
 
     /**
+     * A constant for 5 seconds.
+     */
+    public static final long FIVE_SECONDS = 5 * MILLISECONDS_IN_SECOND;
+
+    /**
+     * A constant for 2 seconds.
+     */
+    public static final long TWO_SECONDS = 2 * MILLISECONDS_IN_SECOND;
+
+    /**
+     * A constant for 1 second.
+     */
+    public static final long ONE_SECONDS = MILLISECONDS_IN_SECOND;
+
+    /**
      * A constant for one minute.
      */
     public static final long ONE_MINUTE = MILLISECONDS_IN_MINUTE;
