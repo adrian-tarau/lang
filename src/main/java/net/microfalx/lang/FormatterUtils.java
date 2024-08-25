@@ -74,7 +74,13 @@ public class FormatterUtils {
      * @return the string representation
      */
     public static String formatTime(Object value, ZoneId timeZone) {
-        return formatDateTime(timeFormatter, value, timeZone);
+        if (value instanceof LocalTime) {
+            return ((LocalTime)value).format(timeFormatter);
+        } else if (value instanceof OffsetTime) {
+            return ((OffsetTime)value).format(timeFormatter);
+        } else {
+            return value.toString();
+        }
     }
 
     /**
