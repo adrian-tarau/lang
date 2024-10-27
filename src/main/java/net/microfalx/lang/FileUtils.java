@@ -27,6 +27,19 @@ public class FileUtils {
     }
 
     /**
+     * Returns the file name without file extension.
+     *
+     * @param fileName the file name
+     * @return the file name
+     */
+    public static String removeFileExtension(String fileName) {
+        if (fileName == null) return null;
+        int index = fileName.lastIndexOf('.');
+        if (index == -1) return fileName;
+        return fileName.substring(0, index);
+    }
+
+    /**
      * Returns the file name out of a path.
      *
      * @param path the path

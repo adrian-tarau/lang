@@ -1,6 +1,7 @@
 package net.microfalx.lang;
 
 import java.io.File;
+import java.util.Locale;
 
 import static net.microfalx.lang.StringUtils.removeEndSlash;
 
@@ -9,10 +10,33 @@ import static net.microfalx.lang.StringUtils.removeEndSlash;
  */
 public class JvmUtils {
 
+    public static final String OS_NAME = System.getProperty("os.name").toLowerCase(Locale.US);
+    public static final String OS_ARCH = System.getProperty("os.arch").toLowerCase(Locale.US);
+    public static final String OS_VERSION = System.getProperty("os.version").toLowerCase(Locale.US);
+    public static final String PATH_SEP = File.pathSeparator;
+
     private static File homeDirectory;
     private static File varDirectory;
     private static File tmpDirectory;
     private static File workingDirectory;
+
+    /**
+     * Returns whether the operating system is Microsoft Windows.
+     *
+     * @return {@code true} if Windows, {@code false} otherwise
+     */
+    public static boolean isWindows() {
+        return OS_NAME.toLowerCase().contains("windows");
+    }
+
+    /**
+     * Returns whether the operating system is Linux.
+     *
+     * @return {@code true} if Linux, {@code false} otherwise
+     */
+    public static boolean isLinux() {
+        return !isWindows();
+    }
 
     /**
      * Returns the OS user's name which owns the JVM process.
@@ -74,6 +98,16 @@ public class JvmUtils {
         if (tmpDir == null) throw new IllegalStateException("JVM does not provide system property 'java.io.tmpdir'");
         JvmUtils.tmpDirectory = new File(getHomeDirectory(), "tmp");
         return FileUtils.validateDirectoryExists(JvmUtils.tmpDirectory);
+    }
+
+    /**
+     * Changes the temporary directory for current JVM.
+     *
+     * @param directory the new temporary directory
+     */
+    public static void setTemporaryDirectory(File directory) {
+        ArgumentUtils.requireNonNull(directory);
+        System.getProperty("java.io.tmpdir", directory.getAbsolutePath());
     }
 
     /**
