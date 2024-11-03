@@ -1,6 +1,11 @@
 package net.microfalx.lang;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.SocketException;
 import java.util.Locale;
 
 import static net.microfalx.lang.StringUtils.removeEndSlash;
@@ -14,6 +19,8 @@ public class JvmUtils {
     public static final String OS_ARCH = System.getProperty("os.arch").toLowerCase(Locale.US);
     public static final String OS_VERSION = System.getProperty("os.version").toLowerCase(Locale.US);
     public static final String PATH_SEP = File.pathSeparator;
+
+    public static final int UNAVAILABLE_PORT = -1;
 
     private static File homeDirectory;
     private static File varDirectory;
@@ -128,6 +135,41 @@ public class JvmUtils {
     }
 
     /**
+     * Returns the next available port starting with a given port.
+     *
+     * @return the available port, {@link #UNAVAILABLE_PORT} if no available port was found
+     */
+    public static int getNextAvailablePort(int startPort) {
+        return getNextAvailablePort(startPort, 65000);
+    }
+
+    /**
+     * Returns the next available port for a given range.
+     *
+     * @param maxPort maximum port number
+     * @return the available port, {@link #UNAVAILABLE_PORT} if no available port was found
+     */
+    public static int getNextAvailablePort(int startPort, int maxPort) {
+        while (startPort <= maxPort) {
+            if (available(startPort)) return startPort;
+            startPort++;
+        }
+        return UNAVAILABLE_PORT;
+    }
+
+    /**
+     * Checks to see if a specific port is available.
+     * <p/>
+     * The method tries to bind on UDP and TCP for the given port and if successful, the port is considered free.
+     *
+     * @param port the port to check for availability
+     */
+    public static boolean available(int port) {
+        InetSocketAddress address = new InetSocketAddress(port);
+        return availableTcp(address) && availableUdp(address);
+    }
+
+    /**
      * Replaces standard System properties placeholders.
      *
      * @param value the value.
@@ -140,5 +182,43 @@ public class JvmUtils {
         value = org.apache.commons.lang3.StringUtils.replaceOnce(value, "${shm.home}", getHomeDirectory().getAbsolutePath());
         value = org.apache.commons.lang3.StringUtils.replaceOnce(value, "${tmp.home}", getHomeDirectory().getAbsolutePath());
         return value;
+    }
+
+    private static boolean availableTcp(InetSocketAddress address) {
+        ServerSocket ss = null;
+        try {
+            ss = new ServerSocket();
+            ss.setReuseAddress(true);
+            ss.setSoTimeout(1000);
+            try {
+                ss.bind(address);
+                return true;
+            } catch (IOException e) {
+                return false;
+            }
+        } catch (Exception e) {
+            return ThreadUtils.throwException(e);
+        } finally {
+            IOUtils.closeQuietly(ss);
+        }
+    }
+
+    private static boolean availableUdp(InetSocketAddress address) {
+        DatagramSocket ds = null;
+        try {
+            ds = new DatagramSocket();
+            ds.setReuseAddress(true);
+            ds.setSoTimeout(1000);
+            try {
+                ds.bind(address);
+                return true;
+            } catch (SocketException e) {
+                return false;
+            }
+        } catch (Exception e) {
+            return ThreadUtils.throwException(e);
+        } finally {
+            IOUtils.closeQuietly(ds);
+        }
     }
 }
