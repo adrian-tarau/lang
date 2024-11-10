@@ -4,6 +4,7 @@ import net.microfalx.lang.annotation.Name;
 
 import static net.microfalx.lang.ArgumentUtils.requireNotEmpty;
 import static net.microfalx.lang.StringUtils.capitalizeWords;
+import static net.microfalx.lang.StringUtils.defaultIfEmpty;
 
 /**
  * Base class for all objects which can be identified, named and described.
@@ -76,6 +77,10 @@ public abstract class NamedIdentityAware<T> extends IdentityAware<T> implements 
         public Builder() {
         }
 
+        protected final String name() {
+            return name;
+        }
+
         public final Builder<T> name(String name) {
             requireNotEmpty(name);
             this.name = name;
@@ -90,7 +95,7 @@ public abstract class NamedIdentityAware<T> extends IdentityAware<T> implements 
         @Override
         public NamedIdentityAware<T> build() {
             NamedIdentityAware<T> instance = (NamedIdentityAware<T>) super.build();
-            instance.name = name;
+            instance.name = defaultIfEmpty(name, capitalizeWords(ObjectUtils.toString(instance.getId())));
             instance.description = description;
             return instance;
         }

@@ -123,4 +123,11 @@ class TextUtilsTest {
         assertNotNull(TextUtils.appendTextWithSpaces(new StringBuilder(), text, 2, true,
                 true, true));
     }
+
+    @Test
+    void getHeader() {
+        assertEquals("~~~~    demo    ~~~~", TextUtils.getHeader("demo", 20));
+        assertEquals("=====     demo     =====", TextUtils.getHeader("demo", 25, '='));
+        assertEquals("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                                demo                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", TextUtils.getHeader("demo"));
+    }
 }

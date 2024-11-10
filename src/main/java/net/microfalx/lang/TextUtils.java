@@ -4,14 +4,21 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.StringReader;
 
+import static net.microfalx.lang.StringUtils.defaultIfEmpty;
+
 /**
- * Utilities around multi line strings.
+ * Utilities around multi-line strings.
  */
 public class TextUtils {
 
     public static final int SMALL_INDENT = 2;
     public static final int MEDIUM_INDENT = 4;
     public static final int LARGE_INDENT = 8;
+
+    public static final int HEADER_LENGTH = 130;
+    public static final int MIN_HEADER_LENGTH = 20;
+
+    public static final String LINE_SEPARATOR = System.lineSeparator();
 
     /**
      * Inserts a given number of spaces in front of each line
@@ -98,5 +105,63 @@ public class TextUtils {
             throw new IllegalStateException("Should not happen", e);
         }
         return builder;
+    }
+
+    /**
+     * Appends white spaces at the beginning and end of the string to match the new length.
+     *
+     * @param text   the text
+     * @param length the lenght of the new text
+     * @return a non-null instance
+     */
+    public static String appendSpaces(String text, int length) {
+        if (text.length() < length) {
+            int size = (length - text.length()) / 2;
+            String space = StringUtils.getStringOfChar(' ', size);
+            text = space + text + space;
+        }
+        return org.apache.commons.lang3.StringUtils.abbreviate(text, length);
+    }
+
+    /**
+     * Returns a header used to separate sections in logs.
+     *
+     * @param text the value of the header
+     * @return the header with separators
+     */
+    public static String getHeader(String text) {
+        return getHeader(text, HEADER_LENGTH, '~');
+    }
+
+    /**
+     * Returns a header used to separate sections in logs.
+     *
+     * @param text   the value of the header
+     * @param length the length of the header
+     * @return the header with separators
+     */
+    public static String getHeader(String text, int length) {
+        return getHeader(text, length, '~');
+    }
+
+    /**
+     * Returns a header used to separate sections in logs.
+     *
+     * @param text      the value of the header
+     * @param length    the length of the header
+     * @param separator the separator used to generate the header
+     * @return the header with separators
+     */
+    public static String getHeader(String text, int length, char separator) {
+        if (length < MIN_HEADER_LENGTH) length = MIN_HEADER_LENGTH;
+        text = defaultIfEmpty(text, StringUtils.NA_STRING);
+        int marginSize = Math.max(length / 6, (length - text.length()) / 2) / 2;
+        int contentSize = length - 2 * marginSize - 2;
+        String separatorText = StringUtils.getStringOfChar(separator, marginSize);
+        StringBuilder builder = new StringBuilder(300);
+        builder.append(separatorText).append(' ');
+        builder.append(appendSpaces(text, contentSize));
+        builder.append(' ').append(separatorText);
+        return org.apache.commons.lang3.StringUtils.abbreviate(builder.toString(), length);
     }
 }

@@ -188,12 +188,16 @@ public class UriUtils {
      * @param path the fragment
      * @return the URI with the fragment
      */
-    public static URI appendPath(URI uri, String path) throws URISyntaxException {
+    public static URI appendPath(URI uri, String path) {
         requireNonNull(uri);
         requireNonNull(path);
         String uriPath = addEndSlash(uri.getPath()) + removeStartSlash(path);
-        return parseUri(new URI(uri.getScheme(), uri.getAuthority(), uriPath, uri.getQuery(),
-                uri.getFragment()).toASCIIString());
+        try {
+            return parseUri(new URI(uri.getScheme(), uri.getAuthority(), uriPath, uri.getQuery(),
+                    uri.getFragment()).toASCIIString());
+        } catch (URISyntaxException e) {
+            return ExceptionUtils.throwException(e);
+        }
     }
 
 
@@ -206,7 +210,7 @@ public class UriUtils {
      * @param path the path
      * @return the URI with the fragment
      */
-    public static URI appendPath(String uri, String path) throws URISyntaxException {
+    public static URI appendPath(String uri, String path) {
         requireNonNull(uri);
         requireNonNull(path);
         return appendPath(URI.create(uri), path);
