@@ -15,6 +15,10 @@ import static net.microfalx.lang.ArgumentUtils.requireNonNull;
  */
 public class NamedAndTaggedIdentifyAware<T> extends NamedIdentityAware<T> {
 
+    public static String SELF_TAG = "self";
+    public static String AUTO_TAG = "auto";
+    public static String LOCAL_TAG = "local";
+
     private Set<String> tags;
 
     /**
