@@ -441,6 +441,35 @@ public class TimeUtils {
     }
 
     /**
+     * Parses a duration.
+     * <p>
+     * The duration is in the following format: value [m,s,h,d]. The space between number and unit is optional.
+     *
+     * @param duration the duration as a string
+     * @return the duration, null if the initial value is null or empty
+     */
+    public static Duration parseDuration(String duration) {
+        if (StringUtils.isEmpty(duration)) return null;
+        duration = duration.trim();
+        char unit = duration.charAt(duration.length() - 1);
+        if (Character.isLetter(unit)) {
+            duration = duration.substring(0, duration.length() - 1).trim();
+        }
+        int value = Integer.parseInt(duration);
+        if ('s' == unit) {
+            return Duration.ofSeconds(value);
+        } else if ('m' == unit) {
+            return Duration.ofMinutes(value);
+        } else if ('h' == unit) {
+            return Duration.ofHours(value);
+        } else if ('d' == unit) {
+            return Duration.ofDays(value);
+        } else {
+            return Duration.ofMillis(value);
+        }
+    }
+
+    /**
      * Returns whether the String contains a temporal.
      *
      * @param temporal the value to test

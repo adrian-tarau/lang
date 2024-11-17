@@ -181,6 +181,17 @@ class TimeUtilsTest {
     }
 
     @Test
+    void parseDuration() {
+        assertNull(TimeUtils.parseDuration(null));
+        assertNull(TimeUtils.parseDuration(""));
+        assertEquals(Duration.ofMillis(10), TimeUtils.parseDuration("10"));
+        assertEquals(Duration.ofSeconds(10), TimeUtils.parseDuration("10s"));
+        assertEquals(Duration.ofMinutes(11), TimeUtils.parseDuration("11m"));
+        assertEquals(Duration.ofHours(12), TimeUtils.parseDuration("12h"));
+        assertEquals(Duration.ofDays(13), TimeUtils.parseDuration("13d"));
+    }
+
+    @Test
     void isTemporal() {
         assertTrue(TimeUtils.isTemporal(ZONED_DATETIME.toString()));
     }
