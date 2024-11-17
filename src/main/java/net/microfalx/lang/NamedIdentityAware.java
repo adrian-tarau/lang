@@ -3,8 +3,7 @@ package net.microfalx.lang;
 import net.microfalx.lang.annotation.Name;
 
 import static net.microfalx.lang.ArgumentUtils.requireNotEmpty;
-import static net.microfalx.lang.StringUtils.capitalizeWords;
-import static net.microfalx.lang.StringUtils.defaultIfEmpty;
+import static net.microfalx.lang.StringUtils.*;
 
 /**
  * Base class for all objects which can be identified, named and described.
@@ -90,6 +89,10 @@ public abstract class NamedIdentityAware<T> extends IdentityAware<T> implements 
         public final Builder<T> description(String description) {
             this.description = description;
             return this;
+        }
+
+        protected final boolean emptyName() {
+            return isEmpty(name);
         }
 
         @Override
