@@ -18,6 +18,8 @@ public class TextUtils {
     public static final int HEADER_LENGTH = 130;
     public static final int MIN_HEADER_LENGTH = 20;
 
+    public static final String ABBREVIATE_MARKER = "...";
+
     public static final String LINE_SEPARATOR = System.lineSeparator();
 
     /**
@@ -105,6 +107,52 @@ public class TextUtils {
             throw new IllegalStateException("Should not happen", e);
         }
         return builder;
+    }
+
+    /**
+     * Abbreviates the text at the end (if longer than expected length).
+     *
+     * @param text      the text to abbreviate
+     * @param maxLength the maximum width of the abbreviated text (including the marker)
+     * @return the same text or an abbreviated
+     */
+    public static String abbreviate(String text, int maxLength) {
+        return abbreviate(text, maxLength, ABBREVIATE_MARKER);
+    }
+
+    /**
+     * Abbreviates the text at the end (if longer than expected length).
+     *
+     * @param text      the text to abbreviate
+     * @param maxLength the maximum width of the abbreviated text (including the marker)
+     * @param marker    the text to be added to indicate the abbreviation (more follows)
+     * @return the same text or an abbreviated
+     */
+    public static String abbreviate(String text, int maxLength, String marker) {
+        return org.apache.commons.lang3.StringUtils.abbreviate(text, marker, maxLength);
+    }
+
+    /**
+     * Abbreviates the text in the middle (if longer than expected length).
+     *
+     * @param text      the text to abbreviate
+     * @param maxLength the maximum width of the abbreviated text (including the marker)
+     * @return the same text or an abbreviated
+     */
+    public static String abbreviateMiddle(String text, int maxLength) {
+        return abbreviateMiddle(text, maxLength, ABBREVIATE_MARKER);
+    }
+
+    /**
+     * Abbreviates the text in the middle (if longer than expected length).
+     *
+     * @param text      the text to abbreviate
+     * @param maxLength the maximum width of the abbreviated text (including the marker)
+     * @param marker    the text to be added to indicate the abbreviation (more follows)
+     * @return the same text or an abbreviated
+     */
+    public static String abbreviateMiddle(String text, int maxLength, String marker) {
+        return org.apache.commons.lang3.StringUtils.abbreviateMiddle(text, marker, maxLength);
     }
 
     /**
