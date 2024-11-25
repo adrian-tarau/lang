@@ -45,6 +45,7 @@ public abstract class IdentityAware<T> implements Identifiable<T>, Cloneable {
      *
      * @return a non-null instance
      */
+    @SuppressWarnings("unchecked")
     protected IdentityAware<T> copy() {
         try {
             return (IdentityAware<T>) clone();

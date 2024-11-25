@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.SocketException;
+import java.time.LocalDateTime;
 import java.util.Locale;
 
 import static net.microfalx.lang.StringUtils.removeEndSlash;
@@ -19,6 +20,8 @@ public class JvmUtils {
     public static final String OS_ARCH = System.getProperty("os.arch").toLowerCase(Locale.US);
     public static final String OS_VERSION = System.getProperty("os.version").toLowerCase(Locale.US);
     public static final String PATH_SEP = File.pathSeparator;
+
+    public static final LocalDateTime STARTUP_TIME = LocalDateTime.now();
 
     public static final int UNAVAILABLE_PORT = -1;
 
