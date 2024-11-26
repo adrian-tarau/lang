@@ -293,4 +293,23 @@ class TimeUtilsTest {
         assertTrue(TimeUtils.seemsTime("12:20:45+02:00"));
         assertTrue(TimeUtils.seemsTime("12:20:45-02:00"));
     }
+
+    @Test
+    void durationAsString(){
+        assertEquals("5s",TimeUtils.toString(Duration.ofSeconds(5)));
+        assertEquals("60s",TimeUtils.toString(Duration.ofSeconds(60)));
+        assertEquals("90s",TimeUtils.toString(Duration.ofSeconds(90)));
+        assertEquals("120s",TimeUtils.toString(Duration.ofSeconds(120)));
+        assertEquals("400s",TimeUtils.toString(Duration.ofSeconds(400)));
+        assertEquals("60s",TimeUtils.toString(Duration.ofMinutes(1)));
+        assertEquals("60m",TimeUtils.toString(Duration.ofMinutes(60)));
+        assertEquals("234m",TimeUtils.toString(Duration.ofMinutes(234)));
+        assertEquals("567m",TimeUtils.toString(Duration.ofMinutes(567)));
+        assertEquals("60m",TimeUtils.toString(Duration.ofHours(1)));
+        assertEquals("24h",TimeUtils.toString(Duration.ofHours(24)));
+        assertEquals("123h",TimeUtils.toString(Duration.ofHours(123)));
+        assertEquals("24h",TimeUtils.toString(Duration.ofDays(1)));
+        assertEquals("360h",TimeUtils.toString(Duration.ofDays(15)));
+        assertEquals("40d",TimeUtils.toString(Duration.ofDays(40)));
+    }
 }

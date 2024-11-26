@@ -470,6 +470,25 @@ public class TimeUtils {
     }
 
     /**
+     * Converts the duration to its string representation
+     *
+     * @param duration the duration
+     * @return a non-null instance
+     */
+    public static String toString(Duration duration) {
+        if (duration == null) return "";
+        if (duration.toSeconds() < 60 * 60) {
+            return duration.toSeconds() + "s";
+        } else if (duration.toMinutes() < 24 * 60) {
+            return duration.toMinutes() + "m";
+        } else if (duration.toHours() <= 24 * 30) {
+            return duration.toHours() + "h";
+        } else {
+            return duration.toDays() + "d";
+        }
+    }
+
+    /**
      * Returns whether the String contains a temporal.
      *
      * @param temporal the value to test
