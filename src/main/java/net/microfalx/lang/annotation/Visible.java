@@ -28,6 +28,13 @@ public @interface Visible {
     Mode[] modes() default {Mode.BROWSE, Mode.ADD, Mode.EDIT, Mode.VIEW};
 
     /**
+     * Returns a collection of fields to apply the annotation to when the annotation is used with a type.
+     *
+     * @return a non-null instance
+     */
+    String[] fieldNames() default {};
+
+    /**
      * An enum to provide the details on the constraint
      */
     enum Mode {

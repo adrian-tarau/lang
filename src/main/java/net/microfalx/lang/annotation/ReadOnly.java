@@ -9,7 +9,7 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * An annotation use to control if an annotated element is read/write (can be changed) or read-only.
+ * An annotation used to control if an annotated element is read/write (can be changed) or read-only.
  */
 @Target({FIELD, TYPE})
 @Retention(RUNTIME)
@@ -29,6 +29,13 @@ public @interface ReadOnly {
      * @return the constraints
      */
     Mode[] modes() default {Mode.ADD, Mode.EDIT};
+
+    /**
+     * Returns a collection of fields to apply the annotation to when the annotation is used with a type.
+     *
+     * @return a non-null instance
+     */
+    String[] fieldNames() default {};
 
     /**
      * An enum to provide the details on the constraint

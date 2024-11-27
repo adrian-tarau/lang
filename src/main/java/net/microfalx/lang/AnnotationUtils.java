@@ -166,7 +166,6 @@ public class AnnotationUtils {
      */
     public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationClass, boolean includeInterfaces) {
         requireNonNull(clazz);
-
         A annotation;
         while (clazz != null && !Object.class.equals(clazz)) {
             annotation = clazz.getAnnotation(annotationClass);
