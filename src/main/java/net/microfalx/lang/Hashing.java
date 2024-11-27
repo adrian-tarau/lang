@@ -2,6 +2,9 @@ package net.microfalx.lang;
 
 import com.google.common.hash.Hasher;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.time.temporal.Temporal;
@@ -53,6 +56,8 @@ public final class Hashing {
             updateNumber((Number) value);
         } else if (value instanceof byte[]) {
             hasher.putBytes((byte[]) value);
+        } else if (value instanceof char[]) {
+            hasher.putString(String.valueOf((char[]) value), StandardCharsets.UTF_8);
         } else if (value instanceof Enum) {
             hasher.putString(((Enum<?>) value).name(), StandardCharsets.UTF_8);
         } else if (value instanceof Temporal) {
@@ -137,8 +142,38 @@ public final class Hashing {
                 update(entry.getKey());
                 update(entry.getValue());
             }
+        } else if (value instanceof InputStream) {
+            update((InputStream) value);
+        } else if (value instanceof Reader) {
+            update((Reader) value);
         } else {
             throwUnsupportedType(value);
+        }
+    }
+
+    private void update(InputStream inputStream) {
+        byte[] buffer = new byte[IOUtils.BUFFER_SIZE];
+        try {
+            int length;
+            do {
+                length = inputStream.read(buffer, 0, buffer.length);
+                if (length > 0) update(buffer);
+            } while (length > 0);
+        } catch (IOException e) {
+            ExceptionUtils.throwException(e);
+        }
+    }
+
+    private void update(Reader reader) {
+        char[] buffer = new char[IOUtils.BUFFER_SIZE];
+        try {
+            int length;
+            do {
+                length = reader.read(buffer, 0, buffer.length);
+                if (length > 0) update(buffer);
+            } while (length > 0);
+        } catch (IOException e) {
+            ExceptionUtils.throwException(e);
         }
     }
 

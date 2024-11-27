@@ -3,6 +3,8 @@ package net.microfalx.lang;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +88,18 @@ class HashingTest {
         hashing.update(new TreeMap<>(Map.of(0,1,1,2,
                 2,3)));
         assertEquals("6d2d0c8ff3e97663de4b5ab964be4a72",hashing.asString());
+    }
+
+    @Test
+    void updateWithInputStream() {
+        hashing.update(new ByteArrayInputStream(new byte[]{1,2,3,4,5}));
+        assertEquals("6cabbcb76703edb57fc0ac4ded509779",hashing.asString());
+    }
+
+    @Test
+    void updateWithReader() {
+        hashing.update(new StringReader("test"));
+        assertEquals("f4550809b2d30e648d672dea814d2408",hashing.asString());
     }
 
     @Test
