@@ -216,6 +216,16 @@ public class UriUtils {
         return appendPath(URI.create(uri), path);
     }
 
+    /**
+     * Returns the string representation of the URI.
+     *
+     * @param uri the URI
+     * @return the string representation, null if URI is null
+     */
+    public static String toString(URI uri) {
+        return uri != null ? uri.toASCIIString() : null;
+    }
+
 
     private static String escapeCharacterAtPosition(String value, int index) {
         String result = value.substring(0, index);
