@@ -169,7 +169,7 @@ public class JvmUtils {
      */
     public static boolean available(int port) {
         InetSocketAddress address = new InetSocketAddress(port);
-        return availableTcp(address) && availableUdp(address);
+        return availableTcp(address) || availableUdp(address);
     }
 
     /**
