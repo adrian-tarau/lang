@@ -71,6 +71,15 @@ public abstract class IdentityAware<T> implements Identifiable<T>, Cloneable {
         }
 
         /**
+         * Returns the current identifier.
+         *
+         * @return the identifier
+         */
+        public T id() {
+            return id;
+        }
+
+        /**
          * Changes the object (natural) identifier.
          *
          * @param id the identifier
