@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * Utilities around objects.
@@ -146,6 +147,25 @@ public class ObjectUtils {
             return Arrays.copyOf(array, array.length);
         } else {
             return new Object[]{object};
+        }
+    }
+
+    /**
+     * Executes an action for each object in the array, if an array or for the object itself.
+     *
+     * @param object the object or object array
+     * @param action the action
+     */
+    public static void forEach(Object object, Consumer<? super Object> action) {
+        ArgumentUtils.requireNonNull(action);
+        if (object == null) return;
+        if (object.getClass().isArray()) {
+            Object[] array = (Object[]) object;
+            for (Object o : array) {
+                action.accept(o);
+            }
+        } else {
+            action.accept(object);
         }
     }
 

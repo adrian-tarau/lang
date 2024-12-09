@@ -20,6 +20,11 @@ public final class Hashing {
     private final Hasher hasher = com.google.common.hash.Hashing.murmur3_128().newHasher();
 
     /**
+     * An empty hash
+     */
+    public static String EMPTY = Hashing.get(null);
+
+    /**
      * Creates a new instance with a 128bit hashing algorithm.
      *
      * @return a non-null instance
@@ -146,6 +151,8 @@ public final class Hashing {
             update((InputStream) value);
         } else if (value instanceof Reader) {
             update((Reader) value);
+        } else if (ObjectUtils.isArray(value)) {
+            ObjectUtils.forEach(value, this::update);
         } else {
             throwUnsupportedType(value);
         }
