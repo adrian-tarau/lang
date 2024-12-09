@@ -7,7 +7,7 @@ import java.time.temporal.Temporal;
 import static net.microfalx.lang.NumberUtils.*;
 import static net.microfalx.lang.StringUtils.EMPTY_STRING;
 import static net.microfalx.lang.StringUtils.NA_STRING;
-import static net.microfalx.lang.TimeUtils.toZonedDateTime;
+import static net.microfalx.lang.TimeUtils.*;
 
 public class FormatterUtils {
 
@@ -80,6 +80,47 @@ public class FormatterUtils {
             return ((OffsetTime)value).format(timeFormatter);
         } else {
             return value.toString();
+        }
+    }
+
+    /**
+     * Returns how long it passed relative to "now".
+     *
+     * @param value the value to format
+     * @return the string representation
+     */
+    public static String formatElapsed(Object value) {
+        return formatElapsed(value, null);
+    }
+
+    /**
+     * Returns how long it passed relative to "now".
+     *
+     * @param value    the value to format
+     * @param timeZone the zone (it can be null for system zone)
+     * @return the string representation
+     */
+    public static String formatElapsed(Object value, ZoneId timeZone) {
+        return formatElapsed(value, timeZone, false);
+    }
+
+    /**
+     * Returns how long it passed relative to "now".
+     *
+     * @param value    the value to format
+     * @param timeZone the zone (it can be null for system zone)
+     * @return the string representation
+     */
+    public static String formatElapsed(Object value, ZoneId timeZone, boolean rounded) {
+        if (timeZone == null) timeZone = ZoneId.systemDefault();
+        ZonedDateTime zonedDateTime = toZonedDateTime(value);
+        if (zonedDateTime == null) return "now";
+        zonedDateTime = zonedDateTime.withZoneSameInstant(timeZone);
+        Duration duration = Duration.between(zonedDateTime, ZonedDateTime.now());
+        if (duration.isNegative() || (rounded && duration.toMillis() < ONE_MINUTE)) {
+            return "now";
+        } else {
+            return formatDuration(duration, null, rounded) + " ago";
         }
     }
 
@@ -240,7 +281,7 @@ public class FormatterUtils {
      * @return the formated value
      */
     public static String formatDuration(Object value) {
-        return formatDuration(value, NA_STRING);
+        return formatDuration(value, NA_STRING, false);
     }
 
     /**
@@ -250,9 +291,10 @@ public class FormatterUtils {
      *
      * @param value        the value to format
      * @param defaultValue the default value
+     * @param rounded {@code true} to round the duration to the closed unit, {@code false} false otherwise
      * @return the formated value
      */
-    public static String formatDuration(Object value, String defaultValue) {
+    public static String formatDuration(Object value, String defaultValue, boolean rounded) {
         if (value == null || value instanceof String) return defaultValue;
         long millis = -1;
         long nano = -1;
@@ -281,6 +323,18 @@ public class FormatterUtils {
                 } else {
                     return (nano / NANOS_IN_MICRO) + "μs";
                 }
+            }
+        } else if (rounded) {
+            if (millis < ONE_MINUTE) {
+                return "now";
+            } else if (millis < ONE_HOUR) {
+                return (int) (millis / ONE_MINUTE) + " minutes";
+            } else if (millis < ONE_DAY) {
+                return (int) (millis / ONE_HOUR) + " hours";
+            } else if (millis < ONE_MONTH) {
+                return (int) (millis / ONE_DAY) + " days";
+            } else {
+                return (int) (millis / ONE_DAY) + " months";
             }
         } else {
             if (millis < K) {

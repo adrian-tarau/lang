@@ -125,6 +125,42 @@ class ClassUtilsTest {
     @Test
     void create() {
         assertEquals("",ClassUtils.create(String.class));
+        assertEquals(1, ClassUtils.create(PublicClass.class).getI());
+        assertEquals(1, ClassUtils.create(ProtectedClass.class).getI());
         assertThrows(Exception.class,() -> ClassUtils.create(Number.class));
+    }
+
+    public static class PublicClass {
+
+        private int i = 1;
+
+        PublicClass() {
+        }
+
+        public int getI() {
+            return i;
+        }
+
+        public PublicClass setI(int i) {
+            this.i = i;
+            return this;
+        }
+    }
+
+    static class ProtectedClass {
+
+        private int i = 1;
+
+        ProtectedClass() {
+        }
+
+        public int getI() {
+            return i;
+        }
+
+        public ProtectedClass setI(int i) {
+            this.i = i;
+            return this;
+        }
     }
 }

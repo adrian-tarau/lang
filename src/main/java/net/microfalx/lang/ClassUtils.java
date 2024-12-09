@@ -3,10 +3,7 @@ package net.microfalx.lang;
 import net.microfalx.lang.annotation.Provider;
 import org.atteo.classindex.ClassIndex;
 
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.net.URI;
 import java.net.URL;
 import java.time.*;
@@ -28,6 +25,7 @@ public class ClassUtils {
     private static final Map<Class<?>, Class<?>> OBJECT_TO_PRIMITIVE_CLASSES = new HashMap<>();
     private static final Set<Class<?>> BASE_CLASSES = new HashSet<>();
     private static final Type[] EMPTY_TYPE_ARRAY = new Type[0];
+    private static final Class<?>[] EMPTY_CLASS_ARRAY = new Class[0];
 
     /**
      * Returns whether the object represents a basic Java object (numbers, string, boolean, dates, etc).
@@ -357,8 +355,19 @@ public class ClassUtils {
      * @return a non-null instance
      */
     public static <T> T create(Class<T> clazz) {
+        Constructor<T> constructor;
         try {
-            return clazz.newInstance();
+            constructor = clazz.getConstructor(ClassUtils.EMPTY_CLASS_ARRAY);
+        } catch (NoSuchMethodException e) {
+            try {
+                constructor = clazz.getDeclaredConstructor(ClassUtils.EMPTY_CLASS_ARRAY);
+            } catch (NoSuchMethodException ex) {
+                return ExceptionUtils.throwException(e);
+            }
+        }
+        if (!constructor.isAccessible()) constructor.setAccessible(true);
+        try {
+            return constructor.newInstance();
         } catch (Exception e) {
             return ExceptionUtils.throwException(e);
         }

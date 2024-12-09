@@ -1,5 +1,6 @@
 package net.microfalx.lang;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.*;
@@ -156,8 +157,8 @@ class FormatterUtilsTest {
 
     @Test
     void formatDurationWithDefaultValue() {
-        assertEquals("default value",FormatterUtils.formatDuration(null,"default value"));
-        assertEquals("default value",FormatterUtils.formatDuration("","default value"));
+        assertEquals("default value",FormatterUtils.formatDuration(null,"default value", false));
+        assertEquals("default value",FormatterUtils.formatDuration("","default value", false));
     }
 
     @Test
@@ -202,6 +203,13 @@ class FormatterUtilsTest {
     void formatNumberWithDecimalsAndSuffix() {
         assertEquals("1.68m",FormatterUtils.formatNumber(1.678,2,"m"));
         assertEquals("10,000,000t",FormatterUtils.formatNumber(10000000,2,"t"));
+    }
+
+    @Test
+    void formatElapsed() {
+        Assertions.assertThat(FormatterUtils.formatElapsed(ZonedDateTime.now().minusMinutes(2))).contains("ago");
+        Assertions.assertThat(FormatterUtils.formatElapsed(ZonedDateTime.now().minusMinutes(2), null, true)).contains("ago");
+        Assertions.assertThat(FormatterUtils.formatElapsed(ZonedDateTime.now().minusMinutes(123), null, true)).contains("ago");
     }
 
 }
