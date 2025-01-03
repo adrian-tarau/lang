@@ -2,6 +2,7 @@ package net.microfalx.lang;
 
 import java.io.File;
 import java.net.URLConnection;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -108,6 +109,21 @@ public class FileUtils {
         requireNonNull(file);
         validateDirectoryExists(file.getParentFile());
         return file;
+    }
+
+    /**
+     * Returns the path using UNIX file separators.
+     * @param path the path
+     * @return the path suitable for UNIX environment
+     */
+    public static String toUnix(Path path) {
+        requireNonNull(path);
+        if (JvmUtils.isWindows()) {
+            String pathAsString = path.toString();
+            return StringUtils.replaceAll(pathAsString, "\\", "/");
+        } else {
+            return path.toString();
+        }
     }
 
     private static final Map<String, String> mimeTypes = new HashMap<>();

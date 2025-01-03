@@ -9,6 +9,8 @@ import java.net.SocketException;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
+import static net.microfalx.lang.FileUtils.validateDirectoryExists;
+import static net.microfalx.lang.FileUtils.validateFileExists;
 import static net.microfalx.lang.StringUtils.removeEndSlash;
 
 /**
@@ -104,10 +106,42 @@ public class JvmUtils {
      * @return a non-null instance
      */
     public static File getTemporaryDirectory() {
+        if (tmpDirectory != null) return tmpDirectory;
         String tmpDir = System.getProperty("java.io.tmpdir");
-        if (tmpDir == null) throw new IllegalStateException("JVM does not provide system property 'java.io.tmpdir'");
-        JvmUtils.tmpDirectory = new File(getHomeDirectory(), "tmp");
-        return FileUtils.validateDirectoryExists(JvmUtils.tmpDirectory);
+        if (tmpDir != null) {
+            JvmUtils.tmpDirectory = new File(tmpDir);
+        } else {
+            JvmUtils.tmpDirectory = new File(getHomeDirectory(), "tmp");
+        }
+        return validateDirectoryExists(JvmUtils.tmpDirectory);
+    }
+
+    /**
+     * Returns the temporary directory inside the temporary directory.
+     *
+     * @param prefix the prefix used to generate the directory name
+     * @param suffix the optional suffix used to generate the directory name
+     * @return a non-null instance
+     */
+    public static File getTemporaryDirectory(String prefix, String suffix) {
+        if (StringUtils.isEmpty(prefix)) prefix = "microfalx";
+        String name = prefix + Long.toString(System.currentTimeMillis(), Character.MAX_RADIX);
+        if (StringUtils.isNotEmpty(suffix)) name += suffix;
+        return validateDirectoryExists(new File(getTemporaryDirectory(), name));
+    }
+
+    /**
+     * Returns the temporary file inside the temporary directory.
+     *
+     * @param prefix the prefix used to generate the file name
+     * @param suffix the optional suffix used to generate the file name, usually a file extension
+     * @return a non-null instance
+     */
+    public static File getTemporaryFile(String prefix, String suffix) {
+        if (StringUtils.isEmpty(prefix)) prefix = "microfalx";
+        String name = prefix + Long.toString(System.currentTimeMillis(), Character.MAX_RADIX);
+        if (StringUtils.isNotEmpty(suffix)) name += suffix;
+        return validateFileExists(new File(getTemporaryDirectory(), name));
     }
 
     /**
@@ -131,9 +165,9 @@ public class JvmUtils {
         if (!directory.exists()) directory = new File("/dev/shm");
         if (!directory.exists()) {
             directory = new File(getTemporaryDirectory(), "shm");
-            return FileUtils.validateDirectoryExists(directory);
+            return validateDirectoryExists(directory);
         } else {
-            return FileUtils.validateDirectoryExists(new File(directory, "microfalx"));
+            return validateDirectoryExists(new File(directory, "microfalx"));
         }
     }
 

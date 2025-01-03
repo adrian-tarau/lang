@@ -74,6 +74,17 @@ public class IOUtils {
     }
 
     /**
+     * Creates a buffered writer out of a file.
+     *
+     * @param file the file
+     * @return a buffered writer
+     */
+    public static Writer getBufferedWriter(File file) throws IOException {
+        requireNonNull(file);
+        return getBufferedWriter(new FileWriter(file));
+    }
+
+    /**
      * Creates a buffered writer out of a given writer if required.
      *
      * @param writer the writer
