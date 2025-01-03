@@ -56,8 +56,10 @@ class UriUtilsTest {
     @Test
     void removeFragment() {
         URI uriWithFragment = UriUtils.appendFragment("https://www.example.com/page", "section2");
-        assertEquals(URI.create("https://www.example.com/page"),UriUtils.removeFragment(uriWithFragment));
+        assertEquals(URI.create("https://www.example.com/page"), UriUtils.removeFragment(uriWithFragment));
         assertNull(UriUtils.removeFragment(null));
+        assertEquals("jar:file:/tmp/test.jar!/bin/bash", UriUtils.removeFragment(URI.create("jar:file:/tmp/test.jar!/bin/bash")).toASCIIString());
+        assertEquals("jar:file:/tmp/test.jar!/bin/bash", UriUtils.removeFragment(URI.create("jar:file:/tmp/test.jar!/bin/bash#hash")).toASCIIString());
     }
 
     @Test
@@ -75,23 +77,32 @@ class UriUtilsTest {
 
     @Test
     void joinPaths() {
-        assertEquals("/",UriUtils.joinPaths(null));
-        assertEquals("/page/data/id",UriUtils.joinPaths("/page","/data","/id"));
+        assertEquals("/", UriUtils.joinPaths(null));
+        assertEquals("/page/data/id", UriUtils.joinPaths("/page", "/data", "/id"));
     }
 
     @Test
     void escapeUnsafe() {
         assertNull(UriUtils.escapeUnsafe(null));
-        assertEquals("http://example.com/%20test",UriUtils.escapeUnsafe("http://example.com/ test"));
-        assertEquals("http://example.com/%3etest",UriUtils.escapeUnsafe("http://example.com/>test"));
+        assertEquals("http://example.com/%20test", UriUtils.escapeUnsafe("http://example.com/ test"));
+        assertEquals("http://example.com/%3etest", UriUtils.escapeUnsafe("http://example.com/>test"));
     }
 
     @Test
     void appendPath() throws URISyntaxException {
-        URI uri= URI.create("https://www.example.com/page");
+        URI uri = URI.create("https://www.example.com/page");
         assertEquals("https://www.example.com/page/test.txt",
-                UriUtils.appendPath(uri,"/test.txt").toASCIIString());
+                UriUtils.appendPath(uri, "/test.txt").toASCIIString());
         assertEquals("https://www.example.com/page/test.txt",
-                UriUtils.appendPath(uri.toASCIIString(),"/test.txt").toASCIIString());
+                UriUtils.appendPath(uri.toASCIIString(), "/test.txt").toASCIIString());
     }
+
+    @Test
+    void isJar() {
+        // jar:file:/home/ady/.m2/repository/net/microfalx/maven/maven-boot/1.0.0-SNAPSHOT/maven-boot-1.0.0-SNAPSHOT.jar!/boot/bin
+        assertFalse(UriUtils.isJar(URI.create("file:/tmp")));
+        assertFalse(UriUtils.isJar(URI.create("http://localhost")));
+        assertTrue(UriUtils.isJar(URI.create("jar:file:/tmp/test.jar!/bin/bash")));
+    }
+
 }

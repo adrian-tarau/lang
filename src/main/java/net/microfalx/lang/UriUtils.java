@@ -14,6 +14,7 @@ import static net.microfalx.lang.StringUtils.*;
 public class UriUtils {
 
     public static final String SLASH = "/";
+    public static final String JAR_SCHEME = "jar";
 
     /**
      * Returns whether the URI is valid and can be parsed based on {@link URI} rules.
@@ -105,7 +106,12 @@ public class UriUtils {
     public static URI removeFragment(URI uri) {
         if (uri == null) return null;
         try {
-            return new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), null);
+            if (isMultiScheme(uri)) {
+                URI schemePartUri = removeFragment(URI.create(uri.getSchemeSpecificPart()));
+                return new URI(uri.getScheme(), schemePartUri.toASCIIString(), null);
+            } else {
+                return new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), null);
+            }
         } catch (URISyntaxException e) {
             return ExceptionUtils.throwException(e);
         }
@@ -130,6 +136,37 @@ public class UriUtils {
     public static boolean isRoot(URI uri) {
         requireNonNull(uri);
         return isRoot(uri.getPath());
+    }
+
+    /**
+     * Returns whether the URI identifies a JAR file.
+     *
+     * @param uri the URI
+     * @return {@code true} if identifies a JAR file, {@code false} otherwise
+     */
+    public static boolean isJar(URI uri) {
+        requireNonNull(uri);
+        return JAR_SCHEME.equalsIgnoreCase(uri.getScheme());
+    }
+
+    /**
+     * Returns whether the URI contains a multi-scheme URI.
+     *
+     * @param uri the URI
+     * @return {@code true} if multi-scheme URI, {@code false} otherwise
+     */
+    public static boolean isMultiScheme(URI uri) {
+        String scheme = uri.getScheme();
+        if (scheme != null) {
+            try {
+                URI schemePartUri = URI.create(uri.getSchemeSpecificPart());
+                return isNotEmpty(scheme) && isNotEmpty(schemePartUri.getScheme());
+            } catch (Exception e) {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     /**
