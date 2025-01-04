@@ -4,16 +4,17 @@ import java.util.StringTokenizer;
 
 import static net.microfalx.lang.ArgumentUtils.requireNotEmpty;
 import static net.microfalx.lang.StringUtils.EMPTY_STRING;
+import static net.microfalx.lang.StringUtils.toIdentifier;
 
 /**
  * A class which provides support for <a href="https://semver.org/">SemVer2</a>.
  */
-public class Version {
+public class Version extends IdentityAware<String> implements Comparable<Version> {
 
     public static final int NO_VALUE = -1;
-    private static char SEPARATOR = '.';
-    private static char PRE_RELEASE_SEPARATOR = '-';
-    private static char BUILD_NO_SEPARATOR = '+';
+    private static final char SEPARATOR = '.';
+    private static final char PRE_RELEASE_SEPARATOR = '-';
+    private static final char BUILD_NO_SEPARATOR = '+';
     private static final String SNAPSHOT = "-SNAPSHOT";
 
     private final String value;
@@ -32,35 +33,92 @@ public class Version {
     Version(String value) {
         requireNotEmpty(value);
         this.value = value;
+        setId(toIdentifier(value));
         parse();
     }
 
+    /**
+     * Returns the original version used to create this version.
+     *
+     * @return a non-null instance
+     */
     public String getValue() {
         return value;
     }
 
+    /**
+     * Returns whether the version indicates an unreleased product.
+     *
+     * @return {@code true} if snapshot, {@code false} otherwise
+     */
     public boolean isSnapshot() {
         return snapshot;
     }
 
+    /**
+     * Returns the MAJOR component of the version
+     *
+     * @return a positive integer
+     */
     public int getMajor() {
         return major;
     }
 
+    /**
+     * Returns the MINOR component of the version
+     *
+     * @return a positive integer
+     */
     public int getMinor() {
         return minor;
     }
 
+    /**
+     * Returns the PATCH component of the version
+     *
+     * @return a positive integer, {@link  #NO_VALUE} if not provided
+     */
     public int getPatch() {
         return patch;
     }
 
+    /**
+     * Returns the BUILD component of the version
+     *
+     * @return a positive integer, {@link  #NO_VALUE} if not provided
+     */
     public int getBuild() {
         return build;
     }
 
+    /**
+     * Returns a copy of this version with a different build number.
+     *
+     * @param build the new build number
+     * @return a new instance
+     */
+    public Version withBuild(int build) {
+        Version copy = (Version) copy();
+        copy.build = build;
+        return copy;
+    }
+
+    /**
+     * Returns the PRE-RELEASE component of the version
+     *
+     * @return a positive integer, {@link  #NO_VALUE} if not provided
+     */
     public int getPreRelease() {
         return preRelease;
+    }
+
+    @Override
+    public int compareTo(Version o) {
+        if (major != o.major) return Integer.compare(major, o.major);
+        if (minor != o.minor) return Integer.compare(minor, o.minor);
+        if (patch != o.patch) return Integer.compare(patch, o.patch);
+        if (build != o.build) return Integer.compare(build, o.build);
+        return 0;
     }
 
     private void parse() {

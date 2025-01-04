@@ -67,6 +67,17 @@ public class UriUtils {
     }
 
     /**
+     * Returns whether the URI has the authority component.
+     *
+     * @param uri the URI
+     * @return {@code true} if the authority is present, {@code false} otherwise
+     */
+    public static boolean hasAuthority(String uri) {
+        requireNonNull(uri);
+        return uri.contains("://");
+    }
+
+    /**
      * Appends an URI fragment to the existing URI.
      * <p>
      * If the URI already has a fragment, the fragment is replaced.
