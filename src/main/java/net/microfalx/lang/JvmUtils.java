@@ -2,10 +2,7 @@ package net.microfalx.lang;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.SocketException;
+import java.net.*;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
@@ -31,6 +28,27 @@ public class JvmUtils {
     private static File varDirectory;
     private static File tmpDirectory;
     private static File workingDirectory;
+
+    private static volatile InetAddress localhost;
+
+    /**
+     * Returns the local of this JVM.
+     *
+     * @return a non-null instance
+     */
+    public static InetAddress getLocalHost() {
+        try {
+            localhost = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            try {
+                return InetAddress.getByName("localhost");
+            } catch (UnknownHostException ex) {
+                throw new IllegalStateException("Cannot extract the machine host", ex);
+            }
+        }
+        return localhost;
+    }
+
 
     /**
      * Returns whether the operating system is Microsoft Windows.
