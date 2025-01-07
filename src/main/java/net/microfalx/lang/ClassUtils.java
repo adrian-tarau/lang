@@ -305,7 +305,8 @@ public class ClassUtils {
      */
     public static Type[] getGenericTypes(Type type) {
         requireNonNull(type);
-        if (type instanceof Class<?> clazz) {
+        if (type instanceof Class<?>) {
+            Class<?> clazz = (Class<?>) type;
             type = clazz.getGenericSuperclass();
             if (type instanceof ParameterizedType) {
                 return new Type[]{type};

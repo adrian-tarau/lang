@@ -56,6 +56,7 @@
     <inceptionYear>2022</inceptionYear>
 
     <properties>
+        <java.version>11</java.version>
         <bom.version>1.0.3</bom.version>
     </properties>
 

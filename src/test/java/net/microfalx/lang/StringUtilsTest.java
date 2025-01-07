@@ -94,10 +94,8 @@ class StringUtilsTest {
     @Test
     void containsNewLines() {
         assertFalse(StringUtils.containsNewLines(null));
-        String text = """
-                                        
-                                        
-                """;
+        String text = "\n" +
+                      "\n";
         assertTrue(StringUtils.containsNewLines(text));
     }
 
@@ -232,25 +230,21 @@ class StringUtilsTest {
 
     @Test
     void removeLineBreaksWithEllipsesWithSpaces() {
-        String multiLinesText = """
-                I
-                am
-                writing
-                java 17
-                code
-                """;
+        String multiLinesText = "I\n" +
+                                "am\n" +
+                                "writing\n" +
+                                "java 17\n" +
+                                "code\n";
         assertEquals("I ... am ... writing ... java 17 ... code", StringUtils.removeLineBreaks(multiLinesText));
     }
 
     @Test
     void removeLineBreaksWithCommas() {
-        String multiLinesText = """
-                I
-                am
-                writing
-                java 17
-                code
-                """;
+        String multiLinesText = "I\n" +
+                                "am\n" +
+                                "writing\n" +
+                                "java 17\n" +
+                                "code\n";
         assertEquals("I,am,writing,java 17,code", StringUtils.removeLineBreaks(multiLinesText, ","));
     }
 
@@ -267,17 +261,14 @@ class StringUtilsTest {
 
     @Test
     void getMaximumLines() {
-        String multiLinesText = """
-                I
-                am
-                writing
-                java 17
-                code
-                """;
-        assertEquals("""
-                I
-                am
-                writing""", StringUtils.getMaximumLines(multiLinesText, 3));
+        String multiLinesText = "I\n" +
+                                "am\n" +
+                                "writing\n" +
+                                "java 17\n" +
+                                "code\n";
+        assertEquals("I\n" +
+                     "am\n" +
+                     "writing", StringUtils.getMaximumLines(multiLinesText, 3));
         assertEquals("", StringUtils.getMaximumLines("", 3));
         assertEquals(multiLinesText, StringUtils.getMaximumLines(multiLinesText, -1));
     }

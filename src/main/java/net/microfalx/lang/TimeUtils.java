@@ -10,6 +10,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
 import java.util.Date;
+import java.util.stream.Stream;
 
 import static java.lang.System.currentTimeMillis;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
@@ -258,6 +259,43 @@ public class TimeUtils {
     }
 
     /**
+     * Returns if all durations are zero
+     *
+     * @param durations a list of durations
+     * @return {@code true} if all zero, {@code false} otherwise
+     */
+    public static boolean isZero(Duration... durations) {
+        for (Duration duration : durations) {
+            if (!duration.isZero()) return false;
+        }
+        return true;
+    }
+
+    /**
+     * Returns the sum of all durations.
+     *
+     * @param durations a list of durations
+     * @return {@code true} if all zero, {@code false} otherwise
+     */
+    public static Duration sum(Stream<Duration> durations) {
+        return Duration.ofNanos(durations.mapToLong(Duration::toNanos).sum());
+    }
+
+    /**
+     * Returns the sum of all durations.
+     *
+     * @param durations a list of durations
+     * @return {@code true} if all zero, {@code false} otherwise
+     */
+    public static Duration sum(Duration... durations) {
+        Duration total = Duration.ZERO;
+        for (Duration duration : durations) {
+            total = total.plus(duration);
+        }
+        return total;
+    }
+
+    /**
      * Returns the duration passed between a time reference in the past and now.
      *
      * @param value the time reference
@@ -343,7 +381,7 @@ public class TimeUtils {
     public static String format(Temporal temporal) {
         if (temporal == null) return null;
         if (temporal instanceof LocalDateTime || temporal instanceof ZonedDateTime
-                || temporal instanceof OffsetDateTime) {
+            || temporal instanceof OffsetDateTime) {
             return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(temporal);
         } else if (temporal instanceof LocalDate) {
             return DateTimeFormatter.ISO_DATE.format(temporal);

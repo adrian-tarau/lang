@@ -12,75 +12,66 @@ class TextUtilsTest {
 
     @BeforeAll
     static void createMultiLineText() {
-        text = """
-                I
-                am
-                writing
-                java
-                code
-                """;
+        text = "I\n" +
+               "am\n" +
+               "writing\n" +
+               "java\n" +
+               "code\n";
     }
 
 
     @Test
     void insertSpaces() {
-        assertEquals("""
-                I
-                  am
-                  writing
-                  java
-                  code""", TextUtils.insertSpaces(text, 2));
+        assertEquals("I\n" +
+                     "  am\n" +
+                     "  writing\n" +
+                     "  java\n" +
+                     "  code", TextUtils.insertSpaces(text, 2));
         assertEquals("", TextUtils.insertSpaces(null, 2));
     }
 
     @Test
     void insertSpacesWithNoSpaceInFirstLine() {
-        assertEquals("""
-                I
-                  am
-                  writing
-                  java
-                  code""", TextUtils.insertSpaces(text, 2, false));
+        assertEquals("I\n" +
+                     "  am\n" +
+                     "  writing\n" +
+                     "  java\n" +
+                     "  code", TextUtils.insertSpaces(text, 2, false));
         assertEquals("", TextUtils.insertSpaces(null, 2, false));
     }
 
     @Test
     void insertSpacesWithSpaceInFirstLine() {
-        assertEquals("""
-                \s\sI
-                \s\sam
-                \s\swriting
-                \s\sjava
-                \s\scode""", TextUtils.insertSpaces(text, 2, true));
+        assertEquals("  I\n" +
+                     "  am\n" +
+                     "  writing\n" +
+                     "  java\n" +
+                     "  code", TextUtils.insertSpaces(text, 2, true));
         assertEquals("", TextUtils.insertSpaces(null, 2, true));
     }
 
     @Test
     void insertSpacesWithVerticalLinesAndSlashesAndNoSpaceInFirstLine() {
-        assertEquals("""
-                |I
-                |  am
-                |  writing
-                |  java
-                \\  code""", TextUtils.insertSpaces(text, 2, true, true, false));
-        assertEquals("""
-                |I
-                |  am
-                |  writing
-                |  java
-                |  code""", TextUtils.insertSpaces(text, 2, true, false, false));
-        assertEquals("""
-                I
-                \s\sam
-                \s\swriting
-                \s\sjava
-                \s\scode""", TextUtils.insertSpaces(text, 2, false, true, false));
-        assertEquals("""
-                I
-                \s\sam
-                \s\swriting
-                \s\sjava
-                \s\scode""", TextUtils.insertSpaces(text, 2, false, false, false));
+        assertEquals("|I\n" +
+                     "|  am\n" +
+                     "|  writing\n" +
+                     "|  java\n" +
+                     "\\  code", TextUtils.insertSpaces(text, 2, true, true, false));
+        assertEquals("|I\n" +
+                     "|  am\n" +
+                     "|  writing\n" +
+                     "|  java\n" +
+                     "|  code", TextUtils.insertSpaces(text, 2, true, false, false));
+        assertEquals("I\n" +
+                     "  am\n" +
+                     "  writing\n" +
+                     "  java\n" +
+                     "  code", TextUtils.insertSpaces(text, 2, false, true, false));
+        assertEquals("I\n" +
+                     "  am\n" +
+                     "  writing\n" +
+                     "  java\n" +
+                     "  code", TextUtils.insertSpaces(text, 2, false, false, false));
 
         assertEquals("", TextUtils.insertSpaces(null, 2, true, true,
                 false));
@@ -89,30 +80,26 @@ class TextUtilsTest {
 
     @Test
     void insertSpacesWithVerticalLinesAndSlashesAndSpaceInFirstLine() {
-        assertEquals("""
-                |  I
-                |  am
-                |  writing
-                |  java
-                \\  code""", TextUtils.insertSpaces(text, 2, true, true, true));
-        assertEquals("""
-                |  I
-                |  am
-                |  writing
-                |  java
-                |  code""", TextUtils.insertSpaces(text, 2, true, false, true));
-        assertEquals("""
-                \s\sI
-                \s\sam
-                \s\swriting
-                \s\sjava
-                \s\scode""", TextUtils.insertSpaces(text, 2, false, true, true));
-        assertEquals("""
-                \s\sI
-                \s\sam
-                \s\swriting
-                \s\sjava
-                \s\scode""", TextUtils.insertSpaces(text, 2, false, false, true));
+        assertEquals("|  I\n" +
+                     "|  am\n" +
+                     "|  writing\n" +
+                     "|  java\n" +
+                     "\\  code", TextUtils.insertSpaces(text, 2, true, true, true));
+        assertEquals("|  I\n" +
+                     "|  am\n" +
+                     "|  writing\n" +
+                     "|  java\n" +
+                     "|  code", TextUtils.insertSpaces(text, 2, true, false, true));
+        assertEquals("  I\n" +
+                     "  am\n" +
+                     "  writing\n" +
+                     "  java\n" +
+                     "  code", TextUtils.insertSpaces(text, 2, false, true, true));
+        assertEquals("  I\n" +
+                     "  am\n" +
+                     "  writing\n" +
+                     "  java\n" +
+                     "  code", TextUtils.insertSpaces(text, 2, false, false, true));
 
         assertEquals("", TextUtils.insertSpaces(null, 2, true, true,
                 true));
