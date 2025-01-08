@@ -34,8 +34,8 @@
     </parent>
 
     <name>Language Extensions</name>
-    <description>A simple wrapper over Micrometer</description>
-    <url>https://github.com/adrian-tarau/metrics</url>
+    <description>A library with JDK extensions</description>
+    <url>https://github.com/adrian-tarau/lang</url>
 
     <organization>
         <name>Adrian Tarau</name>
