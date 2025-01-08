@@ -48,10 +48,22 @@ public abstract class IdentityAware<T> implements Identifiable<T>, Cloneable {
     @SuppressWarnings("unchecked")
     protected IdentityAware<T> copy() {
         try {
-            return (IdentityAware<T>) clone();
+            IdentityAware<T> copy = (IdentityAware<T>) clone();
+            copyProperties(this, copy);
+            return copy;
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Subclasses can deep-copy properties from old to new
+     *
+     * @param source the source instance
+     * @param target the target instance
+     */
+    protected void copyProperties(IdentityAware<T> source, IdentityAware<T> target) {
+        // empty by default
     }
 
     /**
