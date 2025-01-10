@@ -15,6 +15,9 @@ public class NumberUtils {
     public static final Double ZERO_DOUBLE = 0d;
     public static final Double ZERO_FLOAT = 0d;
 
+    private static final double PERCENT_MAX = 100d;
+    private static final double PERCENT_LIMIT = 10000d;
+
     /**
      * Returns whether the floating point is an integer (has no fractional part).
      *
@@ -126,5 +129,74 @@ public class NumberUtils {
      */
     public static boolean isBetweenExclusive(long value, long min, long max) {
         return value >= min && value < max;
+    }
+
+    /**
+     * Calculates the percentage of a value reported to a maximum.
+     * <p>
+     * The method accepts negative values, a value larger than max, but it produces always a value between 0 and 100.
+     *
+     * @param value the value
+     * @param max   the maximum value
+     * @return the percent
+     * @see #percent(double, double)
+     */
+    public static float percent(float value, float max) {
+        return (float) percent(value, (double) max);
+    }
+
+    /**
+     * Calculates the percentage of a value reported to a maximum.
+     *
+     * @param value the value
+     * @param max   the maximum value
+     * @param limit <code>true</code> to limit the value to 100%, <code>false</code> otherwise
+     * @return the percent
+     * @see #percent(double, double)
+     */
+    public static float percent(float value, float max, boolean limit) {
+        return (float) percent(value, (double) max, limit);
+    }
+
+    /**
+     * Calculates the percentage of a value reported to a maximum.
+     * <p>
+     * The method accepts negative values, a value larger than max, but it produces always a value between 0 and 100.
+     *
+     * @param value the value
+     * @param max   the maximum value
+     * @return the percent
+     */
+    public static double percent(double value, double max) {
+        return percent(value, max, true);
+    }
+
+    /**
+     * Calculates the percentage of a value reported to a maximum.
+     * <p>
+     * The method accepts negative values, a value larger than max, but it produces always a value between 0 and 100.
+     *
+     * @param value the value
+     * @param max   the maximum value
+     * @param limit <code>true</code> to limit the value to 100%, <code>false</code> otherwise
+     * @return the percent
+     */
+    public static double percent(double value, double max, boolean limit) {
+        return Math.abs(max == 0 ? 0 : Math.min(limit ? PERCENT_MAX : PERCENT_LIMIT, PERCENT_MAX * Math.abs(value) / Math.abs(max)));
+    }
+
+    /**
+     * Returns whether the number can be rounded at the give precision or it is too small to be close to 0.
+     *
+     * @param value     the value
+     * @param precision the precision
+     * @return <code>true</code> if can be rounded, <code>false</code> otherwise
+     */
+    public static boolean canRound(double value, int precision) {
+        if (precision == 0) {
+            return value >= 1;
+        }
+        double pow = Math.pow(10, precision);
+        return value * pow >= 1;
     }
 }

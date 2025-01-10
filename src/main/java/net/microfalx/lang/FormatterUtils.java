@@ -75,9 +75,9 @@ public class FormatterUtils {
      */
     public static String formatTime(Object value, ZoneId timeZone) {
         if (value instanceof LocalTime) {
-            return ((LocalTime)value).format(timeFormatter);
+            return ((LocalTime) value).format(timeFormatter);
         } else if (value instanceof OffsetTime) {
-            return ((OffsetTime)value).format(timeFormatter);
+            return ((OffsetTime) value).format(timeFormatter);
         } else {
             return value.toString();
         }
@@ -291,7 +291,7 @@ public class FormatterUtils {
      *
      * @param value        the value to format
      * @param defaultValue the default value
-     * @param rounded {@code true} to round the duration to the closed unit, {@code false} false otherwise
+     * @param rounded      {@code true} to round the duration to the closed unit, {@code false} false otherwise
      * @return the formated value
      */
     public static String formatDuration(Object value, String defaultValue, boolean rounded) {
@@ -382,6 +382,36 @@ public class FormatterUtils {
             suffix = "B";
         }
         return formatNumber(number, decimals, suffix);
+    }
+
+    /**
+     * Formats the value as a percentage.
+     *
+     * @param value the value
+     * @return the formatted percentage
+     */
+    public static String formatPercent(Object value) {
+        return formatPercent(value, 1);
+    }
+
+    /**
+     * Formats the value as a percentage.
+     *
+     * @param value    the value
+     * @param decimals the number of decimals
+     * @return the formatted percentage
+     */
+    public static String formatPercent(Object value, int decimals) {
+        if (value == null) return StringUtils.NA_STRING;
+        double valueAsDouble = 0;
+        if (value instanceof Number) valueAsDouble = ((Number) value).doubleValue();
+        if (Double.compare(valueAsDouble, 0) == 0) {
+            return "0%";
+        } else if (!canRound(valueAsDouble, decimals)) {
+            return "~0%";
+        } else {
+            return String.format("%." + decimals + "f%%", valueAsDouble);
+        }
     }
 
     /**
