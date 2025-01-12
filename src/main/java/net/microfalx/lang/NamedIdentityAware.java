@@ -18,7 +18,7 @@ public abstract class NamedIdentityAware<T> extends IdentityAware<T> implements 
 
     @Override
     public final String getName() {
-        return defaultIfNull(dynamicName(), name);
+        return defaultIfNull(name, dynamicName());
     }
 
     protected final NamedIdentityAware<T> setName(String name) {
