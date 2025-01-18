@@ -169,6 +169,20 @@ public class ClassUtils {
     }
 
     /**
+     * Checks if a class exists in the class path.
+     *
+     * @param className the class name
+     * @return {@code true} if exists, {@code false} otherwise
+     */
+    public static boolean exists(String className) {
+        try {
+            return Class.forName(className) != null;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    /**
      * Returns whether the class can be instantiated.
      *
      * @param clazz the class to validate
