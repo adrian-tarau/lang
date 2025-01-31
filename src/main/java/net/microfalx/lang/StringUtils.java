@@ -150,11 +150,28 @@ public class StringUtils {
      * The identifier contains only chars, digits and "_".
      *
      * @param value the String value
-     * @return the id
+     * @return the identifier
      */
     @SuppressWarnings("Duplicates")
     public static String toIdentifier(String value) {
         return toIdentifier(value, false);
+    }
+
+    /**
+     * Converts a collection of string to an identifier.
+     * <p>
+     * Any NULL value is eliminated from the identifier. At least one identifier needs to be present.
+     *
+     * @param values the String values
+     * @return the identifier
+     */
+    public static String toIdentifier(String... values) {
+        if (ObjectUtils.isEmpty(values)) throw new IllegalArgumentException("At least one value needs to be provided");
+        StringBuilder builder = new StringBuilder();
+        for (String value : values) {
+            if (value != null) append(builder, value, "_");
+        }
+        return StringUtils.toIdentifier(builder.toString());
     }
 
     /**
@@ -273,10 +290,10 @@ public class StringUtils {
         } else {
             String valueAsString = value.toString();
             if ("y".equalsIgnoreCase(valueAsString) || "yes".equalsIgnoreCase(valueAsString) || "on".equalsIgnoreCase(valueAsString)
-                    || "true".equalsIgnoreCase(valueAsString) || "t".equalsIgnoreCase(valueAsString) || "1".equalsIgnoreCase(valueAsString)) {
+                || "true".equalsIgnoreCase(valueAsString) || "t".equalsIgnoreCase(valueAsString) || "1".equalsIgnoreCase(valueAsString)) {
                 return true;
             } else if ("n".equalsIgnoreCase(valueAsString) || "no".equalsIgnoreCase(valueAsString) || "off".equalsIgnoreCase(valueAsString)
-                    || "false".equalsIgnoreCase(valueAsString) || "f".equalsIgnoreCase(valueAsString) || "0".equalsIgnoreCase(valueAsString)) {
+                       || "false".equalsIgnoreCase(valueAsString) || "f".equalsIgnoreCase(valueAsString) || "0".equalsIgnoreCase(valueAsString)) {
                 return false;
             } else {
                 return defaultValue;
@@ -305,11 +322,10 @@ public class StringUtils {
      * is in the value, replace it with "_".
      *
      * @param value the path
-     * @return the id
+     * @return the identifier
      */
     public static String toIdentifier(String value, boolean allowDash) {
         requireNonNull(value);
-
         StringBuilder builder = new StringBuilder(value.length());
         char prevChar = 0x00;
         for (int index = 0; index < value.length(); index++) {
@@ -318,20 +334,13 @@ public class StringUtils {
                 builder.append(c);
             } else {
                 c = '_';
-                if (prevChar != c) {
-                    builder.append(c);
-                }
+                if (prevChar != c) builder.append(c);
             }
             prevChar = c;
         }
-
         String identifier = builder.toString();
-        if (identifier.startsWith("_")) {
-            identifier = identifier.substring(1);
-        }
-        if (identifier.endsWith("_")) {
-            identifier = identifier.substring(0, identifier.length() - 1);
-        }
+        if (identifier.startsWith("_")) identifier = identifier.substring(1);
+        if (identifier.endsWith("_")) identifier = identifier.substring(0, identifier.length() - 1);
         return identifier.toLowerCase();
     }
 
@@ -534,7 +543,7 @@ public class StringUtils {
         int patternLength = pattern.length();
         while ((startIndex = text.indexOf(pattern, startIndex)) != -1) {
             text = text.substring(0, startIndex) + replacement +
-                    text.substring(startIndex + patternLength);
+                   text.substring(startIndex + patternLength);
             startIndex += replacement.length();
             if (startIndex >= text.length()) break;
             if (onlyFirst) break;

@@ -5,6 +5,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.zip.Deflater;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 
@@ -139,6 +142,31 @@ public class IOUtils {
         } else {
             return new BufferedReader(reader, BUFFER_SIZE);
         }
+    }
+
+    /**
+     * Returns an input stream which decompresses the data compressed by
+     * {@link #getCompressedOutputStream(OutputStream)}.
+     *
+     * @param inputStream the input stream
+     * @return a non-null instance
+     * @see #getCompressedOutputStream(OutputStream)
+     */
+    public static InputStream getComporessedInputStream(InputStream inputStream) throws IOException {
+        requireNonNull(inputStream);
+        return new GZIPInputStreamWrapper(getBufferedInputStream(inputStream));
+    }
+
+    /**
+     * Returns an output stream which compresses all the data and writes it to the given output stream.
+     *
+     * @param outputStream the output stream
+     * @return a non-null instance
+     * @see #getComporessedInputStream(InputStream)
+     */
+    public static OutputStream getCompressedOutputStream(OutputStream outputStream) throws IOException {
+        requireNonNull(outputStream);
+        return new GZIPOutputStreamWrapper(getBufferedOutputStream(outputStream));
     }
 
     /**
@@ -334,6 +362,21 @@ public class IOUtils {
         @Override
         public void close() throws IOException {
             // do not close
+        }
+    }
+
+    static class GZIPOutputStreamWrapper extends GZIPOutputStream {
+
+        GZIPOutputStreamWrapper(OutputStream out) throws IOException {
+            super(out);
+            def.setLevel(Deflater.BEST_SPEED);
+        }
+    }
+
+    static class GZIPInputStreamWrapper extends GZIPInputStream {
+
+        public GZIPInputStreamWrapper(InputStream in) throws IOException {
+            super(in);
         }
     }
 }
