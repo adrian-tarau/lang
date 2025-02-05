@@ -6,6 +6,8 @@ import java.net.*;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
+import static java.lang.System.currentTimeMillis;
+import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 import static net.microfalx.lang.FileUtils.validateDirectoryExists;
 import static net.microfalx.lang.FileUtils.validateFileExists;
 import static net.microfalx.lang.StringUtils.removeEndSlash;
@@ -20,6 +22,9 @@ public class JvmUtils {
     public static final String OS_VERSION = System.getProperty("os.version").toLowerCase(Locale.US);
     public static final String PATH_SEP = File.pathSeparator;
 
+    public static final String STORE_NAME = "microfalx";
+    public static final String CACHE_DIRECTORY_NAME = ".cache";
+
     public static final LocalDateTime STARTUP_TIME = LocalDateTime.now();
 
     public static final int UNAVAILABLE_PORT = -1;
@@ -27,7 +32,10 @@ public class JvmUtils {
     private static File homeDirectory;
     private static File varDirectory;
     private static File tmpDirectory;
+    private static File cacheDirectory;
     private static File workingDirectory;
+
+    private static volatile Boolean homeWritable;
 
     private static volatile InetAddress localhost;
 
@@ -79,6 +87,16 @@ public class JvmUtils {
     }
 
     /**
+     * Returns whether the user's home directory is writable.
+     *
+     * @return {@code true} if writable, {@code false} otherwise
+     */
+    public static boolean isHomeWritable() {
+        if (homeWritable == null) homeWritable = FileUtils.isDirectoryWritable(getHomeDirectory());
+        return homeWritable;
+    }
+
+    /**
      * Returns the user's home directory.
      *
      * @return a non-null instance
@@ -112,8 +130,9 @@ public class JvmUtils {
     public static File getWorkingDirectory() {
         if (workingDirectory != null) return workingDirectory;
         String workingDirectory = System.getProperty("user.dir");
-        if (workingDirectory == null)
+        if (workingDirectory == null) {
             throw new IllegalStateException("JVM does not provide system property 'user.dir'");
+        }
         JvmUtils.workingDirectory = new File(removeEndSlash(workingDirectory));
         return JvmUtils.workingDirectory;
     }
@@ -142,8 +161,8 @@ public class JvmUtils {
      * @return a non-null instance
      */
     public static File getTemporaryDirectory(String prefix, String suffix) {
-        if (StringUtils.isEmpty(prefix)) prefix = "microfalx";
-        String name = prefix + Long.toString(System.currentTimeMillis(), Character.MAX_RADIX);
+        if (StringUtils.isEmpty(prefix)) prefix = STORE_NAME;
+        String name = prefix + Long.toString(currentTimeMillis(), Character.MAX_RADIX);
         if (StringUtils.isNotEmpty(suffix)) name += suffix;
         return validateDirectoryExists(new File(getTemporaryDirectory(), name));
     }
@@ -156,10 +175,22 @@ public class JvmUtils {
      * @return a non-null instance
      */
     public static File getTemporaryFile(String prefix, String suffix) {
-        if (StringUtils.isEmpty(prefix)) prefix = "microfalx";
-        String name = prefix + Long.toString(System.currentTimeMillis(), Character.MAX_RADIX);
+        if (StringUtils.isEmpty(prefix)) prefix = STORE_NAME;
+        String name = prefix + Long.toString(currentTimeMillis(), Character.MAX_RADIX);
         if (StringUtils.isNotEmpty(suffix)) name += suffix;
         return validateFileExists(new File(getTemporaryDirectory(), name));
+    }
+
+    /**
+     * Returns a directory used to store files used between process restarts (caches).
+     *
+     * @return a non-null instance
+     */
+    public static File getCacheDirectory() {
+        if (cacheDirectory == null) {
+            cacheDirectory = validateDirectoryExists(new File(new File(getHomeDirectory(), CACHE_DIRECTORY_NAME), STORE_NAME));
+        }
+        return cacheDirectory;
     }
 
     /**
@@ -168,7 +199,7 @@ public class JvmUtils {
      * @param directory the new temporary directory
      */
     public static void setTemporaryDirectory(File directory) {
-        ArgumentUtils.requireNonNull(directory);
+        requireNonNull(directory);
         System.getProperty("java.io.tmpdir", directory.getAbsolutePath());
     }
 
@@ -185,7 +216,7 @@ public class JvmUtils {
             directory = new File(getTemporaryDirectory(), "shm");
             return validateDirectoryExists(directory);
         } else {
-            return validateDirectoryExists(new File(directory, "microfalx"));
+            return validateDirectoryExists(new File(directory, STORE_NAME));
         }
     }
 

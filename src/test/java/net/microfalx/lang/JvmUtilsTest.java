@@ -2,8 +2,7 @@ package net.microfalx.lang;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class JvmUtilsTest {
 
@@ -38,7 +37,19 @@ class JvmUtilsTest {
     }
 
     @Test
-    void replacePlaceholders() {
-        assertEquals("lsa123",JvmUtils.replacePlaceholders("lsa123"));
+    void getCacheDirectory() {
+        assertNotNull(JvmUtils.getCacheDirectory());
     }
+
+    @Test
+    void replacePlaceholders() {
+        assertEquals("lsa123", JvmUtils.replacePlaceholders("lsa123"));
+    }
+
+    @Test
+    void isHomeWritable() {
+        assertTrue(JvmUtils.isHomeWritable());
+    }
+
+
 }

@@ -1,18 +1,25 @@
 package net.microfalx.lang;
 
 import java.io.File;
+import java.io.StringReader;
 import java.net.URLConnection;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.Long.toHexString;
+import static java.lang.System.currentTimeMillis;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
+import static net.microfalx.lang.IOUtils.appendStream;
+import static net.microfalx.lang.IOUtils.getBufferedWriter;
 import static net.microfalx.lang.StringUtils.isEmpty;
 
 /**
  * Utilities around files.
  */
 public class FileUtils {
+
+    public static final String STORE_NAME = "microfalx";
 
     /**
      * Returns the file extension out of the file name.
@@ -112,7 +119,48 @@ public class FileUtils {
     }
 
     /**
+     * Removes a file and ignores if it fails.
+     *
+     * @param file the file to remove
+     */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static void remove(File file) {
+        requireNonNull(file);
+        try {
+            file.delete();
+        } catch (Exception e) {
+            // ignore, just in case
+        }
+    }
+
+    /**
+     * Returns whether the directory is writable.
+     * <p>
+     * The method tries to write (under a short retry loop) a small hidden file to validate the assumption.
+     *
+     * @return {@code true} if writable, {@code false} otherwise
+     */
+    public static boolean isDirectoryWritable(File directory) {
+        long sleep = 10;
+        for (int i = 0; i < 5; i++) {
+            File file = new File(directory, "." + STORE_NAME + "_" + toHexString(currentTimeMillis()));
+            try {
+                appendStream(getBufferedWriter(file), new StringReader(STORE_NAME));
+                return true;
+            } catch (Exception e) {
+                // ignore
+            } finally {
+                FileUtils.remove(file);
+            }
+            ThreadUtils.sleepMillis(sleep);
+            sleep *= 2;
+        }
+        return false;
+    }
+
+    /**
      * Returns the path using UNIX file separators.
+     *
      * @param path the path
      * @return the path suitable for UNIX environment
      */
