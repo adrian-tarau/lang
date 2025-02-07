@@ -105,4 +105,13 @@ class UriUtilsTest {
         assertTrue(UriUtils.isJar(URI.create("jar:file:/tmp/test.jar!/bin/bash")));
     }
 
+    @Test
+    void getTld() {
+        assertEquals("na", UriUtils.getTld(null));
+        assertEquals("na", UriUtils.getTld(""));
+        assertEquals("net", UriUtils.getTld("net"));
+        assertEquals("net.microfalx", UriUtils.getTld("net.microfalx"));
+        assertEquals("net.microfalx", UriUtils.getTld("net.microfalx.lang"));
+    }
+
 }

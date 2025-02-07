@@ -138,6 +138,17 @@ public class TimeUtils {
      * @param temporal the temporal
      * @return the local date/time, null if was null
      */
+    public static LocalDate toLocalDate(Object temporal) {
+        LocalDateTime localDateTime = toLocalDateTime(temporal);
+        return localDateTime != null ? localDateTime.toLocalDate() : null;
+    }
+
+    /**
+     * Returns a local date/time from a temporal
+     *
+     * @param temporal the temporal
+     * @return the local date/time, null if was null
+     */
     public static LocalDateTime toLocalDateTime(Object temporal) {
         ZonedDateTime zonedDateTime = toZonedDateTime(temporal);
         return zonedDateTime != null ? zonedDateTime.toLocalDateTime() : null;

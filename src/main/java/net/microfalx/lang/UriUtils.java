@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 import static net.microfalx.lang.StringUtils.*;
@@ -227,6 +228,19 @@ public class UriUtils {
         return uri;
     }
 
+
+    /**
+     * Returns the TLD (top level domain) from a hostname
+     *
+     * @param hostname the hostname
+     * @return a non-null instance
+     */
+    public static String getTld(String hostname) {
+        if (StringUtils.isEmpty(hostname)) return NA_ID_STRING;
+        String[] parts = split(hostname, ".");
+        if (parts.length > 2) parts = Arrays.copyOfRange(parts, 0, 2);
+        return String.join(".", parts);
+    }
 
     /**
      * Appends a URI path to the existing URI.

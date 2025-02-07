@@ -17,6 +17,7 @@ public class StringUtils {
     public static final char SPACE_CHAR = ' ';
     public static final String SPACE = " ";
     public static final String NA_STRING = "N/A";
+    public static final String NA_ID_STRING = "na";
     public static final String[] EMPTY_STRING_ARRAY = new String[0];
     public static final String ELLIPSES = "...";
     public static final String ELLIPSES_WITH_SPACES = " " + ELLIPSES + " ";
