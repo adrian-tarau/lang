@@ -2,6 +2,7 @@ package net.microfalx.lang;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.Optional;
@@ -88,8 +89,8 @@ class ObjectUtilsTest {
 
     @Test
     void toIdentifier() {
-        assertEquals("java_lang_boolean_1237",ObjectUtils.toIdentifier(Boolean.FALSE));
-        assertEquals("i_am_writing_java_code",ObjectUtils.toIdentifier("I am writing java code"));
+        assertEquals("java_lang_boolean_1237", ObjectUtils.toIdentifier(Boolean.FALSE));
+        assertEquals("i_am_writing_java_code", ObjectUtils.toIdentifier("I am writing java code"));
     }
 
 
@@ -101,8 +102,24 @@ class ObjectUtilsTest {
 
     @Test
     void copy() {
-        assertEquals("1",ObjectUtils.copy(Integer.toBinaryString(1)));
+        assertEquals("1", ObjectUtils.copy(Integer.toBinaryString(1)));
         assertNull(ObjectUtils.copy(null));
+    }
+
+    @Test
+    void compare() {
+        assertEquals(0, ObjectUtils.compare(null, null));
+        assertEquals(1, ObjectUtils.compare("1", null));
+        assertEquals(-1, ObjectUtils.compare(null, "2"));
+        assertEquals(0, ObjectUtils.compare("1", "1"));
+        assertEquals(-1, ObjectUtils.compare("1", "2"));
+        assertEquals(1, ObjectUtils.compare("2", "1"));
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime end = start.plusSeconds(2);
+        assertEquals(0, ObjectUtils.compare(start, "2"));
+        assertEquals(0, ObjectUtils.compare(start, start));
+        assertEquals(-1, ObjectUtils.compare(start, end));
+        assertEquals(1, ObjectUtils.compare(end, start));
     }
 
 }

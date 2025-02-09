@@ -151,6 +151,46 @@ public class ObjectUtils {
     }
 
     /**
+     * Compares two objects.
+     * <p>
+     * The method expects that the objects implement {@link Comparable} otherwise the result will always be 0
+     *
+     * @param o1 the first object
+     * @param o2 the second object
+     * @return a negative integer, zero, or a positive integer as this object is less than, equal to,
+     * or greater than the specified object.
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static <T> int compare(Optional<T> o1, Optional<T> o2) {
+        if (o1 == o2) return 0;
+        if (o1 == null || o1.isEmpty()) return -1;
+        if (o2 == null || o2.isEmpty()) return 1;
+        return compare(o1.get(), o2.get());
+    }
+
+    /**
+     * Compares two objects.
+     * <p>
+     * The method expects that the objects implement {@link Comparable} otherwise the result will always be 0
+     *
+     * @param o1 the first object
+     * @param o2 the second object
+     * @return a negative integer, zero, or a positive integer as this object is less than, equal to,
+     * or greater than the specified object.
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static int compare(Object o1, Object o2) {
+        if (o1 == o2) return 0;
+        if (o1 == null) return -1;
+        if (o2 == null) return 1;
+        if (o1 instanceof Comparable && o2 instanceof Comparable && o1.getClass() == o2.getClass()) {
+            return ((Comparable) o1).compareTo(o2);
+        } else {
+            return 0;
+        }
+    }
+
+    /**
      * Executes an action for each object in the array, if an array or for the object itself.
      *
      * @param object the object or object array
