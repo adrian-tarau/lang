@@ -99,9 +99,11 @@ public class FileUtils {
      */
     public static File validateDirectoryExists(File directory) {
         requireNonNull(directory);
-        if (!directory.exists()) directory.mkdirs();
         if (!directory.exists()) {
-            ThreadUtils.throwException(new IllegalStateException("Directory '" + directory.getAbsolutePath() + "' could not be created"));
+            directory.mkdirs();
+            if (!directory.exists()) {
+                throw new IllegalStateException("Directory '" + directory.getAbsolutePath() + "' does not exist and could not be created");
+            }
         }
         return directory;
     }

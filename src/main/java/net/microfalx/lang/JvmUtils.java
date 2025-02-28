@@ -29,11 +29,11 @@ public class JvmUtils {
 
     public static final int UNAVAILABLE_PORT = -1;
 
-    private static File homeDirectory;
-    private static File varDirectory;
-    private static File tmpDirectory;
-    private static File cacheDirectory;
-    private static File workingDirectory;
+    private static volatile File homeDirectory;
+    private static volatile File varDirectory;
+    private static volatile File tmpDirectory;
+    private static volatile File cacheDirectory;
+    private static volatile File workingDirectory;
 
     private static volatile Boolean homeWritable;
 
@@ -118,8 +118,17 @@ public class JvmUtils {
         if (varDirectory != null) return varDirectory;
         String varDirectory = System.getProperty("user.home.var");
         if (varDirectory == null) varDirectory = "/var" + getHomeDirectory();
-        JvmUtils.varDirectory = new File(varDirectory);
+        JvmUtils.varDirectory = validateDirectoryExists(new File(varDirectory));
         return JvmUtils.varDirectory;
+    }
+
+    /**
+     * Changes the directory used to store variable data directory.
+     *
+     * @param directory the new variable directory
+     */
+    public static void setVariableDirectory(File directory) {
+        JvmUtils.varDirectory = ArgumentUtils.requireNonNull(directory);
     }
 
     /**
@@ -133,7 +142,7 @@ public class JvmUtils {
         if (workingDirectory == null) {
             throw new IllegalStateException("JVM does not provide system property 'user.dir'");
         }
-        JvmUtils.workingDirectory = new File(removeEndSlash(workingDirectory));
+        JvmUtils.workingDirectory = validateDirectoryExists(new File(removeEndSlash(workingDirectory)));
         return JvmUtils.workingDirectory;
     }
 
@@ -144,11 +153,18 @@ public class JvmUtils {
      */
     public static File getTemporaryDirectory() {
         if (tmpDirectory != null) return tmpDirectory;
-        String tmpDir = System.getProperty("java.io.tmpdir");
-        if (tmpDir != null) {
-            JvmUtils.tmpDirectory = new File(tmpDir);
-        } else {
-            JvmUtils.tmpDirectory = new File(getHomeDirectory(), "tmp");
+        try {
+            JvmUtils.tmpDirectory = new File(getVariableDirectory(), "tmp");
+        } catch (IllegalStateException e) {
+            // ignore
+        }
+        if (JvmUtils.tmpDirectory == null) {
+            String tmpDir = System.getProperty("java.io.tmpdir");
+            if (tmpDir != null) {
+                JvmUtils.tmpDirectory = new File(tmpDir);
+            } else {
+                JvmUtils.tmpDirectory = new File(getHomeDirectory(), "tmp");
+            }
         }
         return validateDirectoryExists(JvmUtils.tmpDirectory);
     }
