@@ -1,5 +1,8 @@
 package net.microfalx.lang;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.*;
@@ -16,6 +19,8 @@ import static net.microfalx.lang.StringUtils.removeEndSlash;
  * Various utilities around JVM.
  */
 public class JvmUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JvmUtils.class);
 
     public static final String OS_NAME = System.getProperty("os.name").toLowerCase(Locale.US);
     public static final String OS_ARCH = System.getProperty("os.arch").toLowerCase(Locale.US);
@@ -106,6 +111,7 @@ public class JvmUtils {
         String homeDirectory = System.getProperty("user.home");
         if (homeDirectory == null) throw new IllegalStateException("JVM does not provide system property 'user.home'");
         JvmUtils.homeDirectory = new File(removeEndSlash(homeDirectory));
+        LOGGER.info("Home directory: {}", JvmUtils.homeDirectory);
         return JvmUtils.homeDirectory;
     }
 
@@ -119,6 +125,7 @@ public class JvmUtils {
         String varDirectory = System.getProperty("user.home.var");
         if (varDirectory == null) varDirectory = "/var" + getHomeDirectory();
         JvmUtils.varDirectory = validateDirectoryExists(new File(varDirectory));
+        LOGGER.info("Variable storage directory: {}", JvmUtils.varDirectory);
         return JvmUtils.varDirectory;
     }
 
@@ -129,6 +136,7 @@ public class JvmUtils {
      */
     public static void setVariableDirectory(File directory) {
         JvmUtils.varDirectory = ArgumentUtils.requireNonNull(directory);
+        LOGGER.info("Change variable storage directory: {}", JvmUtils.varDirectory);
     }
 
     /**
@@ -143,6 +151,7 @@ public class JvmUtils {
             throw new IllegalStateException("JVM does not provide system property 'user.dir'");
         }
         JvmUtils.workingDirectory = validateDirectoryExists(new File(removeEndSlash(workingDirectory)));
+        LOGGER.info("Working directory: {}", JvmUtils.workingDirectory);
         return JvmUtils.workingDirectory;
     }
 
@@ -166,6 +175,7 @@ public class JvmUtils {
                 JvmUtils.tmpDirectory = new File(getHomeDirectory(), "tmp");
             }
         }
+        LOGGER.info("Temporary directory: {}", JvmUtils.tmpDirectory);
         return validateDirectoryExists(JvmUtils.tmpDirectory);
     }
 
@@ -203,9 +213,9 @@ public class JvmUtils {
      * @return a non-null instance
      */
     public static File getCacheDirectory() {
-        if (cacheDirectory == null) {
-            cacheDirectory = validateDirectoryExists(new File(new File(getHomeDirectory(), CACHE_DIRECTORY_NAME), STORE_NAME));
-        }
+        if (cacheDirectory != null) return cacheDirectory;
+        cacheDirectory = validateDirectoryExists(new File(new File(getHomeDirectory(), CACHE_DIRECTORY_NAME), STORE_NAME));
+        LOGGER.info("Cache directory: {}", JvmUtils.cacheDirectory);
         return cacheDirectory;
     }
 
@@ -216,6 +226,7 @@ public class JvmUtils {
      */
     public static void setTemporaryDirectory(File directory) {
         requireNonNull(directory);
+        LOGGER.info("Change temporary directory: {}", JvmUtils.tmpDirectory);
         System.getProperty("java.io.tmpdir", directory.getAbsolutePath());
     }
 
