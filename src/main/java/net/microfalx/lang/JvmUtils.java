@@ -115,6 +115,16 @@ public class JvmUtils {
      * @return a non-null instance
      */
     public static File getVariableDirectory() {
+        try {
+            return doGetVariableDirectory();
+        } catch (IllegalStateException e) {
+            // is not there, fall back
+        }
+        JvmUtils.varDirectory = new File(getHomeDirectory(), "var");
+        return JvmUtils.varDirectory;
+    }
+
+    private static File doGetVariableDirectory() {
         if (varDirectory != null) return varDirectory;
         String varDirectory = System.getProperty("user.home.var");
         if (varDirectory == null) varDirectory = "/var" + getHomeDirectory();
@@ -153,20 +163,14 @@ public class JvmUtils {
      */
     public static File getTemporaryDirectory() {
         if (tmpDirectory != null) return tmpDirectory;
-        try {
-            JvmUtils.tmpDirectory = new File(getVariableDirectory(), "tmp");
-        } catch (IllegalStateException e) {
-            // ignore
-        }
-        if (JvmUtils.tmpDirectory == null) {
+        File directory = new File(getHomeDirectory(), "tmp");
+        if (!directory.exists()) {
             String tmpDir = System.getProperty("java.io.tmpdir");
-            if (tmpDir != null) {
-                JvmUtils.tmpDirectory = new File(tmpDir);
-            } else {
-                JvmUtils.tmpDirectory = new File(getHomeDirectory(), "tmp");
-            }
+            if (tmpDir != null) directory = new File(tmpDir);
         }
-        return validateDirectoryExists(JvmUtils.tmpDirectory);
+        tmpDirectory = validateDirectoryExists(directory);
+        System.getProperty("java.io.tmpdir", tmpDirectory.getAbsolutePath());
+        return directory;
     }
 
     /**
