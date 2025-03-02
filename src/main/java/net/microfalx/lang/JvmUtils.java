@@ -3,6 +3,7 @@ package net.microfalx.lang;
 import java.io.File;
 import java.io.IOException;
 import java.net.*;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
@@ -24,6 +25,7 @@ public class JvmUtils {
 
     public static final String STORE_NAME = "microfalx";
     public static final String CACHE_DIRECTORY_NAME = ".cache";
+    private static volatile String PROJECT_NAME;
 
     public static final LocalDateTime STARTUP_TIME = LocalDateTime.now();
 
@@ -118,17 +120,33 @@ public class JvmUtils {
         try {
             return doGetVariableDirectory();
         } catch (IllegalStateException e) {
-            // is not there, fall back
+            // is not there, fall back to something inside
         }
-        JvmUtils.varDirectory = new File(getHomeDirectory(), "var");
+        JvmUtils.varDirectory = getCacheDirectory();
         return JvmUtils.varDirectory;
+    }
+
+    /**
+     * Returns a directory inside the user's variable data directory.
+     * <p>
+     * If the subdirectory name is NULL/Empty, the parent directory is returned
+     *
+     * @param name the subdirectory name
+     * @return a non-null instance
+     */
+    public static File getVariableDirectory(String name) {
+        return validateDirectoryExists(getSubDirectory(getVariableDirectory(), name));
     }
 
     private static File doGetVariableDirectory() {
         if (varDirectory != null) return varDirectory;
         String varDirectory = System.getProperty("user.home.var");
-        if (varDirectory == null) varDirectory = "/var" + getHomeDirectory();
-        JvmUtils.varDirectory = validateDirectoryExists(new File(varDirectory));
+        // when Linux, a common practice for apps stored in /opt is to have the variable area in /var/opt
+        if (varDirectory == null && isLinux()) varDirectory = "/var" + getHomeDirectory();
+        if (varDirectory != null) JvmUtils.varDirectory = new File(varDirectory);
+        if (JvmUtils.varDirectory == null || !JvmUtils.varDirectory.exists()) {
+            JvmUtils.varDirectory = getCacheDirectory();
+        }
         return JvmUtils.varDirectory;
     }
 
@@ -163,12 +181,13 @@ public class JvmUtils {
      */
     public static File getTemporaryDirectory() {
         if (tmpDirectory != null) return tmpDirectory;
-        File directory = new File(getHomeDirectory(), "tmp");
-        if (!directory.exists()) {
+        File directory = null;
+        if (isLinux()) directory = new File(getHomeDirectory(), "tmp");
+        if (directory == null || !directory.exists() || !Files.isSymbolicLink(directory.toPath())) {
             String tmpDir = System.getProperty("java.io.tmpdir");
             if (tmpDir != null) directory = new File(tmpDir);
         }
-        tmpDirectory = validateDirectoryExists(directory);
+        tmpDirectory = directory;
         System.getProperty("java.io.tmpdir", tmpDirectory.getAbsolutePath());
         return directory;
     }
@@ -202,24 +221,37 @@ public class JvmUtils {
     }
 
     /**
-     * Returns a directory used to store files used between process restarts (caches).
-     *
-     * @return a non-null instance
-     */
-    public static File getCacheDirectory() {
-        if (cacheDirectory != null) return cacheDirectory;
-        cacheDirectory = validateDirectoryExists(new File(new File(getHomeDirectory(), CACHE_DIRECTORY_NAME), STORE_NAME));
-        return cacheDirectory;
-    }
-
-    /**
      * Changes the temporary directory for current JVM.
      *
      * @param directory the new temporary directory
      */
     public static void setTemporaryDirectory(File directory) {
-        requireNonNull(directory);
+        tmpDirectory = requireNonNull(directory);
         System.getProperty("java.io.tmpdir", directory.getAbsolutePath());
+    }
+
+    /**
+     * Returns a directory used to store files used between process restarts (caches).
+     *
+     * @return a non-null instance
+     * @see #getCacheDirectory(String)
+     */
+    public static File getCacheDirectory() {
+        if (cacheDirectory != null) return cacheDirectory;
+        File cacheDirectoryTmp = new File(new File(getHomeDirectory(), CACHE_DIRECTORY_NAME), STORE_NAME);
+        if (StringUtils.isNotEmpty(PROJECT_NAME)) cacheDirectoryTmp = new File(cacheDirectoryTmp, PROJECT_NAME);
+        JvmUtils.cacheDirectory = cacheDirectoryTmp;
+        return cacheDirectory;
+    }
+
+    /**
+     * Returns a sub-directory used to store files used between process restarts (caches).
+     *
+     * @return a non-null instance
+     * @see #getCacheDirectory()
+     */
+    public static File getCacheDirectory(String name) {
+        return validateDirectoryExists(getSubDirectory(getCacheDirectory(), name));
     }
 
     /**
@@ -284,9 +316,14 @@ public class JvmUtils {
         if (StringUtils.isEmpty(value)) return value;
         value = org.apache.commons.lang3.StringUtils.replaceOnce(value, "${user.home}", getHomeDirectory().getAbsolutePath());
         value = org.apache.commons.lang3.StringUtils.replaceOnce(value, "${user.dir}", getHomeDirectory().getAbsolutePath());
-        value = org.apache.commons.lang3.StringUtils.replaceOnce(value, "${shm.home}", getHomeDirectory().getAbsolutePath());
-        value = org.apache.commons.lang3.StringUtils.replaceOnce(value, "${tmp.home}", getHomeDirectory().getAbsolutePath());
+        value = org.apache.commons.lang3.StringUtils.replaceOnce(value, "${user.cache}", getCacheDirectory().getAbsolutePath());
+        value = org.apache.commons.lang3.StringUtils.replaceOnce(value, "${shm.home}", getSharedMemoryDirectory().getAbsolutePath());
+        value = org.apache.commons.lang3.StringUtils.replaceOnce(value, "${tmp.home}", getTemporaryDirectory().getAbsolutePath());
         return value;
+    }
+
+    private static File getSubDirectory(File directory, String name) {
+        return StringUtils.isEmpty(name) ? directory : new File(directory, name);
     }
 
     private static boolean availableTcp(InetSocketAddress address) {

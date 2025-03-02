@@ -43,7 +43,7 @@ class JvmUtilsTest {
 
     @Test
     void replacePlaceholders() {
-        assertEquals("lsa123", JvmUtils.replacePlaceholders("lsa123"));
+        assertEquals("tmp", JvmUtils.replacePlaceholders("tmp"));
     }
 
     @Test
