@@ -54,8 +54,46 @@ public class ClassUtils {
      * @param cls the class for which to get the class name; may be null
      * @return the class name or the empty string in case the argument is {@code null}
      */
-    public static String getName(final Class<?> cls) {
+    public static String getName(Class<?> cls) {
         return getName(cls, EMPTY_STRING);
+    }
+
+    /**
+     * Returns the class name of the objectby reducing each package component to the first letter.
+     *
+     * @param object the class
+     * @return the name, empty string if class was {@code null}
+     */
+    public static String getCompactName(Object object) {
+        return object != null ? getCompactName(object.getClass()) : EMPTY_STRING;
+    }
+
+    /**
+     * Returns the class name by reducing each package component to the first letter.
+     *
+     * @param cls the class
+     * @return the name, empty string if class was {@code null}
+     */
+    public static String getCompactName(Class<?> cls) {
+        if (cls == null) return EMPTY_STRING;
+        String name = cls.getName();
+        String classPackage = null;
+        int i = name.lastIndexOf('.');
+        if (i != -1) {
+            classPackage = name.substring(0, i);
+            name = name.substring(i + 1);
+        }
+        if (classPackage != null) {
+            String[] parts = StringUtils.split(classPackage, ".");
+            StringBuilder builder = new StringBuilder();
+            for (String part : parts) {
+                if (builder.length() > 0) builder.append(".");
+                builder.append(part.charAt(0));
+            }
+            return builder + "." + name;
+        } else {
+            return name;
+        }
     }
 
     /**

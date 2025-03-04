@@ -87,6 +87,33 @@ public class ThreadUtils {
         return null;
     }
 
+    /**
+     * Returns the top of the call stack (what is executing right now).
+     *
+     * @param thread the thread, can be NULL
+     * @return the top stack, null if not available
+     */
+    public static String getTopStack(Thread thread) {
+        if (thread == null) return null;
+        StackTraceElement[] stackTraceElements = thread.getStackTrace();
+        if (stackTraceElements.length == 0) return null;
+        StackTraceElement stackTraceElement = stackTraceElements[0];
+        return getStackTraceDescription(stackTraceElement);
+    }
+
+    /**
+     * Returns a description of a stack trace element.
+     *
+     * @param stackTraceElement the stack trace
+     * @return the description, null if the stack is null
+     */
+    public static String getStackTraceDescription(StackTraceElement stackTraceElement) {
+        if (stackTraceElement == null) return null;
+        String name = stackTraceElement.getClassName() + "." + stackTraceElement.getMethodName();
+        if (stackTraceElement.getLineNumber() > 0) name += ":" + stackTraceElement.getLineNumber();
+        return name;
+    }
+
     @SuppressWarnings("unchecked")
     private static <E extends Throwable> void doThrowException(Throwable exception) throws E {
         requireNonNull(exception);

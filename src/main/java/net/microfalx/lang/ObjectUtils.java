@@ -151,6 +151,38 @@ public class ObjectUtils {
     }
 
     /**
+     * Returns the name of the object.
+     *
+     * @param value the value
+     * @return the name
+     * @see Nameable
+     */
+    public static String getName(Object value) {
+        if (value == null) return null;
+        if (value instanceof Nameable) {
+            return ((Nameable) value).getName();
+        } else {
+            return value.toString();
+        }
+    }
+
+    /**
+     * Returns the description of the object.
+     *
+     * @param value the value
+     * @return the name
+     * @see Nameable
+     */
+    public static String getDescription(Object value) {
+        if (value == null) return null;
+        if (value instanceof Descriptable) {
+            return ((Descriptable) value).getDescription();
+        } else {
+            return value.toString();
+        }
+    }
+
+    /**
      * Compares two objects.
      * <p>
      * The method expects that the objects implement {@link Comparable} otherwise the result will always be 0
