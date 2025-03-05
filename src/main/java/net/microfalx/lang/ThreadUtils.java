@@ -102,6 +102,19 @@ public class ThreadUtils {
     }
 
     /**
+     * Returns whether the thread is running native code.
+     *
+     * @param thread the thread, can be NULL
+     * @return {@code true} if in native code, {@code false} otherwise
+     */
+    public static boolean isInNative(Thread thread) {
+        if (thread == null) return false;
+        StackTraceElement[] stackTraceElements = thread.getStackTrace();
+        if (stackTraceElements.length == 0) return false;
+        return stackTraceElements[0].isNativeMethod();
+    }
+
+    /**
      * Returns a description of a stack trace element.
      *
      * @param stackTraceElement the stack trace
