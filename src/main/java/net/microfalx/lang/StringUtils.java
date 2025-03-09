@@ -225,11 +225,22 @@ public class StringUtils {
      * Returns whether these two strings are equal (case-insensitive).
      *
      * @param a the first string
-     * @param b the seconds string
+     * @param b the second string
      * @return <code>true</code> if equal, <code>false</code> otherwise
      */
     public static boolean equalsIgnoreCase(String a, String b) {
         return a == b || (a != null && a.equalsIgnoreCase(b));
+    }
+
+    /**
+     * Joins all the strings with a standard separator to separate the values
+     *
+     * @param names the names
+     * @return a non-null string
+     */
+    public static String joinNames(String... names) {
+        if (ObjectUtils.isEmpty(names)) return NA_STRING;
+        return String.join(" :: ", names);
     }
 
     /**

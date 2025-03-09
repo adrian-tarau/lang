@@ -10,6 +10,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static java.lang.System.currentTimeMillis;
@@ -235,6 +236,18 @@ public class TimeUtils {
             throw new IllegalArgumentException("Value not a temporal: " + temporal);
         }
         return new Timestamp(instant.toEpochMilli());
+    }
+
+    /**
+     * Converts a duration as value & unit to {@link Duration}.
+     *
+     * @param duration the duration
+     * @param unit     the unit of measure
+     * @return a non-null instance
+     */
+    public static Duration toDuration(long duration, TimeUnit unit) {
+        requireNonNull(unit);
+        return Duration.ofNanos(TimeUnit.NANOSECONDS.convert(duration, unit));
     }
 
     /**

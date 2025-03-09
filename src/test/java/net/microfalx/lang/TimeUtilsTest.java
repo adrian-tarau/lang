@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.Timestamp;
 import java.time.*;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.currentTimeMillis;
 import static org.junit.jupiter.api.Assertions.*;
@@ -77,6 +78,14 @@ class TimeUtilsTest {
         assertEquals(new Timestamp(ZONED_DATETIME.toInstant().toEpochMilli()),
                 TimeUtils.toTimestamp(ZONED_DATETIME));
         assertEquals(new Timestamp(OFFSET_DATETIME.toInstant().toEpochMilli()), TimeUtils.toTimestamp(OFFSET_DATETIME));
+    }
+
+    @Test
+    void toDuration() {
+        assertEquals(Duration.ofNanos(50), TimeUtils.toDuration(50, TimeUnit.NANOSECONDS));
+        assertEquals(Duration.ofNanos(50_000), TimeUtils.toDuration(50, TimeUnit.MICROSECONDS));
+        assertEquals(Duration.ofMillis(50), TimeUtils.toDuration(50, TimeUnit.MILLISECONDS));
+        assertEquals(Duration.ofSeconds(50), TimeUtils.toDuration(50, TimeUnit.SECONDS));
     }
 
 
