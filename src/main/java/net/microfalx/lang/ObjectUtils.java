@@ -285,6 +285,21 @@ public class ObjectUtils {
     }
 
     /**
+     * Converts an array of objects to an array of string representation.
+     *
+     * @param value the value
+     * @return the string array representation
+     */
+    public static String[] toStringArray(Object value) {
+        Object[] array = toArray(value);
+        String[] result = new String[array.length];
+        for (int i = 0; i < array.length; i++) {
+            result[i] = toString(array[i]);
+        }
+        return result;
+    }
+
+    /**
      * Clones the object.
      * <p>
      * First it tried to serialize the object. If not possible, it will create another object and copy fields with field.
