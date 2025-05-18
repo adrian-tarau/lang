@@ -59,6 +59,16 @@ public abstract class NamedIdentityAware<T> extends IdentityAware<T> implements 
     }
 
     /**
+     * Returns a string representation of this object made out of the name and identifier.
+     *
+     * @return a non-null instance
+     */
+
+    protected final String getNameAndId() {
+        return getName() + " (" + getId() + ")";
+    }
+
+    /**
      * A builder class.
      *
      * @param <T> the type of the identity

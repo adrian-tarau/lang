@@ -52,6 +52,16 @@ public class NumberUtils {
     }
 
     /**
+     * Converts the double to a float
+     *
+     * @param value the value as a double
+     * @return the float, null if the original value was null
+     */
+    public static Float toFloat(Double value) {
+        return value != null ? value.floatValue() : null;
+    }
+
+    /**
      * Calculates a throughput.
      *
      * @param value    the value accumulated over a duration of time
