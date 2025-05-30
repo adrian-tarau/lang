@@ -7,6 +7,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class JvmUtilsTest {
 
     @Test
+    void isClient() {
+        assertFalse(JvmUtils.isClient());
+    }
+
+    @Test
     void getUserName() {
         assertNotNull(JvmUtils.getUserName());
     }

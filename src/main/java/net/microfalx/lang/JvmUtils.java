@@ -11,6 +11,7 @@ import static java.lang.System.currentTimeMillis;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 import static net.microfalx.lang.FileUtils.validateDirectoryExists;
 import static net.microfalx.lang.FileUtils.validateFileExists;
+import static net.microfalx.lang.StringUtils.EMPTY_STRING;
 import static net.microfalx.lang.StringUtils.removeEndSlash;
 
 /**
@@ -76,6 +77,16 @@ public class JvmUtils {
      */
     public static boolean isLinux() {
         return !isWindows();
+    }
+
+    /**
+     * Returns whether the C2 compiler is disabled (runs in client mode).
+     *
+     * @return {@code true} if the C2 compiler is disabled, {@code false} otherwise
+     */
+    public static boolean isClient() {
+        String vmInfo = System.getProperty("java.vm.info", EMPTY_STRING);
+        return vmInfo.contains("emulated-client");
     }
 
     /**
