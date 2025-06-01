@@ -37,6 +37,7 @@ public class JvmUtils {
     private static volatile File tmpDirectory;
     private static volatile File cacheDirectory;
     private static volatile File workingDirectory;
+    private static volatile File nativeDirectory;
 
     private static volatile Boolean homeWritable;
 
@@ -263,6 +264,17 @@ public class JvmUtils {
      */
     public static File getCacheDirectory(String name) {
         return validateDirectoryExists(getSubDirectory(getCacheDirectory(), name));
+    }
+
+    /**
+     * Returns a sub-directory used to store native libraries.
+     *
+     * @return a non-null instance
+     */
+    public static File getNativeDirectory() {
+        if (nativeDirectory != null) return nativeDirectory;
+        JvmUtils.nativeDirectory = getCacheDirectory("native");
+        return nativeDirectory;
     }
 
     /**
