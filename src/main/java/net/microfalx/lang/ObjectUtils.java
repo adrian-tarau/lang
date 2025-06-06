@@ -19,10 +19,10 @@ public class ObjectUtils {
 
     /**
      * Returns if the object is "empty": a null object, an empty string({@link CharSequence}) or an empty collection.
-     * Any other object type returns false(object not "empty")
+     * Any other object type returns false (object not "empty")
      *
      * @param object an object instance
-     * @return true if object is considered "empty"(does not carry out information)
+     * @return true if an object is considered "empty" (does not carry out information)
      */
     public static boolean isEmpty(Object object) {
         if (object == null) {
@@ -43,10 +43,29 @@ public class ObjectUtils {
     }
 
     /**
+     * Returns if the object is "empty": a null object, an empty string({@link CharSequence}) or an empty collection.
+     * Any other object type returns false (object not "empty")
+     *
+     * @param object              an object instance
+     * @param includeEmptyStrings {@code true} to tread empty strings as empty, {@code false} to ignore them
+     * @return true if an object is considered "empty" (does not carry out information)
+     */
+    public static boolean isEmpty(Object object, boolean includeEmptyStrings) {
+        boolean empty = isEmpty(object);
+        if (empty) return true;
+        if (!includeEmptyStrings) return false;
+        Object[] values = toArray(object);
+        for (Object value : values) {
+            if (value instanceof String && StringUtils.isNotEmpty((String) value)) return false;
+        }
+        return true;
+    }
+
+    /**
      * Returns if the object is not empty.
      *
      * @param object an object instance
-     * @return true if object is considered "empty"(does not carry out information)
+     * @return true if an object is considered "empty" (does not carry out information)
      * @see #isEmpty(Object)
      */
     public static boolean isNotEmpty(Object object) {
