@@ -288,6 +288,23 @@ public class UriUtils {
         return uri != null ? uri.toASCIIString() : null;
     }
 
+    /**
+     * Returns the URL representation of the URI.
+     * <p>
+     * Any exceptions thrown during the conversion will be wrapped in a runtime exception.
+     *
+     * @param uri the URI
+     * @return the URL representation, null if URI is null
+     */
+    public static URL toUrl(URI uri) {
+        if (uri == null) return null;
+        try {
+            return uri.toURL();
+        } catch (MalformedURLException e) {
+            return ExceptionUtils.throwException(e);
+        }
+    }
+
 
     private static String escapeCharacterAtPosition(String value, int index) {
         String result = value.substring(0, index);
