@@ -1,10 +1,7 @@
 package net.microfalx.lang;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Scanner;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 
@@ -266,6 +263,21 @@ public class StringUtils {
      * @return <code>true</code> if the value exists in array, <code>false</code> otherwise
      */
     public static boolean containsInArray(String value, String[] values) {
+        if (value == null || values == null) return false;
+        for (String _value : values) {
+            if (value.equalsIgnoreCase(_value)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns if the value exists in the array of values, case-insensitive.
+     *
+     * @param value  the value to check
+     * @param values the values
+     * @return <code>true</code> if the value exists in array, <code>false</code> otherwise
+     */
+    public static boolean containsInCollection(String value, Collection<String> values) {
         if (value == null || values == null) return false;
         for (String _value : values) {
             if (value.equalsIgnoreCase(_value)) return true;
