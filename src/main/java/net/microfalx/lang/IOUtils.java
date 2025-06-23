@@ -301,6 +301,21 @@ public class IOUtils {
         return totalCopied;
     }
 
+    /**
+     * Creates the file if it does not exist.
+     *
+     * @param file the file to initialize
+     * @throws IOException if the file could not be created
+     */
+    public static void initializeFile(File file) throws IOException {
+        requireNonNull(file);
+        if (!file.exists()) {
+            if (!file.createNewFile()) {
+                throw new IOException("Failed to create file: " + file.getAbsolutePath());
+            }
+        }
+    }
+
     public static void closeQuietly(InputStream is) {
         try {
             if (is != null) {
@@ -340,6 +355,8 @@ public class IOUtils {
             LOGGER.warn("Failed to close stream, reason: " + e.getMessage());
         }
     }
+
+
 
     static class UnclosableInputStream extends FilterInputStream {
 
