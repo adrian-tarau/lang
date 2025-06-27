@@ -249,6 +249,7 @@ public class JvmUtils {
      */
     public static void setCacheDirectory(File directory) {
         JvmUtils.cacheDirectory = ArgumentUtils.requireNonNull(directory);
+        System.setProperty("user.cache", JvmUtils.cacheDirectory.getAbsolutePath());
     }
 
     /**
@@ -261,12 +262,12 @@ public class JvmUtils {
         if (cacheDirectory != null) return cacheDirectory;
         File cacheDirectoryTmp = new File(new File(getHomeDirectory(), CACHE_DIRECTORY_NAME), STORE_NAME);
         if (StringUtils.isNotEmpty(PROJECT_NAME)) cacheDirectoryTmp = new File(cacheDirectoryTmp, PROJECT_NAME);
-        JvmUtils.cacheDirectory = cacheDirectoryTmp;
+        setCacheDirectory(cacheDirectoryTmp);
         return cacheDirectory;
     }
 
     /**
-     * Returns a sub-directory used to store files used between process restarts (caches).
+     * Returns a subdirectory used to store files used between process restarts (caches).
      *
      * @return a non-null instance
      * @see #getCacheDirectory()
