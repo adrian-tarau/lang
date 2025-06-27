@@ -132,7 +132,7 @@ public class JvmUtils {
         try {
             return doGetVariableDirectory();
         } catch (IllegalStateException e) {
-            // is not there, fall back to something inside
+            // is not there, fall back to something inside user home
         }
         JvmUtils.varDirectory = getCacheDirectory();
         return JvmUtils.varDirectory;
@@ -240,6 +240,15 @@ public class JvmUtils {
     public static void setTemporaryDirectory(File directory) {
         tmpDirectory = requireNonNull(directory);
         System.getProperty("java.io.tmpdir", directory.getAbsolutePath());
+    }
+
+    /**
+     * Changes the directory used to store variable data directory.
+     *
+     * @param directory the new variable directory
+     */
+    public static void setCacheDirectory(File directory) {
+        JvmUtils.cacheDirectory = ArgumentUtils.requireNonNull(directory);
     }
 
     /**
