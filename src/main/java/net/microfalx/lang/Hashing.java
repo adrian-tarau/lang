@@ -5,11 +5,15 @@ import com.google.common.hash.Hasher;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.time.temporal.Temporal;
 import java.util.Collection;
 import java.util.Map;
+
+import static net.microfalx.lang.ExceptionUtils.rethrowException;
 
 /**
  * A class which helps to calculate a hash from objects.
@@ -149,6 +153,10 @@ public final class Hashing {
             }
         } else if (value instanceof InputStream) {
             update((InputStream) value);
+        } else if (value instanceof URI) {
+            update(((URI) value).toASCIIString());
+        } else if (value instanceof URL) {
+            update(((URL) value).toExternalForm());
         } else if (value instanceof Reader) {
             update((Reader) value);
         } else if (ObjectUtils.isArray(value)) {
@@ -167,7 +175,7 @@ public final class Hashing {
                 if (length > 0) update(buffer);
             } while (length > 0);
         } catch (IOException e) {
-            ExceptionUtils.throwException(e);
+            rethrowException(e);
         }
     }
 
@@ -180,7 +188,7 @@ public final class Hashing {
                 if (length > 0) update(buffer);
             } while (length > 0);
         } catch (IOException e) {
-            ExceptionUtils.throwException(e);
+            rethrowException(e);
         }
     }
 

@@ -26,7 +26,7 @@ public class ExceptionUtils {
         try {
             return callable.call();
         } catch (Exception e) {
-            return throwException(e);
+            return rethrowExceptionAndReturn(e);
         }
     }
 
@@ -36,20 +36,19 @@ public class ExceptionUtils {
      * @param exception an exception
      */
     @SuppressWarnings("SameReturnValue")
-    public static <T> T throwException(Throwable exception) {
+    public static void rethrowException(Throwable exception) {
         doThrowException(exception);
-        return null;
     }
 
     /**
-     * Marks the thread as interrupted and rethrows the exception.
+     * Rethrow a checked exception
      *
-     * @param exception an interrupted exception
-     * @return a fake return to avoid an unnecessary "return null" in functions when we know an exception will be raised
+     * @param exception an exception
      */
-    public static <T> T rethrowInterruptedException(InterruptedException exception) {
-        Thread.currentThread().interrupt();
-        return throwException(exception);
+    @SuppressWarnings({"SameReturnValue", "unchecked"})
+    public static <T> T rethrowExceptionAndReturn(Throwable exception) {
+        doThrowException(exception);
+        return (T) exception;
     }
 
     /**
@@ -149,7 +148,7 @@ public class ExceptionUtils {
      * Returns the SQL exception if the root cause exception is a database exception
      *
      * @param throwable the exception
-     * @return the vendor specific error code, -1 if not a SQL exception or cannot be extracted
+     * @return the vendor-specific error code, -1 if not a SQL exception or cannot be extracted
      */
     public static int getSQLErrorCode(Throwable throwable) {
         Throwable rootCause = getRootCause(throwable);
@@ -159,10 +158,13 @@ public class ExceptionUtils {
     @SuppressWarnings("unchecked")
     private static <E extends Throwable> void doThrowException(Throwable exception) throws E {
         requireNonNull(exception);
+        if (exception instanceof InterruptedException) {
+            Thread.currentThread().interrupt();
+        }
         throw (E) exception;
     }
 
-    private static Map<String, String> EXCEPTION_NAME_ALIAS = new HashMap<>();
+    private static final Map<String, String> EXCEPTION_NAME_ALIAS = new HashMap<>();
 
     static {
         EXCEPTION_NAME_ALIAS.put("IO", "I/O");

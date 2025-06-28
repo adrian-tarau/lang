@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import static net.microfalx.lang.ArgumentUtils.requireNotEmpty;
+import static net.microfalx.lang.ExceptionUtils.rethrowExceptionAndReturn;
 import static net.microfalx.lang.StringUtils.isEmpty;
 
 /**
@@ -84,7 +85,7 @@ public class EncryptionUtils {
             byte[] encrypted = cipher.doFinal(value.getBytes());
             return Base64.getEncoder().encodeToString(encrypted);
         } catch (Exception e) {
-            return ExceptionUtils.throwException(e);
+            return rethrowExceptionAndReturn(e);
         }
     }
 
@@ -114,10 +115,10 @@ public class EncryptionUtils {
             byte[] original = cipher.doFinal(Base64.getDecoder().decode(value));
             return new String(original);
         } catch (javax.crypto.IllegalBlockSizeException e) {
-            // we presume these exceptions means "not encrypted"
+            // we presume this exceptions means "not encrypted"
             return value;
         } catch (Exception e) {
-            return ExceptionUtils.throwException(e);
+            return rethrowExceptionAndReturn(e);
         }
     }
 

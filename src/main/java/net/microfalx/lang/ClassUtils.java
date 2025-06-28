@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.util.Collections.unmodifiableList;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 import static net.microfalx.lang.ArgumentUtils.requireNotEmpty;
+import static net.microfalx.lang.ExceptionUtils.rethrowExceptionAndReturn;
 import static net.microfalx.lang.StringUtils.EMPTY_STRING;
 
 /**
@@ -415,14 +416,14 @@ public class ClassUtils {
             try {
                 constructor = clazz.getDeclaredConstructor(ClassUtils.EMPTY_CLASS_ARRAY);
             } catch (NoSuchMethodException ex) {
-                return ExceptionUtils.throwException(e);
+                return rethrowExceptionAndReturn(e);
             }
         }
         if (!constructor.isAccessible()) constructor.setAccessible(true);
         try {
             return constructor.newInstance();
         } catch (Exception e) {
-            return ExceptionUtils.throwException(e);
+            return rethrowExceptionAndReturn(e);
         }
     }
 

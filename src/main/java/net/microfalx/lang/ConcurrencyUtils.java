@@ -17,6 +17,7 @@ import java.util.function.Supplier;
 import static java.lang.System.currentTimeMillis;
 import static java.time.Duration.ofSeconds;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
+import static net.microfalx.lang.ExceptionUtils.rethrowExceptionAndReturn;
 import static net.microfalx.lang.FormatterUtils.formatDuration;
 import static net.microfalx.lang.ThreadUtils.sleepMillis;
 
@@ -210,7 +211,7 @@ public class ConcurrencyUtils {
         try {
             return future.get();
         } catch (Exception e) {
-            return ExceptionUtils.throwException(e);
+            return rethrowExceptionAndReturn(e);
         }
     }
 

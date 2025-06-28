@@ -7,6 +7,7 @@ import java.net.URL;
 import java.util.Arrays;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
+import static net.microfalx.lang.ExceptionUtils.rethrowExceptionAndReturn;
 import static net.microfalx.lang.StringUtils.*;
 
 /**
@@ -63,7 +64,7 @@ public class UriUtils {
         try {
             return uri.toURL();
         } catch (MalformedURLException e) {
-            return ExceptionUtils.throwException(e);
+            return rethrowExceptionAndReturn(e);
         }
     }
 
@@ -125,7 +126,7 @@ public class UriUtils {
                 return new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), null);
             }
         } catch (URISyntaxException e) {
-            return ExceptionUtils.throwException(e);
+            return rethrowExceptionAndReturn(e);
         }
     }
 
@@ -221,7 +222,7 @@ public class UriUtils {
                     if (escapedUri == null) break;
                     uri = escapedUri;
                 } else {
-                    return ExceptionUtils.throwException(e);
+                    return rethrowExceptionAndReturn(e);
                 }
             }
         }
@@ -258,7 +259,7 @@ public class UriUtils {
             return parseUri(new URI(uri.getScheme(), uri.getAuthority(), uriPath, uri.getQuery(),
                     uri.getFragment()).toASCIIString());
         } catch (URISyntaxException e) {
-            return ExceptionUtils.throwException(e);
+            return rethrowExceptionAndReturn(e);
         }
     }
 
@@ -301,7 +302,7 @@ public class UriUtils {
         try {
             return uri.toURL();
         } catch (MalformedURLException e) {
-            return ExceptionUtils.throwException(e);
+            return rethrowExceptionAndReturn(e);
         }
     }
 

@@ -3,6 +3,7 @@ package net.microfalx.lang;
 import java.time.Duration;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
+import static net.microfalx.lang.ExceptionUtils.rethrowException;
 
 /**
  * Utilities around threads.
@@ -24,12 +25,11 @@ public class ThreadUtils {
      *
      * @param micros the number of microseconds
      */
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void sleepMicros(float micros) {
         try {
             Thread.sleep(0L, (int) (micros * 1000));
         } catch (InterruptedException e) {
-            ExceptionUtils.throwException(e);
+            rethrowException(e);
         }
     }
 
@@ -38,12 +38,11 @@ public class ThreadUtils {
      *
      * @param millis the number of milliseconds
      */
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void sleepMillis(float millis) {
         try {
             Thread.sleep((long) millis);
         } catch (InterruptedException e) {
-            ExceptionUtils.throwException(e);
+            rethrowException(e);
         }
     }
 

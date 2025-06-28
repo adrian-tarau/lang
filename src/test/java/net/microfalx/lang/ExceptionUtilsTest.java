@@ -12,12 +12,12 @@ class ExceptionUtilsTest {
 
     @Test
     void throwException() {
-        assertThrows(Throwable.class, () -> ExceptionUtils.throwException(new Throwable()));
+        assertThrows(Throwable.class, () -> ExceptionUtils.rethrowException(new Throwable()));
     }
 
     @Test
     void rethrowInterruptedException() {
-        assertThrows(Exception.class, () -> ExceptionUtils.rethrowInterruptedException(new InterruptedException()));
+        assertThrows(Exception.class, () -> ExceptionUtils.rethrowException(new InterruptedException()));
     }
 
     @Test

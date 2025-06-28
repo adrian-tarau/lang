@@ -339,10 +339,10 @@ public class ObjectUtils {
                 return (T) ois.readObject();
             } catch (IOException e) {
                 // it should never happen, it is in memory
-                return ExceptionUtils.throwException(e);
+                return ExceptionUtils.rethrowExceptionAndReturn(e);
             } catch (ClassNotFoundException e) {
                 // this could happen but bubble the problem without exposing this
-                return ExceptionUtils.throwException(e);
+                return ExceptionUtils.rethrowExceptionAndReturn(e);
             }
         } else {
             throw new IllegalStateException("Not implemented");
