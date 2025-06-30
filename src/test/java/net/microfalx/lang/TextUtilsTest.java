@@ -3,8 +3,7 @@ package net.microfalx.lang;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TextUtilsTest {
 
@@ -116,5 +115,12 @@ class TextUtilsTest {
         assertEquals("~~~~    demo    ~~~~", TextUtils.getHeader("demo", 20));
         assertEquals("=====     demo     =====", TextUtils.getHeader("demo", 25, '='));
         assertEquals("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                                demo                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", TextUtils.getHeader("demo"));
+    }
+
+    @Test
+    void isBinaryContent() {
+        assertFalse(TextUtils.isBinaryContent("abcdefghijklmnopqrstuvwxyz"));
+        assertFalse(TextUtils.isBinaryContent("abcde4343fghij2434klm+dsds"));
+        assertTrue(TextUtils.isBinaryContent("abcd\u00012\u0003"));
     }
 }

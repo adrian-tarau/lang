@@ -22,6 +22,8 @@ public class TextUtils {
 
     public static final String LINE_SEPARATOR = System.lineSeparator();
 
+    public static final double MAX_BINARY_CONTENT = 0.05;
+
     /**
      * Inserts a given number of spaces in front of each line
      *
@@ -211,5 +213,39 @@ public class TextUtils {
         builder.append(appendSpaces(text, contentSize));
         builder.append(' ').append(separatorText);
         return org.apache.commons.lang3.StringUtils.abbreviate(builder.toString(), length);
+    }
+
+    /**
+     * Returns whether a given character is <code>printable</code>.
+     * <p>
+     * The function only looks at the ASCII page, which is enough in most cases even if we throw in UTF-8 and
+     * another character encoding.
+     *
+     * @param c character
+     * @return <code>true</code> if the given character is printable, <code>false</code> otherwise
+     */
+    public static boolean isPrintableCharacter(char c) {
+        // special chars
+        if (c == 0x09 || c == 0x0a || c == 0x0d) return true;
+        // anything before space is invalid
+        if (c < 0x20) return false;
+        if (c <= 255) {
+            // exclude restricted characters in ASCII page
+            return (c < 0x7F || c > 0x84) && (c < 0x86 || c > 0x9F);
+        } else {
+            return Character.isAlphabetic(c);
+        }
+    }
+
+    /**
+     * Return whether a text contains invalid or unprintable content in a ratio greater than {@link #MAX_BINARY_CONTENT}
+     *
+     * @param text the string to analyze
+     * @return {@code true} if there is a significant amount of unprintable content, {@code false} otherwise
+     */
+    public static boolean isBinaryContent(String text) {
+        if (StringUtils.isEmpty(text)) return false;
+        long invalidCharacters = text.chars().filter(c -> !isPrintableCharacter((char) c)).count();
+        return (double) invalidCharacters / text.length() > MAX_BINARY_CONTENT;
     }
 }
