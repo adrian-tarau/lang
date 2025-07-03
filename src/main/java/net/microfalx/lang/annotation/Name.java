@@ -34,4 +34,11 @@ public @interface Name {
      */
     int position() default 1;
 
+    /**
+     * Returns whether field represents a secondary name component.
+     *
+     * @return {@code true} if the field is a secondary name component, {@code false} otherwise.
+     */
+    boolean secondary() default false;
+
 }
