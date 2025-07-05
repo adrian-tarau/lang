@@ -31,6 +31,17 @@ public class NamedAndTaggedIdentifyAware<T> extends NamedIdentityAware<T> {
     }
 
     /**
+     * Updates the tags associated with this instance.
+     *
+     * @param tags the tags to add, must not be null
+     */
+    protected void updateTags(Set<String> tags) {
+        requireNonNull(tags);
+        if (this.tags == null) this.tags = new HashSet<>();
+        this.tags.addAll(tags);
+    }
+
+    /**
      * A builder class.
      *
      * @param <T> the type of the identity
