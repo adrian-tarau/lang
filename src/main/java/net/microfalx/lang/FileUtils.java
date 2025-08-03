@@ -1,11 +1,14 @@
 package net.microfalx.lang;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.StringReader;
 import java.net.URLConnection;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static java.lang.Long.toHexString;
 import static java.lang.System.currentTimeMillis;
@@ -20,6 +23,7 @@ import static net.microfalx.lang.StringUtils.isEmpty;
 public class FileUtils {
 
     public static final String STORE_NAME = "microfalx";
+    public static final String ALL_FILES = "*.*";
 
     /**
      * Returns the file extension out of the file name.
@@ -97,6 +101,7 @@ public class FileUtils {
      * @param directory the directory
      * @return the directory, after validation
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static File validateDirectoryExists(File directory) {
         requireNonNull(directory);
         if (!directory.exists()) {
@@ -132,6 +137,51 @@ public class FileUtils {
             file.delete();
         } catch (Exception e) {
             // ignore, just in case
+        }
+    }
+
+    /**
+     * Removes all files in a directory that match the given GLOB pattern.
+     * <p>
+     * Glob pattern: character '*' any multiple characters, '?' matches any character
+     *
+     * @param directory the directory to search in
+     * @param pattern   the pattern to match file names against
+     * @param maxDepth  the maximum depth to search, 1 means only the directory itself
+     * @see FileSystem#getPathMatcher
+     */
+    public static void remove(File directory, String pattern, int maxDepth) {
+        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
+        remove(directory, matcher, maxDepth);
+    }
+
+    /**
+     * Removes all files in a directory that match the given pattern.
+     *
+     * @param directory the directory to search in
+     * @param pattern   the pattern to match file names against
+     * @param maxDepth  the maximum depth to search, 1 means only the directory itself
+     */
+    public static void remove(File directory, Pattern pattern, int maxDepth) {
+        remove(directory, path -> pattern.matcher(path.getFileName().toString()).matches(), maxDepth);
+    }
+
+    /**
+     * Removes all files in a directory that match the given pattern.
+     *
+     * @param directory the directory to search in
+     * @param matcher   the file matcher
+     * @param maxDepth  the maximum depth to search, 1 means only the directory itself
+     */
+    public static void remove(File directory, PathMatcher matcher, int maxDepth) {
+        maxDepth = Math.max(maxDepth, 1);
+        try {
+            try (Stream<Path> paths = Files.walk(directory.toPath(), maxDepth, FileVisitOption.FOLLOW_LINKS)) {
+                paths.filter(path -> matcher.matches(path.getFileName()))
+                        .forEach(path -> remove(path.toFile()));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

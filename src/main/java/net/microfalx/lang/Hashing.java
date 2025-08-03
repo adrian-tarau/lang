@@ -63,6 +63,8 @@ public final class Hashing {
             hasher.putString((String) value, StandardCharsets.UTF_8);
         } else if (value instanceof Number) {
             updateNumber((Number) value);
+        } else if (value instanceof Boolean) {
+            hasher.putBoolean((Boolean) value);
         } else if (value instanceof byte[]) {
             hasher.putBytes((byte[]) value);
         } else if (value instanceof char[]) {
