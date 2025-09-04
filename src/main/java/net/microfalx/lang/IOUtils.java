@@ -77,6 +77,14 @@ public class IOUtils {
     }
 
     /**
+     * Returns an output stream which ignores any writes.
+     * @return a non-null instance
+     */
+    public static OutputStream getNullOutputStream() {
+        return new NullOutputStream();
+    }
+
+    /**
      * Creates a buffered writer out of a file.
      *
      * @param file the file
@@ -200,7 +208,7 @@ public class IOUtils {
      * @param out destination stream
      * @param in  source stream
      * @return number of byte copied from source to destination
-     * @throws IOException
+     * @throws IOException an I/O exception if an I/O error occurs
      */
     public static long appendStream(OutputStream out, InputStream in) throws IOException {
         return appendStream(out, in, true);
@@ -214,7 +222,7 @@ public class IOUtils {
      * @param in      source stream
      * @param release if true closes the output stream after completion
      * @return number of byte copied from source to destination
-     * @throws IOException
+     * @throws IOException an I/O exception if an I/O error occurs
      */
     public static long appendStream(OutputStream out, InputStream in, boolean release) throws IOException {
         requireNonNull(out);
@@ -255,7 +263,7 @@ public class IOUtils {
      * @param out destination stream
      * @param in  source stream
      * @return number of byte copied from source to destination
-     * @throws IOException
+     * @throws IOException an I/O exception if an I/O error occurs
      */
     public static long appendStream(Writer out, Reader in) throws IOException {
         return appendStream(out, in, true);
@@ -269,7 +277,7 @@ public class IOUtils {
      * @param in      source stream
      * @param release if true closes the output stream after completion
      * @return number of byte copied from source to destination
-     * @throws IOException
+     * @throws IOException an I/O exception if an I/O error occurs
      */
     public static long appendStream(Writer out, Reader in, boolean release) throws IOException {
         requireNonNull(out);
@@ -394,6 +402,24 @@ public class IOUtils {
 
         public GZIPInputStreamWrapper(InputStream in) throws IOException {
             super(in);
+        }
+    }
+
+     static class NullOutputStream extends OutputStream {
+
+        @Override
+        public void write(int b) throws IOException {
+            // do nothing
+        }
+
+        @Override
+        public void write(byte[] b) throws IOException {
+            // do nothing
+        }
+
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            // do nothing
         }
     }
 }
