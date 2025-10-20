@@ -1,0 +1,27 @@
+package net.microfalx.lang.annotation;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+/**
+ * Provides a module for audit purposes.
+ */
+@Documented
+@Retention(RUNTIME)
+@Target(value = {TYPE, METHOD})
+@Inherited
+public @interface Module {
+
+    /**
+     * Returns the module name.
+     *
+     * @return a non-null instance
+     */
+    String value();
+}
