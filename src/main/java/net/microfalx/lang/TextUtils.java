@@ -35,7 +35,7 @@ public class TextUtils {
     }
 
     /**
-     * Inserts a given number of spaces in front of each line
+     * Inserts a given number of spaces in front of each line.
      *
      * @param text           the multi-line text to space
      * @param spaces         how many space characters to insert at the beginning of each line
@@ -43,6 +43,17 @@ public class TextUtils {
      */
     public static String insertSpaces(String text, int spaces, boolean spaceFirstLine) {
         return insertSpaces(text, spaces, false, false, spaceFirstLine);
+    }
+
+    /**
+     * Inserts a given number of spaces in front of each line, after a block indicator.
+     *
+     * @param text   the multi-line text to space
+     * @param spaces how many space characters to insert at the beginning of each line
+     */
+    public static String insertSpacesWithBlock(String text, int spaces) {
+        text = insertSpaces(text, 1, true, true, true);
+        return insertSpaces(text, spaces, true);
     }
 
     /**
