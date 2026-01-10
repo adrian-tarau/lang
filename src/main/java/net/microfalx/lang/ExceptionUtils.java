@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -109,6 +110,22 @@ public class ExceptionUtils {
     public static Class<? extends Throwable> getRootCauseClass(Throwable throwable) {
         Throwable rootCause = getRootCause(throwable);
         return rootCause != null ? rootCause.getClass() : throwable.getClass();
+    }
+
+    /**
+     * Returns whether the exception or any of its causes is of the given type.
+     *
+     * @param throwable      the throwable
+     * @param exceptionClass the exception class
+     * @return {@code true} if the exception or any of its causes is of the given type, {@code false} otherwise
+     */
+    public static boolean contains(Throwable throwable, Class<? extends Throwable> exceptionClass) {
+        if (throwable == null || exceptionClass == null) return false;
+        List<Throwable> throwableList = org.apache.commons.lang3.exception.ExceptionUtils.getThrowableList(throwable);
+        for (Throwable childThrowable : throwableList) {
+            if (ClassUtils.isSubClassOf(childThrowable, exceptionClass)) return true;
+        }
+        return false;
     }
 
     /**
