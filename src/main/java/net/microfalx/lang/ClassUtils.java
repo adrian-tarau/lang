@@ -91,10 +91,9 @@ public class ClassUtils {
                 if (builder.length() > 0) builder.append(".");
                 builder.append(part.charAt(0));
             }
-            return builder + "." + name;
-        } else {
-            return name;
+            name = builder + "." + name;
         }
+        return convertLambda(name);
     }
 
     /**
@@ -105,7 +104,7 @@ public class ClassUtils {
      * @return the class name or {@code valueIfNull}
      */
     public static String getName(final Class<?> cls, final String defaultValue) {
-        return cls == null ? defaultValue : cls.getName();
+        return cls == null ? defaultValue : convertLambda(cls.getName());
     }
 
     /**
@@ -126,7 +125,7 @@ public class ClassUtils {
      * @return the class name or {@code valueIfNull}
      */
     public static String getName(Object object, final String defaultValue) {
-        return object == null ? defaultValue : object.getClass().getName();
+        return object == null ? defaultValue : getName(object.getClass());
     }
 
     /**
@@ -147,7 +146,7 @@ public class ClassUtils {
      * @return the class name or {@code valueIfNull}
      */
     public static String getSimpleName(Object object, final String defaultValue) {
-        return object == null ? defaultValue : object.getClass().getName();
+        return object == null ? defaultValue : convertLambda(object.getClass().getSimpleName());
     }
 
     /**
@@ -425,6 +424,14 @@ public class ClassUtils {
         } catch (Exception e) {
             return rethrowExceptionAndReturn(e);
         }
+    }
+
+    private static String convertLambda(String className) {
+        int lambdaIndex = className.indexOf("$$Lambda$");
+        if (lambdaIndex != -1) {
+            return className.substring(0, lambdaIndex) + "$Lambda";
+        }
+        return className;
     }
 
     static {
