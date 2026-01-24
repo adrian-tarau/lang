@@ -186,7 +186,8 @@ public class TimeUtils {
         } else if (temporal instanceof Date) {
             return ((Date) temporal).toInstant().atZone(ZoneId.systemDefault());
         } else if (temporal instanceof Number) {
-            return Instant.ofEpochMilli(((Number) temporal).longValue()).atZone(ZoneId.systemDefault());
+            long instant = ((Number) temporal).longValue();
+            return instant <= 0 ? null : Instant.ofEpochMilli(instant).atZone(ZoneId.systemDefault());
         } else {
             throw new IllegalArgumentException("Cannot convert temporal '" + temporal + " to a zoned date/time");
         }

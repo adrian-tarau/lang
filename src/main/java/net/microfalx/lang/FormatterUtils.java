@@ -295,6 +295,21 @@ public class FormatterUtils {
      * @return the formated value
      */
     public static String formatDuration(Object value, String defaultValue, boolean rounded) {
+        return formatDuration(value, defaultValue, rounded, null);
+    }
+
+    /**
+     * Formats a duration.
+     * <p>
+     * A duration can be a number (millis) or a {@link Duration}.
+     *
+     * @param value        the value to format
+     * @param defaultValue the default value
+     * @param rounded      {@code true} to round the duration to the closed unit, {@code false} false otherwise
+     * @param zeroValue the value to display if the duration is zero
+     * @return the formated value
+     */
+    public static String formatDuration(Object value, String defaultValue, boolean rounded, String zeroValue) {
         if (value == null || value instanceof String) return defaultValue;
         long millis = -1;
         long nano = -1;
@@ -314,7 +329,9 @@ public class FormatterUtils {
                 millis = duration.toMillis();
             }
         }
-        if (millis < 0) {
+        if (millis == 0 && zeroValue != null) {
+            return zeroValue;
+        } else if (millis < 0) {
             if (nano < 0) {
                 return defaultValue;
             } else {
