@@ -427,11 +427,8 @@ public class ClassUtils {
     }
 
     private static String convertLambda(String className) {
-        int lambdaIndex = className.indexOf("$$Lambda$");
-        if (lambdaIndex != -1) {
-            return className.substring(0, lambdaIndex) + "$Lambda";
-        }
-        return className;
+        int lambdaIndex = className.indexOf("$$Lambda");
+        return lambdaIndex != -1 ? className.substring(0, lambdaIndex) + "$Lambda" : className;
     }
 
     static {

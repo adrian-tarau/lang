@@ -130,6 +130,11 @@ class ClassUtilsTest {
         assertThrows(Exception.class,() -> ClassUtils.create(Number.class));
     }
 
+    @Test
+    void getCompactName() {
+        assertEquals("j.l.Integer", ClassUtils.getCompactName(Integer.class));
+    }
+
     public static class PublicClass {
 
         private int i = 1;
