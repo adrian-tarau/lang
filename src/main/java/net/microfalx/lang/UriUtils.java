@@ -163,6 +163,23 @@ public class UriUtils {
     }
 
     /**
+     * Replaces the host in the URI.
+     *
+     * @param uri      the URI
+     * @param ipOrHost the new hostname
+     * @return a non-null instance
+     */
+    public static URI replaceHost(URI uri, String ipOrHost) {
+        ArgumentUtils.requireNonNull(uri);
+        try {
+            return new URI(uri.getScheme(), uri.getUserInfo(), ipOrHost, uri.getPort(), uri.getPath(),
+                    uri.getQuery(), uri.getFragment());
+        } catch (URISyntaxException e) {
+            return ExceptionUtils.rethrowExceptionAndReturn(e);
+        }
+    }
+
+    /**
      * Returns whether the URI contains a multi-scheme URI.
      *
      * @param uri the URI
