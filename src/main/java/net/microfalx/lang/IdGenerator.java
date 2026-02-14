@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.System.currentTimeMillis;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
+import static net.microfalx.lang.ExceptionUtils.getRootCauseDescription;
 import static net.microfalx.lang.StringUtils.isEmpty;
 import static net.microfalx.lang.StringUtils.toIdentifier;
 
@@ -144,7 +145,7 @@ public class IdGenerator implements Identifiable<String> {
                     | (int) address[addressLength - 3] & 0xFF << 16;
             SERVER_ID = serverId % 1024;
         } catch (UnknownHostException e) {
-            LoggerFactory.getLogger(IdGenerator.class).warn("Failed to extract server id: " + ExceptionUtils.getRootCauseMessage(e));
+            LoggerFactory.getLogger(IdGenerator.class).warn("Failed to extract server id: {}", getRootCauseDescription(e));
             SERVER_ID = 0;
         }
         return SERVER_ID;

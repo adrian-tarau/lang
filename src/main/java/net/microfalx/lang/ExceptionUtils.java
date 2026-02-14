@@ -72,10 +72,10 @@ public class ExceptionUtils {
      *
      * @param throwable the exception
      * @return the message
-     * @see org.apache.commons.lang3.exception.ExceptionUtils#getRootCauseMessage(Throwable)
      */
     public static String getRootCauseMessage(Throwable throwable) {
-        return defaultIfEmpty(org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage(throwable), NA_STRING);
+        throwable = getRootCause(throwable);
+        return defaultIfEmpty(throwable.getMessage(), NA_STRING);
     }
 
     /**
@@ -87,6 +87,7 @@ public class ExceptionUtils {
      * @return the description
      */
     public static String getRootCauseDescription(Throwable throwable) {
+        if (throwable == null) return NA_STRING;
         return getRootCauseMessage(throwable) + " (" + getRootCauseName(throwable) + ")";
     }
 
