@@ -202,6 +202,21 @@ public class ObjectUtils {
     }
 
     /**
+     * Returns whether the value exists in the array.
+     *
+     * @param value  the value to check
+     * @param values the array with values
+     * @return {@code true} if the value exists in the array, {@code false} otherwise
+     */
+    public static boolean contains(Object value, Object[] values) {
+        if (value == null || values == null) return false;
+        for (Object v : values) {
+            if (ObjectUtils.equals(value, v)) return true;
+        }
+        return false;
+    }
+
+    /**
      * Compares two objects.
      * <p>
      * The method expects that the objects implement {@link Comparable} otherwise the result will always be 0
