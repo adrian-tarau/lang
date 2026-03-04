@@ -19,6 +19,7 @@ public class IOUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(IOUtils.class);
 
     public static final int BUFFER_SIZE = 128 * 1024;
+    public static final byte[] BYTE_EMPTY = new byte[0];
 
     /**
      * Reads the content of the stream as a String.
@@ -47,6 +48,20 @@ public class IOUtils {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         appendStream(out, inputStream);
         return out.toByteArray();
+    }
+
+    /**
+     * Reads the content of the reader into a byte buffer and closes the stream.
+     *
+     * @param reader the input stream
+     * @return the content of the stream as byte[]
+     * @throws IOException if an I/O error occurs
+     */
+    public static String getReaderAsString(Reader reader) throws IOException {
+        requireNonNull(reader);
+        StringWriter writer = new StringWriter();
+        appendStream(writer, reader);
+        return writer.toString();
     }
 
     /**
@@ -364,6 +379,14 @@ public class IOUtils {
         }
     }
 
+    /**
+     * Returns an input stream which as 0 bytes.
+     *
+     * @return a non-null instance
+     */
+    public static InputStream newEmptyStream() {
+        return new ByteArrayInputStream(BYTE_EMPTY);
+    }
 
 
     static class UnclosableInputStream extends FilterInputStream {

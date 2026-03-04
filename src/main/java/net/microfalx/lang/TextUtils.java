@@ -1,9 +1,10 @@
 package net.microfalx.lang;
 
-import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.StringReader;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
+import static net.microfalx.lang.IOUtils.getComporessedInputStream;
+import static net.microfalx.lang.IOUtils.getCompressedOutputStream;
 import static net.microfalx.lang.StringUtils.defaultIfEmpty;
 
 /**
@@ -258,5 +259,36 @@ public class TextUtils {
         if (StringUtils.isEmpty(text)) return false;
         long invalidCharacters = text.chars().filter(c -> !isPrintableCharacter((char) c)).count();
         return (double) invalidCharacters / text.length() > MAX_BINARY_CONTENT;
+    }
+
+    /**
+     * Compresses a text and returns the stream to read the compressed content;
+     *
+     * @param text the text to compress
+     * @return the result of compression
+     * @throws IOException if an I/O error occurs
+     */
+    public static InputStream compressText(String text) throws IOException {
+        if (StringUtils.isEmpty(text)) return IOUtils.newEmptyStream();
+        ByteArrayOutputStream memoryStream = new ByteArrayOutputStream();
+        OutputStream outputStream = getCompressedOutputStream(memoryStream);
+        InputStream inputStream = new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
+        IOUtils.appendStream(outputStream, inputStream);
+        outputStream.close();
+        return new ByteArrayInputStream(memoryStream.toByteArray());
+    }
+
+    /**
+     * Decompresses a text which was previously compressed  with {@link #compressText(String)}
+     *
+     * @param inputStream the input stream
+     * @return the string
+     * @throws IOException if an I/O error occurs
+     */
+    public static String decompressText(InputStream inputStream) throws IOException {
+        if (inputStream == null) return null;
+        inputStream = getComporessedInputStream(inputStream);
+        byte[] content = IOUtils.getInputStreamAsBytes(inputStream);
+        return new String(content, StandardCharsets.UTF_8);
     }
 }
