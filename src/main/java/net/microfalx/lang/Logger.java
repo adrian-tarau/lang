@@ -13,8 +13,7 @@ import static net.microfalx.lang.ArgumentUtils.requireBounded;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 import static net.microfalx.lang.ExceptionUtils.getRootCauseDescription;
 import static net.microfalx.lang.ExceptionUtils.rethrowExceptionAndReturn;
-import static net.microfalx.lang.StringUtils.EMPTY_STRING;
-import static net.microfalx.lang.StringUtils.formatMessage;
+import static net.microfalx.lang.StringUtils.*;
 import static net.microfalx.lang.TextUtils.insertSpaces;
 import static net.microfalx.lang.TimeUtils.toLocalDateTime;
 
@@ -474,6 +473,22 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
         }
     }
 
+    public Entry atDebug() {
+        return new Entry(this, Severity.DEBUG);
+    }
+
+    public Entry atInfo() {
+        return new Entry(this, Severity.INFO);
+    }
+
+    public Entry atWarn() {
+        return new Entry(this, Severity.WARN);
+    }
+
+    public Entry atError() {
+        return new Entry(this, Severity.ERROR);
+    }
+
     /**
      * Appends a block of text (multi-line) to the current logger.
      * <p>
@@ -834,7 +849,7 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
             }
             if (this.severity) doAppend(severity.name()).doAppend(" ");
             doAppend(getIndentation());
-            if (includeBullet) doAppend(" - ");
+            if (includeBullet) doAppend(Glyph.BULLET);
             if (throwable != null) message += ", with failure: " + getRootCauseDescription(throwable);
             doAppend(message, true);
         }
@@ -908,5 +923,209 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
             parent = parent.parent;
         }
         return depth;
+    }
+
+    public static class Glyph {
+
+        private Glyph() {
+        }
+
+        // ----------------------------------------------------
+        // BULLETS / LIST MARKERS
+        // ----------------------------------------------------
+
+        public static final String BULLET = "•";
+        public static final String TRIANGULAR_BULLET = "‣";
+        public static final String WHITE_BULLET = "◦";
+        public static final String CIRCLE = "○";
+        public static final String BLACK_CIRCLE = "●";
+        public static final String SMALL_SQUARE = "▪";
+        public static final String WHITE_SMALL_SQUARE = "▫";
+        public static final String TRIANGLE_RIGHT = "▶";
+
+        // ----------------------------------------------------
+        // SUCCESS / FAILURE
+        // ----------------------------------------------------
+
+        public static final String CHECK = "✓";
+        public static final String CHECK_HEAVY = "✔";
+        public static final String CROSS = "✗";
+        public static final String CROSS_HEAVY = "✖";
+        public static final String CROSS_MARK = "❌";
+        public static final String BALLOT_CHECK = "☑";
+        public static final String BALLOT_X = "☒";
+
+        // ----------------------------------------------------
+        // WARNING / INFO / ALERT
+        // ----------------------------------------------------
+
+        public static final String WARNING = "⚠";
+        public static final String INFO = "ℹ";
+        public static final String QUESTION = "❓";
+        public static final String EXCLAMATION = "❗";
+        public static final String ALARM = "🚨";
+
+        // ----------------------------------------------------
+        // ARROWS / FLOW
+        // ----------------------------------------------------
+
+        public static final String ARROW_RIGHT = "→";
+        public static final String ARROW_LEFT = "←";
+        public static final String ARROW_UP = "↑";
+        public static final String ARROW_DOWN = "↓";
+        public static final String DOUBLE_ARROW_RIGHT = "⇒";
+        public static final String HEAVY_ARROW_RIGHT = "➜";
+        public static final String LONG_ARROW_RIGHT = "⮕";
+
+        // ----------------------------------------------------
+        // FLAGS / MARKERS
+        // ----------------------------------------------------
+
+        public static final String FLAG = "⚑";
+        public static final String TRIANGULAR_FLAG = "🚩";
+        public static final String LOCATION = "📍";
+
+        // ----------------------------------------------------
+        // SYSTEM / DEVOPS
+        // ----------------------------------------------------
+
+        public static final String GEAR = "⚙";
+        public static final String HAMMER = "🔨";
+        public static final String TOOLBOX = "🧰";
+        public static final String PACKAGE = "📦";
+        public static final String LINK = "🔗";
+        public static final String LOCK = "🔒";
+        public static final String UNLOCK = "🔓";
+        public static final String KEY = "🔑";
+
+        // ----------------------------------------------------
+        // FILES / STORAGE
+        // ----------------------------------------------------
+
+        public static final String FILE = "📄";
+        public static final String FOLDER = "📁";
+        public static final String OPEN_FOLDER = "📂";
+        public static final String DATABASE = "🗄";
+        public static final String FLOPPY = "💾";
+
+        // ----------------------------------------------------
+        // NETWORK / CLOUD
+        // ----------------------------------------------------
+
+        public static final String CLOUD = "☁";
+        public static final String NETWORK = "🌐";
+        public static final String SATELLITE = "📡";
+        public static final String WIFI = "📶";
+
+        // ----------------------------------------------------
+        // TIME / PERFORMANCE
+        // ----------------------------------------------------
+
+        public static final String CLOCK = "⏱";
+        public static final String STOPWATCH = "⏲";
+        public static final String HOURGLASS = "⏳";
+        public static final String FAST = "⚡";
+
+        // ----------------------------------------------------
+        // PROGRESS / STATUS
+        // ----------------------------------------------------
+
+        public static final String START = "▶";
+        public static final String STOP = "⏹";
+        public static final String PAUSE = "⏸";
+        public static final String RECORD = "⏺";
+
+        // ----------------------------------------------------
+        // DEBUG / DIAGNOSTICS
+        // ----------------------------------------------------
+
+        public static final String BUG = "🐞";
+        public static final String MICROSCOPE = "🔬";
+        public static final String MAGNIFIER = "🔍";
+        public static final String MAGNIFIER_RIGHT = "🔎";
+    }
+
+    /**
+     * A class which holds an entry, with a given severity, to be logged to the
+     */
+    public static class Entry implements Appendable {
+
+        private final Logger logger;
+        private final Severity severity;
+        private Throwable throwable;
+        private final StringBuilder buffer = new StringBuilder();
+
+        private Entry(Logger logger, Severity severity) {
+            this.logger = logger;
+            this.severity = severity;
+        }
+
+        @Override
+        public Entry append(CharSequence csq) {
+            buffer.append(csq);
+            return this;
+        }
+
+        @Override
+        public Entry append(CharSequence csq, int start, int end) {
+            buffer.append(csq, start, end);
+            return this;
+        }
+
+        @Override
+        public Entry append(char c) {
+            buffer.append(c);
+            return this;
+        }
+
+        public Entry append(CharSequence csq, Object... args) {
+            if (csq == null) return this;
+            buffer.append(StringUtils.formatMessage(csq.toString(), args));
+            return this;
+        }
+
+        public Entry check() {
+            append(Glyph.CHECK_HEAVY).append(SPACE_CHAR);
+            return this;
+        }
+
+        public Entry cross() {
+            append(Glyph.CROSS_MARK).append(SPACE_CHAR);
+            return this;
+        }
+
+        public Entry bullet() {
+            append(Glyph.BULLET).append(SPACE_CHAR);
+            return this;
+        }
+
+        public Entry triangle() {
+            append(Glyph.WARNING).append(SPACE_CHAR);
+            return this;
+        }
+
+        public Entry rightArrow() {
+            append(Glyph.ARROW_RIGHT).append(SPACE_CHAR);
+            return this;
+        }
+
+        public Entry leftArrow() {
+            append(Glyph.ARROW_LEFT).append(SPACE_CHAR);
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return buffer.toString();
+        }
+
+        public Entry throwable(Throwable throwable) {
+            this.throwable = throwable;
+            return this;
+        }
+
+        public void log() {
+            logger.log(severity, buffer.toString(), throwable);
+        }
     }
 }

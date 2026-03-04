@@ -144,5 +144,17 @@ class LoggerTest {
         assertEquals("logger2", logger2.getOutput());
     }
 
+    @Test
+    void withEntry() {
+        Logger logger = Logger.create();
+        logger.atDebug().check().append("Fourth").log();
+        logger.atInfo().bullet().append("First").log();
+        logger.atWarn().rightArrow().append("Second").log();
+        logger.atError().triangle().append("Third").log();
+        assertEquals("• First\n" +
+                "→ Second\n" +
+                "⚠ Third", logger.getOutput());
+    }
+
 
 }
