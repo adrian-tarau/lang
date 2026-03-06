@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.microfalx.lang.ArgumentUtils.requireBounded;
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
@@ -59,6 +60,8 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
     private int warningCount;
     private int errorCount;
     private int clearCount;
+
+    private final AtomicInteger eventCount = new AtomicInteger();
 
     private static final ThreadLocal<Stack<Logger>> LOGGER = ThreadLocal.withInitial(Stack::new);
     private static final ThreadLocal<Logger> LAST = new ThreadLocal<>();
@@ -225,6 +228,17 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
      */
     public int getClearCount() {
         return clearCount;
+    }
+
+    /**
+     * Returns the number of  processed events.
+     * <p>
+     * An event can be any individual unit of work done and logged with this class.
+     *
+     * @return a non-null instance
+     */
+    public int getEventCount() {
+        return eventCount.get();
     }
 
     /**
@@ -602,6 +616,16 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
      */
     public int getIndent() {
         return indent;
+    }
+
+    /**
+     * Increases the event counter.
+     *
+     * @return self
+     */
+    public Logger increaseEventCount() {
+        eventCount.incrementAndGet();
+        return this;
     }
 
     /**
