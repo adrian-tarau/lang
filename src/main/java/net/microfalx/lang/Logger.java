@@ -475,7 +475,7 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
      *
      * @param logger the logger
      */
-    public void append(Logger logger) {
+    public Logger append(Logger logger) {
         requireNonNull(logger);
         synchronized (buffer) {
             uncompress();
@@ -485,6 +485,18 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
             warningCount += logger.getWarningCount();
             infoCount += logger.getInfoCount();
         }
+        return this;
+    }
+
+    /**
+     * Appends a new line to the current logger.
+     * <p>
+     * The new line is not appended to the logger, if present.
+     *
+     * @return self
+     */
+    public Logger ln() {
+        return append("\n");
     }
 
     public Entry atDebug() {
@@ -504,7 +516,7 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
     }
 
     /**
-     * Appends a block of text (multi-line) to the current logger.
+     * Appends a block of text (multi-line) to the logger without forwarding the text to the application logger.
      * <p>
      * The text is indented using the current indentation.
      *
@@ -515,7 +527,7 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
     }
 
     /**
-     * Appends a block of text (multi-line) to the current logger.
+     * Appends a block of text (multi-line) to the logger without forwarding the text to the application logger.
      * <p>
      * The text is indented using the current indentation.
      *
@@ -527,7 +539,7 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
     }
 
     /**
-     * Appends a block of text (multi-line) to the current logger.
+     * Appends a block of text (multi-line) to the logger without forwarding the text to the application logger.
      * <p>
      * The text is indented using the current indentation.
      *
@@ -541,7 +553,7 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
     }
 
     /**
-     * Appends a block of text (multi-line) to the current logger.
+     * Appends a block of text (multi-line) to the logger without forwarding the text to the application logger.
      * <p>
      * The text is indented using the current indentation.
      *
@@ -552,7 +564,7 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
     }
 
     /**
-     * Appends a block of text (multi-line) to the current logger.
+     * Appends a block of text (multi-line) to the logger.
      * <p>
      * The text is indented using the current indentation.
      *
@@ -564,7 +576,7 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
     }
 
     /**
-     * Appends a block of text (multi-line) to the current logger.
+     * Appends a block of text (multi-line) to the logger without forwarding the text to the application logger.
      * <p>
      * The text is indented using the current indentation.
      *
