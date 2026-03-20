@@ -680,60 +680,66 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
      * Adds a new entry in the log with DEBUG.
      *
      * @param message the message
+     * @return self
      */
-    public void debug(String message) {
-        log(Severity.DEBUG, message);
+    public Logger debug(String message) {
+        return log(Severity.DEBUG, message);
     }
 
     /**
      * Adds a new entry in the log with DEBUG.
      *
-     * @param pattern   the message mattern
+     * @param pattern   the message pattern
      * @param arguments the arguments
+     * @return self
      * @see java.text.MessageFormat
      */
-    public void debug(String pattern, Object... arguments) {
-        log(Severity.DEBUG, formatMessage(pattern, arguments));
+    public Logger debug(String pattern, Object... arguments) {
+        return log(Severity.DEBUG, formatMessage(pattern, arguments));
     }
 
     /**
      * Adds a new entry in the log with INFO.
      *
      * @param message the message
+     * @return self
      */
-    public void info(String message) {
-        log(Severity.INFO, message);
+    public Logger info(String message) {
+        return log(Severity.INFO, message);
     }
 
     /**
      * Adds a new entry in the log with INFO.
      *
-     * @param pattern   the message mattern
+     * @param pattern   the message attern
      * @param arguments the arguments
+     * @return self
      * @see java.text.MessageFormat
      */
-    public void info(String pattern, Object... arguments) {
-        log(Severity.INFO, formatMessage(pattern, arguments));
+    public Logger info(String pattern, Object... arguments) {
+        return log(Severity.INFO, formatMessage(pattern, arguments));
     }
 
     /**
-     * Adds a new entry in the log with WARN leve.
+     * Adds a new entry in the log with WARN level.
      *
      * @param message the message
+     * @return self
      */
-    public void warn(String message) {
-        log(Severity.WARN, message);
+    public Logger warn(String message) {
+        return log(Severity.WARN, message);
     }
 
     /**
      * Adds a new entry in the log with INFO.
      *
-     * @param pattern   the message mattern
+     * @param pattern   the message pattern
      * @param arguments the arguments
+     * @return self
      * @see java.text.MessageFormat
      */
-    public void warn(String pattern, Object... arguments) {
-        log(Severity.WARN, formatMessage(pattern, arguments));
+    public Logger warn(String pattern, Object... arguments) {
+        return log(Severity.WARN, formatMessage(pattern, arguments));
     }
 
 
@@ -741,9 +747,10 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
      * Adds a new entry in the log with ERROR level.
      *
      * @param message the message
+     * @return self
      */
-    public void error(String message) {
-        log(Severity.ERROR, message);
+    public Logger error(String message) {
+        return log(Severity.ERROR, message);
     }
 
     /**
@@ -751,20 +758,22 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
      *
      * @param pattern   the message pattern
      * @param arguments the arguments
+     * @return self
      * @see java.text.MessageFormat
      */
-    public void error(String pattern, Object... arguments) {
-        log(Severity.ERROR, formatMessage(pattern, arguments));
+    public Logger error(String pattern, Object... arguments) {
+        return log(Severity.ERROR, formatMessage(pattern, arguments));
     }
 
     /**
      * Adds a new entry in the log with ERROR level.
      *
      * @param message the message
+     * @return self
      */
-    public void error(String message, Throwable throwable) {
+    public Logger error(String message, Throwable throwable) {
         if (throwable != null) message += ", root cause " + ExceptionUtils.getRootCauseMessage(throwable);
-        log(Severity.ERROR, message, throwable);
+        return log(Severity.ERROR, message, throwable);
     }
 
     /**
@@ -772,12 +781,13 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
      *
      * @param message the message
      */
-    public void log(String message) {
+    public Logger log(String message) {
         if (message == null) message = EMPTY_STRING;
         synchronized (buffer) {
             uncompress();
             doAppend(message, false);
         }
+        return this;
     }
 
     /**
@@ -785,17 +795,19 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
      *
      * @param severity the severity
      * @param message  the message
+     * @return self
      */
-    public void log(Severity severity, String message) {
-        log(severity, message, null);
+    public Logger log(Severity severity, String message) {
+        return log(severity, message, null);
     }
 
     /**
      * Copy all the logger properties from another logger.
      *
      * @param logger another logger
+     * @return self
      */
-    public void copyFrom(Logger logger) {
+    public Logger copyFrom(Logger logger) {
         synchronized (buffer) {
             debugCount = logger.debugCount;
             infoCount = logger.infoCount;
@@ -810,6 +822,7 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
             includeBullet = logger.includeBullet;
             touch();
         }
+        return this;
     }
 
     /**
@@ -866,7 +879,7 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
      *
      * @param message the message
      */
-    private void log(Severity severity, String message, Throwable throwable) {
+    private Logger log(Severity severity, String message, Throwable throwable) {
         requireNonNull(severity);
         if (message == null) message = EMPTY_STRING;
         trackCounts(severity);
@@ -874,6 +887,7 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
         boolean log = severity != Severity.DEBUG || includeDebug;
         if (log) doLog(severity, message, throwable);
         if (logger != null) logWithLogger(severity, message, throwable);
+        return this;
     }
 
     private void doLog(Severity severity, String message, Throwable throwable) {
@@ -947,7 +961,10 @@ public final class Logger implements Identifiable<String>, Nameable, Descriptabl
         return getOutput();
     }
 
-    private enum Severity {
+    /**
+     * An enum for logger severity.
+     */
+    public enum Severity {
         DEBUG, INFO, WARN, ERROR
     }
 
