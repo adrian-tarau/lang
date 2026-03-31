@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import static net.microfalx.lang.ArgumentUtils.requireNonNull;
+
 /**
  * Utilities around objects.
  */
@@ -263,7 +265,7 @@ public class ObjectUtils {
      * @param action the action
      */
     public static void forEach(Object object, Consumer<? super Object> action) {
-        ArgumentUtils.requireNonNull(action);
+        requireNonNull(action);
         if (object == null) return;
         if (object.getClass().isArray()) {
             Object[] array = (Object[]) object;
@@ -363,4 +365,36 @@ public class ObjectUtils {
             throw new IllegalStateException("Not implemented");
         }
     }
+
+    static class ExternalReferenceImpl<T> extends IdentifiableImpl<T> implements ExternalReference<T> {
+
+        public ExternalReferenceImpl(T id) {
+            super(id);
+        }
+
+    }
+
+    static class IdentifiableImpl<T> implements Identifiable<T> {
+
+        private final T id;
+
+        public IdentifiableImpl(T id) {
+            requireNonNull(id);
+            this.id = id;
+        }
+
+        @Override
+        public final T getId() {
+            return id;
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + "{" +
+                    "id=" + id +
+                    '}';
+        }
+    }
+
+    
 }
