@@ -114,11 +114,11 @@ public class FormatterUtils {
     public static String formatElapsed(Object value, ZoneId timeZone, boolean rounded) {
         if (timeZone == null) timeZone = ZoneId.systemDefault();
         ZonedDateTime zonedDateTime = toZonedDateTime(value);
-        if (zonedDateTime == null) return "now";
+        if (zonedDateTime == null) return "just now";
         zonedDateTime = zonedDateTime.withZoneSameInstant(timeZone);
         Duration duration = Duration.between(zonedDateTime, ZonedDateTime.now());
         if (duration.isNegative() || (rounded && duration.toMillis() < ONE_MINUTE)) {
-            return "now";
+            return "just now";
         } else {
             return formatDuration(duration, null, rounded) + " ago";
         }
@@ -306,7 +306,7 @@ public class FormatterUtils {
      * @param value        the value to format
      * @param defaultValue the default value
      * @param rounded      {@code true} to round the duration to the closed unit, {@code false} false otherwise
-     * @param zeroValue the value to display if the duration is zero
+     * @param zeroValue    the value to display if the duration is zero
      * @return the formated value
      */
     public static String formatDuration(Object value, String defaultValue, boolean rounded, String zeroValue) {
@@ -343,7 +343,7 @@ public class FormatterUtils {
             }
         } else if (rounded) {
             if (millis < ONE_MINUTE) {
-                return "now";
+                return "just now";
             } else if (millis < ONE_HOUR) {
                 return (int) (millis / ONE_MINUTE) + " minutes";
             } else if (millis < ONE_DAY) {
@@ -356,21 +356,25 @@ public class FormatterUtils {
         } else {
             if (millis < K) {
                 return millis + "ms";
-            } else if (millis < MILLIS_IN_MINUTE) {
-                int seconds = (int) (millis / MILLIS_IN_SECOND);
-                millis = millis - seconds * MILLIS_IN_SECOND;
+            } else if (millis < ONE_MINUTE) {
+                int seconds = (int) (millis / ONE_SECONDS);
+                millis = millis - seconds * ONE_SECONDS;
                 return seconds + "s" + (millis > 0 ? " " + millis + "ms" : EMPTY_STRING);
-            } else if (millis < MILLIS_IN_HOUR) {
-                int minutes = (int) (millis / MILLIS_IN_MINUTE);
-                int seconds = (int) ((millis - minutes * MILLIS_IN_MINUTE) / MILLIS_IN_SECOND);
+            } else if (millis < ONE_HOUR) {
+                int minutes = (int) (millis / ONE_MINUTE);
+                int seconds = (int) ((millis - minutes * ONE_MINUTE) / ONE_SECONDS);
                 return minutes + "m" + (seconds > 0 ? " " + seconds + "s" : EMPTY_STRING);
-            } else if (millis < MILLIS_IN_DAY) {
-                int hours = (int) (millis / MILLIS_IN_HOUR);
-                int minutes = (int) ((millis - hours * MILLIS_IN_HOUR) / MILLIS_IN_MINUTE);
+            } else if (millis < ONE_DAY) {
+                int hours = (int) (millis / ONE_HOUR);
+                int minutes = (int) ((millis - hours * ONE_HOUR) / ONE_MINUTE);
                 return hours + "h" + (minutes > 0 ? " " + minutes + "m" : EMPTY_STRING);
+            } else if (millis < ONE_MONTH) {
+                int days = (int) (millis / ONE_DAY);
+                int hours = (int) (millis - days * ONE_DAY / ONE_HOUR);
+                return hours + "d" + (hours > 0 ? " " + hours + "h" : EMPTY_STRING);
             } else {
-                int hours = (int) (millis / MILLIS_IN_HOUR);
-                return hours + "h";
+                int hours = (int) (millis / ONE_DAY);
+                return hours + "d";
             }
         }
     }
