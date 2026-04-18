@@ -2,9 +2,11 @@ package net.microfalx.lang;
 
 import java.io.LineNumberReader;
 import java.io.StringReader;
+import java.lang.reflect.Array;
 import java.util.*;
 
 import static java.util.Collections.*;
+import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 
 /**
  * Utilities around collections.
@@ -55,6 +57,20 @@ public class CollectionUtils {
      */
     public static <K, V> Map<K, V> asMap(Map<K, V> items) {
         return items != null ? items : emptyMap();
+    }
+
+    /**
+     * Returns a non-null collection.
+     *
+     * @param items the original collection
+     * @param <T>   the item type
+     * @return an immutable collection
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] asArray(Collection<T> items, Class<T> type) {
+        requireNonNull(type);
+        T[] array = (T[]) Array.newInstance(type, 0);
+        return items != null ? items.toArray(array) : array;
     }
 
     /**

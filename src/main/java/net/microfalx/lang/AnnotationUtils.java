@@ -9,7 +9,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static net.microfalx.lang.ArgumentUtils.requireNonNull;
@@ -28,14 +30,11 @@ public class AnnotationUtils {
      */
     public static String getName(AnnotatedElement element, String overrideName) {
         requireNonNull(element);
-
         if (overrideName != null && !overrideName.isEmpty()) return overrideName;
-
         Name nameAnnot = element.getAnnotation(Name.class);
         if (nameAnnot != null && !nameAnnot.value().isEmpty()) {
             return nameAnnot.value();
         }
-
         if (element instanceof Class) {
             return ((Class<?>) element).getSimpleName();
         } else if (element instanceof Field) {
@@ -53,16 +52,13 @@ public class AnnotationUtils {
      */
     public static String getId(AnnotatedElement element, String overrideId) {
         requireNonNull(element);
-
         if (overrideId != null && !overrideId.isEmpty()) {
             return overrideId;
         }
-
         Id idAnnot = element.getAnnotation(Id.class);
         if (idAnnot != null && !idAnnot.value().isEmpty()) {
             return idAnnot.value();
         }
-
         if (element instanceof Class) {
             return ((Class<?>) element).getName().toLowerCase();
         } else if (element instanceof Field) {
@@ -129,15 +125,29 @@ public class AnnotationUtils {
      * @return annotation class, or <code>null</code> if no such annotation is found in the class hierarchy
      */
     public static <A extends Annotation> Collection<A> getAnnotations(Object object, Class<A> annotationClass) {
-        if (object == null) {
-            return null;
-        }
+        if (object == null) return null;
         if (object instanceof Class) {
-            return getAnnotations((Class<?>) object, annotationClass);
+            Class<?> clazz = (Class<?>) object;
+            List<A> annotations = new ArrayList<>();
+            while (clazz != null && clazz != Object.class) {
+                A annotation = clazz.getAnnotation(annotationClass);
+                if (annotation != null) annotations.add(annotation);
+                clazz = clazz.getSuperclass();
+            }
+            Collections.reverse(annotations);
+            return annotations;
         } else if (object instanceof Method) {
-            return getAnnotations((Method) object, annotationClass);
+            Method method = (Method) object;
+            List<A> annotations = new ArrayList<>(getAnnotations(method.getDeclaringClass(), annotationClass));
+            A annotation = method.getAnnotation(annotationClass);
+            if (annotation != null) annotations.add(annotation);
+            return annotations;
         } else if (object instanceof Field) {
-            return getAnnotations((Field) object, annotationClass);
+            Field field = (Field) object;
+            List<A> annotations = new ArrayList<>(getAnnotations(field.getDeclaringClass(), annotationClass));
+            A annotation = field.getAnnotation(annotationClass);
+            if (annotation != null) annotations.add(annotation);
+            return annotations;
         } else {
             return getAnnotations(object.getClass(), annotationClass);
         }
