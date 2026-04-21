@@ -129,6 +129,12 @@ public class EncryptionUtils {
      * @return {@code true} if encrypted, {@code false} otherwise
      */
     public static boolean isEncrypted(String value) {
+        if (isEmpty(value)) return false;
+        try {
+            Base64.getDecoder().decode(value);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
         String decryptedValue = decrypt(value);
         return !ObjectUtils.equals(value, decryptedValue);
     }
