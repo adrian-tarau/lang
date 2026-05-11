@@ -77,7 +77,17 @@ public class ClassUtils {
      */
     public static String getCompactName(Class<?> cls) {
         if (cls == null) return EMPTY_STRING;
-        String name = cls.getName();
+        return getCompactName(cls.getName());
+    }
+
+    /**
+     * Returns the class name by reducing each package component to the first letter.
+     *
+     * @param name the class name
+     * @return the name, empty string if class was {@code null}
+     */
+    public static String getCompactName(String name) {
+        if (name == null) return EMPTY_STRING;
         String classPackage = null;
         int i = name.lastIndexOf('.');
         if (i != -1) {

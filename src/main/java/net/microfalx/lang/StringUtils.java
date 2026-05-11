@@ -84,6 +84,16 @@ public class StringUtils {
     }
 
     /**
+     * Returns <code>N/A</code> value if the input is empty.
+     *
+     * @param value the value
+     * @return the original value or a default
+     */
+    public static String naIfEmpty(String value) {
+        return isEmpty(value) ? NA_STRING : value;
+    }
+
+    /**
      * Returns whether the fragment is contained in the text, case-insensitive
      *
      * @param text     the  String to test
@@ -314,10 +324,10 @@ public class StringUtils {
         } else {
             String valueAsString = value.toString();
             if ("y".equalsIgnoreCase(valueAsString) || "yes".equalsIgnoreCase(valueAsString) || "on".equalsIgnoreCase(valueAsString)
-                || "true".equalsIgnoreCase(valueAsString) || "t".equalsIgnoreCase(valueAsString) || "1".equalsIgnoreCase(valueAsString)) {
+                    || "true".equalsIgnoreCase(valueAsString) || "t".equalsIgnoreCase(valueAsString) || "1".equalsIgnoreCase(valueAsString)) {
                 return true;
             } else if ("n".equalsIgnoreCase(valueAsString) || "no".equalsIgnoreCase(valueAsString) || "off".equalsIgnoreCase(valueAsString)
-                       || "false".equalsIgnoreCase(valueAsString) || "f".equalsIgnoreCase(valueAsString) || "0".equalsIgnoreCase(valueAsString)) {
+                    || "false".equalsIgnoreCase(valueAsString) || "f".equalsIgnoreCase(valueAsString) || "0".equalsIgnoreCase(valueAsString)) {
                 return false;
             } else {
                 return defaultValue;
@@ -567,7 +577,7 @@ public class StringUtils {
         int patternLength = pattern.length();
         while ((startIndex = text.indexOf(pattern, startIndex)) != -1) {
             text = text.substring(0, startIndex) + replacement +
-                   text.substring(startIndex + patternLength);
+                    text.substring(startIndex + patternLength);
             startIndex += replacement.length();
             if (startIndex >= text.length()) break;
             if (onlyFirst) break;
