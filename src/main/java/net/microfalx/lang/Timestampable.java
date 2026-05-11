@@ -6,6 +6,8 @@ import java.time.temporal.Temporal;
  * An interface for objects which carries the time when the object was created and modified.
  * <p>
  * Some object might not support updates, in this case the modify time is the same as creation time.
+ *
+ * @see ExecutionAware
  */
 public interface Timestampable<T extends Temporal> {
 
