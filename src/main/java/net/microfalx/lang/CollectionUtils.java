@@ -200,6 +200,26 @@ public class CollectionUtils {
         return String.join(", ", value);
     }
 
+    /**
+     * Returns the size of the collection.
+     *
+     * @param collection the collection, can be NULL
+     * @return a positive integer
+     */
+    public static <T> int size(Collection<T> collection) {
+        return collection != null ? collection.size() : 0;
+    }
+
+    /**
+     * Returns the size of the map.
+     *
+     * @param map the map, can be NULL
+     * @return a positive integer
+     */
+    public static <K, V> int size(Map<K, V> map) {
+        return map != null ? map.size() : 0;
+    }
+
     static class OnceIterable<T> implements Iterable<T> {
 
         private final Iterator<T> iterator;
