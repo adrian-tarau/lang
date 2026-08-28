@@ -29,6 +29,19 @@ public abstract class IdentityAware<T> implements Identifiable<T>, Cloneable, Se
         this.id = id;
     }
 
+    /**
+     * Changes the identifier.
+     *
+     * @param id the new identifier
+     * @return a new instance of {@link IdentityAware} with the specified identifier
+     */
+    public IdentityAware<T> withId(T id) {
+        requireNonNull(id);
+        IdentityAware<T> copy = copy();
+        copy.setId(id);
+        return copy;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -32,9 +32,21 @@ public abstract class NamedIdentityAware<T> extends IdentityAware<T> implements 
         return description;
     }
 
-    protected NamedIdentityAware<T> setDescription(String description) {
+    protected final NamedIdentityAware<T> setDescription(String description) {
         this.description = description;
         return this;
+    }
+
+    /**
+     * Creates a new named instance a different description.
+     *
+     * @param description the description
+     * @return a new instance
+     */
+    public  NamedIdentityAware<T> withDescription(String description) {
+        NamedIdentityAware<T> copy = (NamedIdentityAware<T>) copy();
+        copy.setDescription(description);
+        return copy;
     }
 
     /**
@@ -43,7 +55,7 @@ public abstract class NamedIdentityAware<T> extends IdentityAware<T> implements 
      * @param name the new name
      * @return a new instance
      */
-    public NamedIdentityAware<T> withName(String name) {
+    public  NamedIdentityAware<T> withName(String name) {
         requireNotEmpty(name);
         NamedIdentityAware<T> copy = (NamedIdentityAware<T>) copy();
         copy.name = name;
