@@ -3,7 +3,7 @@ package net.microfalx.lang.service;
 import net.microfalx.lang.annotation.Provider;
 
 @Provider
-public class Test2ServiceImpl implements Test2Service {
+public class Test2ServiceImpl implements Test2Service, Lifecycle {
 
     @Override
     public void start() {

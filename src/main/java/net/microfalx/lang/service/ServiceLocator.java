@@ -28,6 +28,7 @@ public class ServiceLocator {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceLocator.class);
 
     private static final Map<Class<?>, Service> services = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, Service> serviceImplementations = new ConcurrentHashMap<>();
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
 
     /**
@@ -37,8 +38,9 @@ public class ServiceLocator {
     public static void shutdown() {
         synchronized (ServiceLocator.class) {
             LOGGER.info("Shutting down services");
-            services.values().forEach(Service::stop);
-            services.clear();
+            serviceImplementations.values().forEach(ServiceLocator::stopService);
+            serviceImplementations.values().forEach(ServiceLocator::destroyService);
+            serviceImplementations.clear();
         }
     }
 
@@ -52,7 +54,7 @@ public class ServiceLocator {
         requireNonNull(serviceClass);
         synchronized (ServiceLocator.class) {
             LOGGER.info("Shutting down service {}", ClassUtils.getName(serviceClass));
-            Service service = services.remove(serviceClass);
+            Service service = serviceImplementations.remove(serviceClass);
             if (service != null) {
                 try {
                     if (service instanceof Releasable) {
@@ -62,13 +64,22 @@ public class ServiceLocator {
                             LOGGER.atWarn().setCause(e).log("Error while releasing service {}", ClassUtils.getName(serviceClass));
                         }
                     }
-                    service.stop();
+                    stopService(service);
                 } catch (Exception e) {
                     LOGGER.atWarn().setCause(e).log("Error while shutting down service {}", ClassUtils.getName(serviceClass));
                 }
             }
-            services.remove(serviceClass);
+            serviceImplementations.remove(serviceClass);
         }
+    }
+
+    /**
+     * Returns a collection of all loaded services.
+     *
+     * @return a non-null instance
+     */
+    public static Collection<Service> getServices() {
+        return new ArrayList<>(serviceImplementations.values());
     }
 
     /**
@@ -97,6 +108,7 @@ public class ServiceLocator {
                     .filter(Service.class::isAssignableFrom)
                     .forEach(serviceClass -> services.put(serviceClass, service));
             initialize(service, (Class<S>) service.getClass());
+            serviceImplementations.put(service.getClass(), service);
         }
     }
 
@@ -118,9 +130,42 @@ public class ServiceLocator {
             S service = (S) services.get(serviceClass);
             if (service == null) {
                 service = doLoad(serviceClass);
-                services.put(serviceClass, service);
+                register(service);
             }
             return service;
+        }
+    }
+
+    static void startService(Object service) {
+        if (service instanceof Lifecycle) {
+            try {
+                ((Lifecycle) service).start();
+            } catch (Exception e) {
+                LOGGER.atError().setCause(e).log("Failed to stop service {}",
+                        ClassUtils.getName(service));
+            }
+        }
+    }
+
+    static void stopService(Object service) {
+        if (service instanceof Lifecycle) {
+            try {
+                ((Lifecycle) service).stop();
+            } catch (Exception e) {
+                LOGGER.atWarn().setCause(e).log("Failed to stop service {}",
+                        ClassUtils.getName(service));
+            }
+        }
+    }
+
+    static void destroyService(Object service) {
+        if (service instanceof Releasable) {
+            try {
+                ((Releasable) service).release();
+            } catch (Exception e) {
+                LOGGER.atWarn().setCause(e).log("Failed to release service {}",
+                        ClassUtils.getName(service));
+            }
         }
     }
 
@@ -134,9 +179,7 @@ public class ServiceLocator {
             throw new ServiceException("Multiple service implementations located for type " + serviceClass.getName()
                     + ": " + services.stream().map(ClassUtils::getName).collect(Collectors.joining(",")));
         } else if (!services.isEmpty()) {
-            S service = services.iterator().next();
-            initialize(service, serviceClass);
-            return service;
+            return services.iterator().next();
         } else {
             throw new ServiceException("A service of type " + serviceClass.getName() + " could not be found");
         }
@@ -154,6 +197,8 @@ public class ServiceLocator {
                     + ClassUtils.getName(serviceClass));
         }
         if (service instanceof Initializable) ((Initializable) service).initialize();
-        service.start();
+        startService(service);
     }
+
+
 }
