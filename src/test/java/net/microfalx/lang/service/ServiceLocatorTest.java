@@ -34,4 +34,12 @@ class ServiceLocatorTest {
         assertTrue(ServiceLocator.isLoaded(Test2Service.class));
     }
 
+    @Test
+    void statistics() {
+        Test1ServiceImpl test1Service = new Test1ServiceImpl();
+        ServiceLocator.register(test1Service);
+        Service.Statistics<Test1ServiceImpl> statistics = ServiceLocator.getStatistics(test1Service);
+        assertNotNull(statistics.getService());
+    }
+
 }

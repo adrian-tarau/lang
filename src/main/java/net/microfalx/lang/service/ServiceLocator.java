@@ -6,10 +6,9 @@ import net.microfalx.lang.Releasable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.ServiceLoader;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -28,7 +27,8 @@ public class ServiceLocator {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceLocator.class);
 
     private static final Map<Class<?>, Service> services = new ConcurrentHashMap<>();
-    private static final Map<Class<?>, Service> serviceImplementations = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, WeakReference<Service>> serviceImplementations = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, Service.Statistics<?>> serviceStatistics = new ConcurrentHashMap<>();
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
 
     /**
@@ -54,9 +54,10 @@ public class ServiceLocator {
         requireNonNull(serviceClass);
         synchronized (ServiceLocator.class) {
             LOGGER.info("Shutting down service {}", ClassUtils.getName(serviceClass));
-            Service service = serviceImplementations.remove(serviceClass);
-            if (service != null) {
+            WeakReference<Service> serviceRef = serviceImplementations.remove(serviceClass);
+            if (serviceRef != null && serviceRef.get() != null) {
                 try {
+                    Service service = serviceRef.get();
                     if (service instanceof Releasable) {
                         try {
                             ((Releasable) service).release();
@@ -79,7 +80,8 @@ public class ServiceLocator {
      * @return a non-null instance
      */
     public static Collection<Service> getServices() {
-        return new ArrayList<>(serviceImplementations.values());
+        return serviceImplementations.values().stream().map(Reference::get)
+                .filter(Objects::nonNull).toList();
     }
 
     /**
@@ -108,8 +110,22 @@ public class ServiceLocator {
                     .filter(Service.class::isAssignableFrom)
                     .forEach(serviceClass -> services.put(serviceClass, service));
             initialize(service, (Class<S>) service.getClass());
-            serviceImplementations.put(service.getClass(), service);
+            serviceImplementations.put(service.getClass(), new WeakReference<>(service));
         }
+    }
+
+    /**
+     * Returns statistics for a service.
+     *
+     * @param service the service
+     * @param <S>     the service type
+     * @return a non-null instance
+     */
+    @SuppressWarnings("unchecked")
+    public static <S extends Service> Service.Statistics<S> getStatistics(S service) {
+        requireNonNull(service);
+        return (Service.Statistics<S>) serviceStatistics.computeIfAbsent(service.getClass(),
+                cls -> new ServiceStatistics<>(service));
     }
 
     /**
@@ -132,6 +148,22 @@ public class ServiceLocator {
                 service = doLoad(serviceClass);
                 register(service);
             }
+            return service;
+        }
+    }
+
+    /**
+     * Returns the reference to the real service implementation. If the service is a proxy,
+     * it will return the underlying service.
+     *
+     * @param service the service instance
+     * @param <S>     the service type
+     * @return the real service implementation
+     */
+    public static <S extends Service> Object getRealService(S service) {
+        if (service instanceof ServiceProxy) {
+            return ((ServiceProxy) service).getService();
+        } else {
             return service;
         }
     }
