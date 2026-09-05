@@ -29,7 +29,7 @@ public class TestServiceListener implements Service.Listener {
     }
 
     @Override
-    public void onServiceEvent(Service service, Service.Event event, long value) {
-        events.add(new Object[]{service, event, value});
+    public void onServiceEvent(Service service, Service.Metric metric, long value) {
+        events.add(new Object[]{service, metric, value});
     }
 }

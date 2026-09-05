@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.microfalx.lang.service.Service.Event.*;
+import static net.microfalx.lang.service.Service.Metric.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServiceLocatorTest {

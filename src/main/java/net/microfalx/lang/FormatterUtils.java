@@ -5,8 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 
 import static net.microfalx.lang.NumberUtils.*;
-import static net.microfalx.lang.StringUtils.EMPTY_STRING;
-import static net.microfalx.lang.StringUtils.NA_STRING;
+import static net.microfalx.lang.StringUtils.*;
 import static net.microfalx.lang.TimeUtils.*;
 
 public class FormatterUtils {
@@ -436,6 +435,30 @@ public class FormatterUtils {
     }
 
     /**
+     * Formats a counter.
+     *
+     * @param value the value to display
+     * @return the formatted value
+     */
+    public static String formatCount(Object value) {
+        return formatUnit(value, null);
+    }
+
+    /**
+     * Formats a number with a unit of measurement at the end.
+     *
+     * @param value the value to display
+     * @param unit  the unit of measurement, can be null
+     * @return the formatted value
+     */
+    public static String formatUnit(Object value, String unit) {
+        if (value == null) return StringUtils.NA_STRING;
+        if (!(value instanceof Number)) return StringUtils.NA_STRING;
+        Number number = (Number) value;
+        return formatNumber(number, 0, null);
+    }
+
+    /**
      * Formats a number.
      *
      * @param value the number
@@ -486,7 +509,7 @@ public class FormatterUtils {
             long valueAsLong = number.longValue();
             text = String.format("%,d", valueAsLong);
         }
-        if (StringUtils.isNotEmpty(suffix)) text += suffix;
+        if (isNotEmpty(suffix)) text += suffix;
         return text;
     }
 

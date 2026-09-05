@@ -10,7 +10,7 @@ import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 
 /**
  * An implementation of {@link Service.Statistics} which collects the metrics of a service out of the
- * {@link Service.Event events} reported to the {@link ServiceLocator}.
+ * {@link Service.Metric events} reported to the {@link ServiceLocator}.
  * <p>
  * The metrics are updated with atomics, which makes the statistics safe to be updated from any thread. The counters
  * never go below zero, an event which decrements a metric (a task which completes without being started, for example)
@@ -115,12 +115,12 @@ class ServiceStatistics<S extends Service> implements Service.Statistics<S> {
     /**
      * Applies an event reported by the service to the metrics changed by such an event.
      *
-     * @param event the event
+     * @param metric the event
      * @param value the value carried by the event
      */
-    void apply(Service.Event event, long value) {
-        requireNonNull(event);
-        switch (event) {
+    void apply(Service.Metric metric, long value) {
+        requireNonNull(metric);
+        switch (metric) {
             case WARNING -> increment(warningCount, value);
             case ERROR -> increment(errorCount, value);
             case SUCCESS -> increment(successCount, value);

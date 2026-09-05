@@ -17,7 +17,7 @@ import static net.microfalx.lang.StringUtils.replaceFirst;
  * If a service implement {@link Lifecycle} it will be automatically started when the service is looked up for the
  * first time and stopped when the JVM is shutdown (before it is destroyed).
  * <p>
- * A service reports what happens to it with {@link #report(Event)}; the {@link ServiceLocator} translates these
+ * A service reports what happens to it with {@link #report(Metric)}; the {@link ServiceLocator} translates these
  * events into the {@link Statistics} of the service, which are later used to produce reports, and also forwards
  * them (along with the service start/stop lifecycle) to any registered {@link Listener}.
  */
@@ -50,30 +50,30 @@ public interface Service extends Identifiable<String>, Nameable, Descriptable {
     }
 
     /**
-     * Reports an event about this service.
+     * Reports a metric about this service.
      * <p>
-     * The event is applied to the statistics of the service with a value of one, which increments the
-     * counters changed by the event.
+     * The metric is applied to the statistics of the service with a value of one, which increments the
+     * counters changed by the metric.
      *
-     * @param event the event
-     * @see ServiceLocator#report(Service, Event)
+     * @param metric the metric
+     * @see ServiceLocator#report(Service, Metric)
      */
-    default void report(Event event) {
-        ServiceLocator.report(this, event);
+    default void report(Metric metric) {
+        ServiceLocator.report(this, metric);
     }
 
     /**
-     * Reports an event about this service.
+     * Reports a metric about this service.
      * <p>
-     * The value carries how much the event changes the statistics: the amount added to the counters changed
-     * by the event or the new value of a gauge (see {@link Event#isGauge()}).
+     * The value carries how much the metric changes the statistics: the amount added to the counters changed
+     * by the metric or the new value of a gauge (see {@link Metric#isGauge()}).
      *
-     * @param event the event
-     * @param value the value carried by the event
-     * @see ServiceLocator#report(Service, Event, long)
+     * @param metric the metric
+     * @param value  the value carried by the metric
+     * @see ServiceLocator#report(Service, Metric, long)
      */
-    default void report(Event event, long value) {
-        ServiceLocator.report(this, event, value);
+    default void report(Metric metric, long value) {
+        ServiceLocator.report(this, metric, value);
     }
 
     /**
@@ -123,7 +123,7 @@ public interface Service extends Identifiable<String>, Nameable, Descriptable {
      * a few of them are gauges and change the statistics to the value carried by the event. An event can change
      * more than one metric: a task which was started, for example, is not pending anymore.
      */
-    enum Event {
+    enum Metric {
 
         /**
          * The service generated a warning.
@@ -197,11 +197,11 @@ public interface Service extends Identifiable<String>, Nameable, Descriptable {
 
         private final boolean gauge;
 
-        Event() {
+        Metric() {
             this(false);
         }
 
-        Event(boolean gauge) {
+        Metric(boolean gauge) {
             this.gauge = gauge;
         }
 
@@ -249,11 +249,11 @@ public interface Service extends Identifiable<String>, Nameable, Descriptable {
          * Notifies the listener that a service reported an event.
          *
          * @param service the service which reported the event
-         * @param event   the event
+         * @param metric  the event
          * @param value   the value carried by the event
-         * @see Service#report(Event, long)
+         * @see Service#report(Metric, long)
          */
-        default void onServiceEvent(Service service, Event event, long value) {
+        default void onServiceEvent(Service service, Metric metric, long value) {
         }
     }
 
@@ -261,7 +261,7 @@ public interface Service extends Identifiable<String>, Nameable, Descriptable {
      * An interface describing the statistics of a service.
      * <p>
      * The statistics are a read-only view over the metrics collected out of the events reported with
-     * {@link Service#report(Event)}, and they are owned by the {@link ServiceLocator}.
+     * {@link Service#report(Metric)}, and they are owned by the {@link ServiceLocator}.
      */
     interface Statistics<S extends Service> extends Identifiable<String>, Nameable, Descriptable {
 

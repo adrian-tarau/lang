@@ -135,7 +135,7 @@ public class ServiceLocator {
      * Returns the statistics collected for a service.
      * <p>
      * The statistics are created on demand, they are updated out of the events reported with
-     * {@link #report(Service, Service.Event)} and they live for as long as the service is registered.
+     * {@link #report(Service, Service.Metric)} and they live for as long as the service is registered.
      *
      * @param service the service
      * @param <S>     the service type
@@ -164,19 +164,19 @@ public class ServiceLocator {
      * </pre>
      *
      * @param service the service which reports the event
-     * @param event   the event
+     * @param metric   the event
      * @param <S>     the service type
-     * @see Service#report(Service.Event)
+     * @see Service#report(Service.Metric)
      */
-    public static <S extends Service> void report(S service, Service.Event event) {
-        report(service, event, 1);
+    public static <S extends Service> void report(S service, Service.Metric metric) {
+        report(service, metric, 1);
     }
 
     /**
      * Reports an event about a service.
      * <p>
      * The value carries how much the event changes the statistics: the amount added to the counters changed by
-     * the event or the new value of a gauge (see {@link Service.Event#isGauge()}):
+     * the event or the new value of a gauge (see {@link Service.Metric#isGauge()}):
      * <pre>
      *     ServiceLocator.report(service, Service.Event.MEMORY_USAGE, 1024);
      * </pre>
@@ -184,16 +184,16 @@ public class ServiceLocator {
      * Events can be reported from any thread.
      *
      * @param service the service which reports the event
-     * @param event   the event
+     * @param metric   the event
      * @param value   the value carried by the event
      * @param <S>     the service type
-     * @see Service#report(Service.Event, long)
+     * @see Service#report(Service.Metric, long)
      */
-    public static <S extends Service> void report(S service, Service.Event event, long value) {
+    public static <S extends Service> void report(S service, Service.Metric metric, long value) {
         requireNonNull(service);
-        requireNonNull(event);
-        doGetStatistics(service).apply(event, value);
-        notifyEvent(service, event, value);
+        requireNonNull(metric);
+        doGetStatistics(service).apply(metric, value);
+        notifyEvent(service, metric, value);
     }
 
     /**
@@ -262,13 +262,13 @@ public class ServiceLocator {
         }
     }
 
-    private static void notifyEvent(Service service, Service.Event event, long value) {
+    private static void notifyEvent(Service service, Service.Metric metric, long value) {
         for (Service.Listener listener : listeners) {
             try {
-                listener.onServiceEvent(service, event, value);
+                listener.onServiceEvent(service, metric, value);
             } catch (Exception e) {
                 LOGGER.atWarn().setCause(e).log("Failed to notify listener {} about event {} for service {}",
-                        ClassUtils.getName(listener), event, ClassUtils.getName(service));
+                        ClassUtils.getName(listener), metric, ClassUtils.getName(service));
             }
         }
     }
@@ -276,7 +276,8 @@ public class ServiceLocator {
     @SuppressWarnings("unchecked")
     private static <S extends Service> ServiceStatistics<S> doGetStatistics(S service) {
         requireNonNull(service);
-        return (ServiceStatistics<S>) serviceStatistics.computeIfAbsent(service.getClass(),
+        Class<?> serviceClass = getRealServiceClass(service);
+        return (ServiceStatistics<S>) serviceStatistics.computeIfAbsent(serviceClass,
                 cls -> new ServiceStatistics<>(service));
     }
 
@@ -302,6 +303,18 @@ public class ServiceLocator {
             }
             return service;
         }
+    }
+
+    /**
+     * Returns the reference to the real service implementation class. If the service is a proxy,
+     * it will return the underlying service class.
+     *
+     * @param service the service instance
+     * @param <S>     the service type
+     * @return the real service implementation class
+     */
+    public static <S extends Service> Class<?> getRealServiceClass(S service) {
+        return getRealService(service).getClass();
     }
 
     /**
