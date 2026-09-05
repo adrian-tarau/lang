@@ -148,6 +148,16 @@ public interface Service extends Identifiable<String>, Nameable, Descriptable {
         TASK_FAILED,
 
         /**
+         * The service consumed (received) an event.
+         */
+        EVENT_IN,
+
+        /**
+         * The service produced (sent) an event.
+         */
+        EVENT_OUT,
+
+        /**
          * A thread used by the service was started.
          */
         THREAD_STARTED,
@@ -285,6 +295,20 @@ public interface Service extends Identifiable<String>, Nameable, Descriptable {
          * @return a positive number or 0 if no successful operations were performed
          */
         int getFailedCount();
+
+        /**
+         * Returns the number of events consumed (received) by this service.
+         *
+         * @return a positive number or 0 if no events were consumed
+         */
+        int getEventInCount();
+
+        /**
+         * Returns the number of events produced (sent) by this service.
+         *
+         * @return a positive number or 0 if no events were produced
+         */
+        int getEventOutCount();
 
         /**
          * Returns the number of running of tasks owned by this service.

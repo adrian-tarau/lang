@@ -26,6 +26,8 @@ class ServiceStatistics<S extends Service> implements Service.Statistics<S> {
     private final AtomicInteger errorCount = new AtomicInteger();
     private final AtomicInteger successCount = new AtomicInteger();
     private final AtomicInteger failedCount = new AtomicInteger();
+    private final AtomicInteger eventInCount = new AtomicInteger();
+    private final AtomicInteger eventOutCount = new AtomicInteger();
     private final AtomicInteger taskRunningCount = new AtomicInteger();
     private final AtomicInteger taskPendingCount = new AtomicInteger();
     private final AtomicInteger threadCount = new AtomicInteger();
@@ -86,6 +88,16 @@ class ServiceStatistics<S extends Service> implements Service.Statistics<S> {
     }
 
     @Override
+    public int getEventInCount() {
+        return eventInCount.get();
+    }
+
+    @Override
+    public int getEventOutCount() {
+        return eventOutCount.get();
+    }
+
+    @Override
     public int getTaskRunningCount() {
         return taskRunningCount.get();
     }
@@ -113,6 +125,8 @@ class ServiceStatistics<S extends Service> implements Service.Statistics<S> {
             case ERROR -> increment(errorCount, value);
             case SUCCESS -> increment(successCount, value);
             case FAILURE -> increment(failedCount, value);
+            case EVENT_IN -> increment(eventInCount, value);
+            case EVENT_OUT -> increment(eventOutCount, value);
             case TASK_SCHEDULED -> increment(taskPendingCount, value);
             case TASK_STARTED -> {
                 increment(taskPendingCount, -value);
