@@ -10,6 +10,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -20,7 +21,7 @@ import static net.microfalx.lang.ClassUtils.isSubClassOf;
  * A factory which provides implementations of services.
  * <p>
  * The factory uses the JDK {@link ServiceLoader} and {@link ClassUtils#resolveProviderInstances(Class)}
- * to discover the implementations of services.
+ * to discover both the implementations of services and the implementations of {@link Service.Listener}.
  */
 public class ServiceLocator {
 
@@ -28,8 +29,10 @@ public class ServiceLocator {
 
     private static final Map<Class<?>, Service> services = new ConcurrentHashMap<>();
     private static final Map<Class<?>, WeakReference<Service>> serviceImplementations = new ConcurrentHashMap<>();
-    private static final Map<Class<?>, Service.Statistics<?>> serviceStatistics = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, ServiceStatistics<?>> serviceStatistics = new ConcurrentHashMap<>();
+    private static final List<Service.Listener> listeners = new CopyOnWriteArrayList<>();
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
+    private static final AtomicBoolean listenersLoaded = new AtomicBoolean(false);
 
     /**
      * Shuts down all services. This method should be called when the application is shutting down to ensure
@@ -38,9 +41,15 @@ public class ServiceLocator {
     public static void shutdown() {
         synchronized (ServiceLocator.class) {
             LOGGER.info("Shutting down services");
-            serviceImplementations.values().forEach(ServiceLocator::stopService);
-            serviceImplementations.values().forEach(ServiceLocator::destroyService);
+            Collection<Service> loadedServices = getServices();
+            loadedServices.forEach(service -> {
+                stopService(service);
+                notifyStopped(service);
+            });
+            loadedServices.forEach(ServiceLocator::destroyService);
+            services.clear();
             serviceImplementations.clear();
+            serviceStatistics.clear();
         }
     }
 
@@ -54,10 +63,14 @@ public class ServiceLocator {
         requireNonNull(serviceClass);
         synchronized (ServiceLocator.class) {
             LOGGER.info("Shutting down service {}", ClassUtils.getName(serviceClass));
-            WeakReference<Service> serviceRef = serviceImplementations.remove(serviceClass);
-            if (serviceRef != null && serviceRef.get() != null) {
+            Service service = services.get(serviceClass);
+            if (service != null) {
+                Class<?> implementationClass = service.getClass();
+                ClassUtils.getInterfaces(implementationClass).stream()
+                        .filter(Service.class::isAssignableFrom)
+                        .forEach(services::remove);
+                serviceImplementations.remove(implementationClass);
                 try {
-                    Service service = serviceRef.get();
                     if (service instanceof Releasable) {
                         try {
                             ((Releasable) service).release();
@@ -66,11 +79,12 @@ public class ServiceLocator {
                         }
                     }
                     stopService(service);
+                    notifyStopped(service);
                 } catch (Exception e) {
                     LOGGER.atWarn().setCause(e).log("Error while shutting down service {}", ClassUtils.getName(serviceClass));
                 }
+                serviceStatistics.values().removeIf(statistics -> isSubClassOf(statistics.getService(), implementationClass));
             }
-            serviceImplementations.remove(serviceClass);
         }
     }
 
@@ -106,25 +120,163 @@ public class ServiceLocator {
     public static <S extends Service> void register(S service) {
         requireNonNull(service);
         synchronized (ServiceLocator.class) {
+            loadListeners();
             ClassUtils.getInterfaces(service.getClass()).stream()
                     .filter(Service.class::isAssignableFrom)
                     .forEach(serviceClass -> services.put(serviceClass, service));
             initialize(service, (Class<S>) service.getClass());
             serviceImplementations.put(service.getClass(), new WeakReference<>(service));
+            serviceStatistics.computeIfPresent(service.getClass(),
+                    (cls, statistics) -> statistics.getService() == service ? statistics : null);
         }
     }
 
     /**
-     * Returns statistics for a service.
+     * Returns the statistics collected for a service.
+     * <p>
+     * The statistics are created on demand, they are updated out of the events reported with
+     * {@link #report(Service, Service.Event)} and they live for as long as the service is registered.
      *
      * @param service the service
      * @param <S>     the service type
      * @return a non-null instance
      */
-    @SuppressWarnings("unchecked")
     public static <S extends Service> Service.Statistics<S> getStatistics(S service) {
+        return doGetStatistics(service);
+    }
+
+    /**
+     * Returns the statistics collected for all registered services, usually used to produce a report.
+     *
+     * @return a non-null instance
+     */
+    public static Collection<Service.Statistics<?>> getStatistics() {
+        return List.copyOf(serviceStatistics.values());
+    }
+
+    /**
+     * Reports an event about a service.
+     * <p>
+     * The event is applied to the statistics of the service with a value of one, which increments the counters
+     * changed by the event:
+     * <pre>
+     *     ServiceLocator.report(service, Service.Event.SUCCESS);
+     * </pre>
+     *
+     * @param service the service which reports the event
+     * @param event   the event
+     * @param <S>     the service type
+     * @see Service#report(Service.Event)
+     */
+    public static <S extends Service> void report(S service, Service.Event event) {
+        report(service, event, 1);
+    }
+
+    /**
+     * Reports an event about a service.
+     * <p>
+     * The value carries how much the event changes the statistics: the amount added to the counters changed by
+     * the event or the new value of a gauge (see {@link Service.Event#isGauge()}):
+     * <pre>
+     *     ServiceLocator.report(service, Service.Event.MEMORY_USAGE, 1024);
+     * </pre>
+     * <p>
+     * Events can be reported from any thread.
+     *
+     * @param service the service which reports the event
+     * @param event   the event
+     * @param value   the value carried by the event
+     * @param <S>     the service type
+     * @see Service#report(Service.Event, long)
+     */
+    public static <S extends Service> void report(S service, Service.Event event, long value) {
         requireNonNull(service);
-        return (Service.Statistics<S>) serviceStatistics.computeIfAbsent(service.getClass(),
+        requireNonNull(event);
+        doGetStatistics(service).apply(event, value);
+        notifyEvent(service, event, value);
+    }
+
+    /**
+     * Registers a listener which will be notified about the lifecycle and the events of all services.
+     * <p>
+     * Most listeners should be discovered automatically, either through the JDK {@link ServiceLoader} or the
+     * {@code @Provider} pattern (see {@link Service.Listener}); this method exists for listeners which cannot be
+     * discovered this way (for example, listeners created dynamically).
+     *
+     * @param listener the listener
+     * @see #removeListener(Service.Listener)
+     */
+    public static void addListener(Service.Listener listener) {
+        requireNonNull(listener);
+        listeners.add(listener);
+    }
+
+    /**
+     * Removes a previously registered listener.
+     *
+     * @param listener the listener
+     * @see #addListener(Service.Listener)
+     */
+    public static void removeListener(Service.Listener listener) {
+        requireNonNull(listener);
+        listeners.remove(listener);
+    }
+
+    /**
+     * Returns the listeners registered with this locator, discovering them (via the JDK {@link ServiceLoader} and
+     * the {@code @Provider} pattern) on the first call.
+     *
+     * @return a non-null instance
+     */
+    public static Collection<Service.Listener> getListeners() {
+        loadListeners();
+        return List.copyOf(listeners);
+    }
+
+    private static void loadListeners() {
+        if (listenersLoaded.compareAndSet(false, true)) {
+            ServiceLoader.load(Service.Listener.class).forEach(listeners::add);
+            listeners.addAll(ClassUtils.resolveProviderInstances(Service.Listener.class));
+        }
+    }
+
+    private static void notifyStarted(Service service) {
+        for (Service.Listener listener : listeners) {
+            try {
+                listener.onServiceStarted(service);
+            } catch (Exception e) {
+                LOGGER.atWarn().setCause(e).log("Failed to notify listener {} that service {} started",
+                        ClassUtils.getName(listener), ClassUtils.getName(service));
+            }
+        }
+    }
+
+    private static void notifyStopped(Service service) {
+        for (Service.Listener listener : listeners) {
+            try {
+                listener.onServiceStopped(service);
+            } catch (Exception e) {
+                LOGGER.atWarn().setCause(e).log("Failed to notify listener {} that service {} stopped",
+                        ClassUtils.getName(listener), ClassUtils.getName(service));
+            }
+        }
+    }
+
+    private static void notifyEvent(Service service, Service.Event event, long value) {
+        for (Service.Listener listener : listeners) {
+            try {
+                listener.onServiceEvent(service, event, value);
+            } catch (Exception e) {
+                LOGGER.atWarn().setCause(e).log("Failed to notify listener {} about event {} for service {}",
+                        ClassUtils.getName(listener), event, ClassUtils.getName(service));
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <S extends Service> ServiceStatistics<S> doGetStatistics(S service) {
+        requireNonNull(service);
+        return (ServiceStatistics<S>) serviceStatistics.computeIfAbsent(service.getClass(),
                 cls -> new ServiceStatistics<>(service));
     }
 
@@ -230,6 +382,7 @@ public class ServiceLocator {
         }
         if (service instanceof Initializable) ((Initializable) service).initialize();
         startService(service);
+        notifyStarted(service);
     }
 
 

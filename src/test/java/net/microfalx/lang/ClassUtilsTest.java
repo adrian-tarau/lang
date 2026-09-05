@@ -47,14 +47,14 @@ class ClassUtilsTest {
 
     @Test
     void getSimpleName() {
-        assertEquals("java.lang.Integer", ClassUtils.getSimpleName(Integer.valueOf("80")));
+        assertEquals("Integer", ClassUtils.getSimpleName(Integer.valueOf("80")));
         assertEquals("", ClassUtils.getSimpleName((Object) null));
 
     }
 
     @Test
     void getSimpleNameWithDefaultValue() {
-        assertEquals("java.lang.Integer", ClassUtils.getSimpleName(Integer.valueOf("80"), "The class is null"));
+        assertEquals("Integer", ClassUtils.getSimpleName(Integer.valueOf("80"), "The class is null"));
         assertEquals("The class is null", ClassUtils.getSimpleName((Object) null, "The class is null"));
     }
 
