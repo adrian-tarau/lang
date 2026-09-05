@@ -5,7 +5,7 @@ import static net.microfalx.lang.ArgumentUtils.requireNonNull;
 /**
  * A proxy for a service.
  */
-class ServiceProxy implements Service, Lifecycle {
+class ServiceProxy implements Service, Service.Lifecycle {
 
     private final Object service;
 

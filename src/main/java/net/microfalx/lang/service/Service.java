@@ -99,6 +99,24 @@ public interface Service extends Identifiable<String>, Nameable, Descriptable {
     }
 
     /**
+     * Provides lifecycle management for a service.
+     */
+    interface Lifecycle {
+
+        /**
+         * Starts the service.
+         */
+        void start();
+
+        /**
+         * Stops the service.
+         */
+        default void stop() {
+
+        }
+    }
+
+    /**
      * An enum describing the events reported by a service.
      * <p>
      * Most events are counters and increment the statistics with the value carried by the event (one by default);

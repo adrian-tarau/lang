@@ -321,9 +321,9 @@ public class ServiceLocator {
     }
 
     static void startService(Object service) {
-        if (service instanceof Lifecycle) {
+        if (service instanceof Service.Lifecycle) {
             try {
-                ((Lifecycle) service).start();
+                ((Service.Lifecycle) service).start();
             } catch (Exception e) {
                 LOGGER.atError().setCause(e).log("Failed to stop service {}",
                         ClassUtils.getName(service));
@@ -332,9 +332,9 @@ public class ServiceLocator {
     }
 
     static void stopService(Object service) {
-        if (service instanceof Lifecycle) {
+        if (service instanceof Service.Lifecycle) {
             try {
-                ((Lifecycle) service).stop();
+                ((Service.Lifecycle) service).stop();
             } catch (Exception e) {
                 LOGGER.atWarn().setCause(e).log("Failed to stop service {}",
                         ClassUtils.getName(service));
