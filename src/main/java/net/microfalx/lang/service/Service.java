@@ -186,12 +186,17 @@ public interface Service extends Identifiable<String>, Nameable, Descriptable {
         THREAD_STOPPED,
 
         /**
-         * The memory used by the service was measured, the value of the event is the memory usage, in bytes.
+         * The memory used by the service was measured, the value of the metric is the memory usage, in bytes.
          */
         MEMORY_USAGE(true),
 
         /**
-         * The threads used by the service were counted, the value of the event is the number of threads.
+         * The memory used by the service was measured, the value of the metric is number of referenced objects.
+         */
+        MEMORY_OBJECTS(true),
+
+        /**
+         * The threads used by the service were counted, the value of the metric is the number of threads.
          */
         THREAD_COUNT(true);
 

@@ -1,5 +1,6 @@
 package net.microfalx.lang.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -14,6 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({FIELD, TYPE})
 @Retention(RUNTIME)
 @Inherited
+@Documented
 public @interface SizeOf {
 
     /**
@@ -26,4 +28,11 @@ public @interface SizeOf {
      * @return {@code true} if the size should be calculated shallowly, {@code false} if it should be calculated deeply.
      */
     boolean shallow() default true;
+
+    /**
+     * Returns the worst case scenario size of the annotated object.
+     *
+     * @return positive integer if it can be approximated, -1 if it cannot be approximated
+     */
+    int deepSize() default -1;
 }

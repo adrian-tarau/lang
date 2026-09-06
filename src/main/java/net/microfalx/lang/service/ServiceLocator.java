@@ -59,16 +59,15 @@ public class ServiceLocator {
      * @param serviceClass the class of the service to shut down.
      * @param <S>          the type of the service
      */
+    @SuppressWarnings("unchecked")
     public static <S extends Service> void shutdown(Class<S> serviceClass) {
         requireNonNull(serviceClass);
         synchronized (ServiceLocator.class) {
             LOGGER.info("Shutting down service {}", ClassUtils.getName(serviceClass));
-            Service service = services.get(serviceClass);
+            S service = (S) services.get(serviceClass);
             if (service != null) {
-                Class<?> implementationClass = service.getClass();
-                ClassUtils.getInterfaces(implementationClass).stream()
-                        .filter(Service.class::isAssignableFrom)
-                        .forEach(services::remove);
+                Class<S> implementationClass = (Class<S>) service.getClass();
+                getServiceInterfaces(service).forEach(services::remove);
                 serviceImplementations.remove(implementationClass);
                 try {
                     if (service instanceof Releasable) {
@@ -121,9 +120,12 @@ public class ServiceLocator {
         requireNonNull(service);
         synchronized (ServiceLocator.class) {
             loadListeners();
-            ClassUtils.getInterfaces(service.getClass()).stream()
-                    .filter(Service.class::isAssignableFrom)
-                    .forEach(serviceClass -> services.put(serviceClass, service));
+            Collection<Class<?>> serviceInterfaces = getServiceInterfaces(service);
+            if (!serviceInterfaces.isEmpty()) {
+                serviceInterfaces.forEach(sc -> services.put(sc, service));
+            } else {
+                services.put(service.getClass(), service);
+            }
             initialize(service, (Class<S>) service.getClass());
             serviceImplementations.put(service.getClass(), new WeakReference<>(service));
             serviceStatistics.computeIfPresent(service.getClass(),
@@ -164,7 +166,7 @@ public class ServiceLocator {
      * </pre>
      *
      * @param service the service which reports the event
-     * @param metric   the event
+     * @param metric  the event
      * @param <S>     the service type
      * @see Service#report(Service.Metric)
      */
@@ -184,7 +186,7 @@ public class ServiceLocator {
      * Events can be reported from any thread.
      *
      * @param service the service which reports the event
-     * @param metric   the event
+     * @param metric  the event
      * @param value   the value carried by the event
      * @param <S>     the service type
      * @see Service#report(Service.Metric, long)
@@ -380,6 +382,12 @@ public class ServiceLocator {
         } else {
             throw new ServiceException("A service of type " + serviceClass.getName() + " could not be found");
         }
+    }
+
+    private static <S extends Service> Collection<Class<?>> getServiceInterfaces(S service) {
+        return ClassUtils.getInterfaces(service.getClass()).stream()
+                .filter(Service.class::isAssignableFrom)
+                .filter(sc -> sc != Service.class).toList();
     }
 
     private static void initShutdown() {

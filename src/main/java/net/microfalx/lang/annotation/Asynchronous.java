@@ -11,9 +11,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 /**
  * Specify whether the annotated element should be processed asynchronously.
  */
-@Documented
 @Retention(RUNTIME)
 @Target(value = {TYPE, METHOD})
+@Documented
 public @interface Asynchronous {
 
     /**
@@ -23,3 +23,4 @@ public @interface Asynchronous {
      */
     boolean value() default true;
 }
+
