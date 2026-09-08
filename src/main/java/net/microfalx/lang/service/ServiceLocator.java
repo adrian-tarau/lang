@@ -1,8 +1,10 @@
 package net.microfalx.lang.service;
 
+import net.microfalx.lang.AnnotationUtils;
 import net.microfalx.lang.ClassUtils;
 import net.microfalx.lang.Initializable;
 import net.microfalx.lang.Releasable;
+import net.microfalx.lang.annotation.DependsOn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +42,7 @@ public class ServiceLocator {
      */
     public static void shutdown() {
         synchronized (ServiceLocator.class) {
-            LOGGER.info("Shutting down services");
+            LOGGER.debug("Shutting down services");
             Collection<Service> loadedServices = getServices();
             loadedServices.forEach(service -> {
                 stopService(service);
@@ -63,7 +65,7 @@ public class ServiceLocator {
     public static <S extends Service> void shutdown(Class<S> serviceClass) {
         requireNonNull(serviceClass);
         synchronized (ServiceLocator.class) {
-            LOGGER.info("Shutting down service {}", ClassUtils.getName(serviceClass));
+            LOGGER.debug("Shutting down service {}", ClassUtils.getName(serviceClass));
             S service = (S) services.get(serviceClass);
             if (service != null) {
                 Class<S> implementationClass = (Class<S>) service.getClass();
@@ -118,6 +120,7 @@ public class ServiceLocator {
     @SuppressWarnings("unchecked")
     public static <S extends Service> void register(S service) {
         requireNonNull(service);
+        loadDependencies(service.getClass());
         synchronized (ServiceLocator.class) {
             loadListeners();
             Collection<Class<?>> serviceInterfaces = getServiceInterfaces(service);
@@ -369,7 +372,7 @@ public class ServiceLocator {
     }
 
     private static <S extends Service> S doLoad(Class<S> serviceClass) {
-        LOGGER.info("Loading service {}", ClassUtils.getName(serviceClass));
+        LOGGER.debug("Loading service {}", ClassUtils.getName(serviceClass));
         initShutdown();
         Collection<S> services = new ArrayList<>();
         ServiceLoader.load(serviceClass).stream().forEach(s -> services.add(s.get()));
@@ -404,6 +407,19 @@ public class ServiceLocator {
         if (service instanceof Initializable) ((Initializable) service).initialize();
         startService(service);
         notifyStarted(service);
+    }
+
+    private static <S extends Service> void loadDependencies(Class<S> serviceClass) {
+        DependsOn dependsOnAnnot = AnnotationUtils.getAnnotation(serviceClass, DependsOn.class);
+        if (dependsOnAnnot == null) return;
+        for (Class<?> clazz : dependsOnAnnot.classes()) {
+            if (ClassUtils.isSubClassOf(clazz, Service.class)) {
+                lookup((Class<? extends Service>) clazz);
+            } else {
+                throw new ServiceException("The class " + ClassUtils.getName(clazz) + " is not a subclass of "
+                        + ClassUtils.getName(Service.class));
+            }
+        }
     }
 
 
