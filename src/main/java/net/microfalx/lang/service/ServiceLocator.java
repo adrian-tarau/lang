@@ -5,8 +5,6 @@ import net.microfalx.lang.ClassUtils;
 import net.microfalx.lang.Initializable;
 import net.microfalx.lang.Releasable;
 import net.microfalx.lang.annotation.DependsOn;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -27,7 +25,7 @@ import static net.microfalx.lang.ClassUtils.isSubClassOf;
  */
 public class ServiceLocator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceLocator.class);
+    private static final Logger LOGGER = Logger.get(ServiceLocator.class);
 
     private static final Map<Class<?>, Service> services = new ConcurrentHashMap<>();
     private static final Map<Class<?>, WeakReference<Service>> serviceImplementations = new ConcurrentHashMap<>();
@@ -35,6 +33,9 @@ public class ServiceLocator {
     private static final List<Service.Listener> listeners = new CopyOnWriteArrayList<>();
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
     private static final AtomicBoolean listenersLoaded = new AtomicBoolean(false);
+
+    private static final AtomicBoolean quiet = new AtomicBoolean(false);
+    static final net.microfalx.lang.Logger quietLogger = net.microfalx.lang.Logger.create();
 
     /**
      * Shuts down all services. This method should be called when the application is shutting down to ensure
@@ -236,6 +237,34 @@ public class ServiceLocator {
     public static Collection<Service.Listener> getListeners() {
         loadListeners();
         return List.copyOf(listeners);
+    }
+
+    /**
+     * Returns whether the service locator (and services) is in quiet mode.
+     *
+     * @return {@code true} if quiet, {@code false} otherwise
+     */
+    public static boolean isQuiet() {
+        return quiet.get();
+    }
+
+    /**
+     * Changes whether the service locator (and services) is in quiet mode.
+     *
+     * @param value {@code true} if quiet, {@code false} otherwise
+     */
+    public static void setQuiet(boolean value) {
+        quiet.set(value);
+    }
+
+    /**
+     * Returns (and resets) the service log, which is a log of all messages logged while the service locator
+     * (and services).
+     *
+     * @return a non-null instance
+     */
+    public static String getLog() {
+        return quietLogger.getOutput();
     }
 
     private static void loadListeners() {

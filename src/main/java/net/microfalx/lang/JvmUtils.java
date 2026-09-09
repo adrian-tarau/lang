@@ -159,18 +159,6 @@ public class JvmUtils {
         return validateDirectoryExists(getSubDirectory(getVariableDirectory(), name));
     }
 
-    private static File doGetVariableDirectory() {
-        if (varDirectory != null) return varDirectory;
-        String varDirectory = System.getProperty("user.home.var");
-        // when Linux, a common practice for apps stored in /opt is to have the variable area in /var/opt
-        if (varDirectory == null && isLinux()) varDirectory = "/var" + getHomeDirectory();
-        if (varDirectory != null) JvmUtils.varDirectory = new File(varDirectory);
-        if (JvmUtils.varDirectory == null || !JvmUtils.varDirectory.exists()) {
-            JvmUtils.varDirectory = getCacheDirectory();
-        }
-        return JvmUtils.varDirectory;
-    }
-
     /**
      * Changes the directory used to store variable data directory.
      *
@@ -252,7 +240,7 @@ public class JvmUtils {
         if (!logsDirectoryExist) {
             directory = getTemporaryDirectory();
         }
-        logsDirectory = directory;
+        setLogsDirectory(directory);
         return directory;
     }
 
@@ -279,8 +267,7 @@ public class JvmUtils {
             String tmpDir = System.getProperty("java.io.tmpdir");
             if (tmpDir != null) directory = new File(tmpDir);
         }
-        tmpDirectory = directory;
-        System.getProperty("java.io.tmpdir", tmpDirectory.getAbsolutePath());
+        setTemporaryDirectory(directory);
         return directory;
     }
 
@@ -334,6 +321,9 @@ public class JvmUtils {
 
     /**
      * Returns a directory used to store files used between process restarts (caches).
+     * <p>
+     * The initial directory is based on the user's home directory and the project name.
+     * If the project name is not set, it will use the default store name.
      *
      * @return a non-null instance
      * @see #getCacheDirectory(String)
@@ -442,6 +432,25 @@ public class JvmUtils {
             CACHED_JARS = new SoftReference<>(jars);
         }
         return jars;
+    }
+
+    /**
+     * Resolves the application variable directory base on conventions.
+     * <p>
+     * If a writable directory is not available, it will fall back to the cache directory.
+     *
+     * @return a non-null instance
+     */
+    private static File doGetVariableDirectory() {
+        if (varDirectory != null) return varDirectory;
+        String varDirectory = System.getProperty("user.home.var");
+        // when Linux, a common practice for apps stored in /opt is to have the variable area in /var/opt
+        if (varDirectory == null && isLinux()) varDirectory = "/var" + getHomeDirectory();
+        if (varDirectory != null) JvmUtils.varDirectory = new File(varDirectory);
+        if (JvmUtils.varDirectory == null || !JvmUtils.varDirectory.exists()) {
+            JvmUtils.varDirectory = getCacheDirectory();
+        }
+        return JvmUtils.varDirectory;
     }
 
     /**
